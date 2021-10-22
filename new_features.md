@@ -16,6 +16,15 @@ Container - Virtuele isolierung eines Prozesses. Es gibt zwei Konzepte:
 
 Docker-Installation 
 
+# Big O
+
+- O(1) -> const time
+- O(log n) -> binary search
+- O(n) -> search element in Array
+- O(n log n) -> search algorithm (Quicksort, - mergsort, heapsort)
+- O(n²) -> for in for, sort algorithm
+- O(2^n)
+- O(n!)
 
 # Cmd
 
