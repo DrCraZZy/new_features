@@ -1,5 +1,13 @@
 # Documentation for New commands
 
+# WSL2
+
+-> Windows Feature -> Windows-Subsystem for Linux & Virtual Machine Platform
+
+[Download OS](https://docs.microsoft.com/de-de/windows/wsl/install-manual)
+
+-> .appx - Datein in .zip umbennen und zip - Datei öffnen. Von dort die .exe starten
+
 # Python
 
 ## SQLAlchemy
@@ -14,7 +22,29 @@ Container - Virtuele isolierung eines Prozesses. Es gibt zwei Konzepte:
     - Cgroups - Zugewiesene Ressourcen
     - Image - Programme (OS -> Server -> Application), die in einem Container laufen
 
-Docker-Installation 
+[Docker-Installation on wsl2](https://docs.docker.com/engine/install/debian/):
+
+    - sudo apt-get update
+
+    - sudo apt-get install \
+        apt-transport-https \
+        ca-certificates \
+        curl \
+        gnupg \
+        lsb-release -y
+
+    - curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+
+    - echo \
+        "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/
+        keyrings/    docker-archive-keyring.gpg] https://download.docker.com/
+        linux/debian \
+        $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+    - sudo apt-get update
+
+    - sudo apt-get install docker-ce docker-ce-cli containerd.io
+    
 
 # Big O
 
