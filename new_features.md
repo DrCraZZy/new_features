@@ -1,16 +1,17 @@
 # Documentation for New commands
 
-# WSL2
-
--> Windows Feature -> Windows-Subsystem for Linux & Virtual Machine Platform
-
-[Download OS](https://docs.microsoft.com/de-de/windows/wsl/install-manual)
-
--> .appx - Datein in .zip umbennen und zip - Datei öffnen. Von dort die .exe starten
-
 # Python
 
 ## SQLAlchemy
+
+# WSL2
+
+->suchen in Windows nach _"Windows Feature"_. In dem Fenster _Windows-Subsystem for Linux_ & _Virtual Machine Platform_ anhacken.
+
+[Download OS](https://docs.microsoft.com/de-de/windows/wsl/install-manual)
+
+Die .appx - Datein in .zip umbennen und zip - Datei öffnen. Von dort die .exe starten.
+Erst nach der Installation soll Docker installiert werden. In Dockereinstellungen kann dann WSL2 und Docker Zusammenarbeit einstellen.
 
 # Docker
 
@@ -22,7 +23,7 @@ Container - Virtuele isolierung eines Prozesses. Es gibt zwei Konzepte:
     - Cgroups - Zugewiesene Ressourcen
     - Image - Programme (OS -> Server -> Application), die in einem Container laufen
 
-[Docker-Installation on wsl2](https://docs.docker.com/engine/install/debian/):
+[Docker-Installation on wsl2 Ubuntu](https://docs.docker.com/engine/install/ubuntu/):
 
     - sudo apt-get update
 
