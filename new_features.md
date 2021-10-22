@@ -1,17 +1,20 @@
 # Documentation for New commands
 
-## Pytho
+# Python
 
-### SQLAlchemy
+## SQLAlchemy
 
-## Docker
+# Docker
 
 - docker
 
-## Cmd
+# Cmd
 
-## PowerShell
+# PowerShell
 
-## Git
+# __Git__
+![git_merkblatt_01](.\git_merkblatt_01.jpg)
+![git_merkblatt_02](.\git_merkblatt_02.jpg)
 
-## [Markdown Cheatsheet](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet)
+
+### [Markdown Cheatsheet](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet)
