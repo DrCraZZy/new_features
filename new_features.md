@@ -6,7 +6,16 @@
 
 # Docker
 
-- docker
+Docker - ist ein Software zur Isolierung von Anwendungen mit Hilfe von Containervirtualisierung.
+
+Container - Virtuele isolierung eines Prozesses. Es gibt zwei Konzepte:
+
+    - Namespace - ID/Name des Prozesses
+    - Cgroups - Zugewiesene Ressourcen
+    - Image - Programme (OS -> Server -> Application), die in einem Container laufen
+
+Docker-Installation 
+
 
 # Cmd
 
