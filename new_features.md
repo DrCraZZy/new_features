@@ -45,6 +45,8 @@ Container - Virtuele isolierung eines Prozesses. Es gibt zwei Konzepte:
     - sudo apt-get update
 
     - sudo apt-get install docker-ce docker-ce-cli containerd.io
+
+    - sudo docker run hello-world
     
 
 # Big O
