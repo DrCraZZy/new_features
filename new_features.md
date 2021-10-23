@@ -48,6 +48,33 @@ Container - Virtuele isolierung eines Prozesses. Es gibt zwei Konzepte:
 
     - sudo docker run hello-world
     
+Official Images sind Images der bekannten Programmen/Server/Services, die auf [dokerhub](https://hub.docker.com/) runter geladen werden können und man kann sie im Docker laufen lassen. Um die Images Herunterzuladen braucht man den Befehl _docker pull [image name]:version_ (wobei :version ist optional, wenn es nicht angegeben wird, wird die letzte Version genommen).
+
+*_docker images_* - Zeigt alle zur Verfügung stehende Images an
+
+*_docker rmi [repository]:[tag]_* - Löschen eines Images
+
+*_docker run [repository]:[tag]_* - Starten Container mit Image (repository:tag) im Vorgergrund
+
+*_docker run -d [repository]:[tag]_* - Starten Container mit Image (repository:tag) im Hintergrund
+
+*_docker run -p [porst of local machin]:[port of image] [repository]:[tag]_* - Starten Container mit Image (repository:tag) im Hintergrund
+
+*_docker rm [container id] || [container name]_* - Löschen Container
+
+*_docker rm -f [container id] || [container name]_* - Löschen einen laufenden Container
+
+*_docker ps_* - Container Liste anzeigen
+
+*_docker build -t [name of image] -f [path to Dockerfile]_* - Erstellen eines Images 
+
+
+### Dockerfile:
+FROM - Gibt einen Start Image an
+
+RUN - Führt beliebige linus-cmd aus
+
+
 
 # Big O
 
