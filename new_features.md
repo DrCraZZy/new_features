@@ -88,7 +88,112 @@ RUN - Führt beliebige linus-cmd aus
 
 # Cmd
 
-# PowerShell
+# REGex
+
+||_Anchors_|
+| --- | --- |
+|^	|Anfang des Strings oder der Zeile
+|\A	|Anfang des Strings oder der Zeile
+|$	|Ende des Strings oder der Zeile
+|\Z	|Ende des Strings oder der Zeile
+|\b	|Wortgrenze
+|\B	|Keine Wortgrenze
+|\<	|Anfang des Wortes
+|\>	|Ende des Wortes
+
+
+||_Special Sequences_|
+| --- | --- |
+|.	|Jedes Zeichen, bis auf neue Zeile \n
+|\s	|Weißraum (Leerzeichen, Tabs)
+|\S	|Kein Weißraum
+|\d	|Zahlen
+|\D	|Keine Zahlen
+|\w	|Worte (Buchstaben und Zahlen)
+|\W	|Keine Worte
+
+
+|       |_Quantifiers_      |
+| ---   | ---               |
+|*	    |0 oder mehr
+|+	    |1 oder mehr
+|?	    |0 oder 1
+|{3}	|Genau 3
+|{3,}	|3 oder mehr
+|{3,5}	|3 bis 5
+|       |Mit "?" Non-Greedy.
+
+
+||_Sets, Ranges & Groups_|
+| --- | --- |
+|[abc]	|Set beinhaltet (a or b or c)
+|[^abc]	|Set beinhaltet nicht (a or b or c)
+|a-z	|Range - Kleinbuchstaben von a bis z
+|A-Z	|Range - Großbuchstaben von A bis Z
+|0-9	|Range Zahlen 0 bis 9
+|(...)	|(Capturing) Gruppe
+|(a\|b)	|a oder b
+|(?:...)|Passive (non-capturing) Gruppe
+
+<br>
+
+_Special Characters_
+|   |   |   |
+|---|---|---|
+|^	|[	|]
+|+	|{	|}
+|*	|(	|)
+|\|	|<	|>
+|$	|?	|\
+|.	|	|
+
+Escape Sequences: \	- Escape "Special Characters"
+
+_String replacements_
+
+* Verkürzt den RegEx-Ausdruck
+* Reduziert Redundanzen im RegEx
+* Verifizieren gewollte Wiederholungen
+
+Wenn man für einen Ausdruck eine Gruppe erstellt (\d\d\d\d) dann besteht die Möglichkeit an einer anderen Stelle auf die Gruppe zu referenzieren mit \1 wenn es die erste Gruppe in dem Ausdruck war. 
+r“^(\d\d\d\d)\.\1\.\1“ => z. B.: 1234.1234.1234
+in dem Fall referenziert \1 auf die Gruppe (\d\d\d\d)
+
+_Benannte Gruppen_
+
+Standardmäßig sind Gruppen unbenannt. Sie werden automatisch von 1 aufsteigen benannt. Bei einer Vielzahl von Gruppen kann das unübersichtlich werden. In dem Fall können benannte Gruppen helfen. Als Gruppenname kann jeder String gewählt werden.
+
+r“^(?P\<Zahl\>\d\d\d)\_\1\_\d{4}$“ -> matchObj.group(„Zahl“)
+
+||_Assertions_|
+| --- | --- |
+|?=	| Lookahead assertion
+|?!	| Negative lookahead
+|?<=| Lookbehind assertion
+|?>	| Once-only Subexp¬ression
+|?!= or ?<!	| Negative lookbehind
+|?()| Condition [if then]
+|?()| Condition [if then else]
+|?#	| Kommentar
+
+Defeniere Regeln im Muster. 
+
+Lookahead (?=) – Matcht ein definiertes Muster nur, wenn ein weiteres definiertes Muster darauf folgt.
+
+Negative lookahead (?!) – Matcht ein definiertes Muster nur, wenn ein weiteres definiertes Muster _NICHT_ darauf folgt.
+
+Lookbehind (?<=) - Matcht ein definiertes Muster nur, wenn ein weiteres definiertes Muster vorhergeht.
+
+Negative lookbehind (?<!) - Matcht ein definiertes Muster nur, wenn ein weiteres definiertes Muster NICHT vorhergeht.
+
+_Conditionals_
++	Wenn-Dann-Sonst Statement
++	(?(WENN A) DANN B |SONST C) 
++	Der SONST und der DANN Blöcke sind Optional
+    +	(?(WENN) DANN)
+    +	(?(WENN)|SONST)
+
+
 
 # __Git__
 ![git_merkblatt_01](.\git_merkblatt_01.jpg)
