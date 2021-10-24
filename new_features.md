@@ -145,9 +145,19 @@ Official Images sind Images der bekannten Programmen/Server/Services, die auf [d
 ### Dockerfile:
 FROM - Gibt einen Start Image an
 
-RUN - Führt beliebige linus-cmd aus
+RUN - Führt beliebige linux-cmd aus
 
+LABLE - Meta Informationen zu dem Build/Image. Es können mehrere hintereinander geschrieben werden.
 
+COPY - [path to file on local machine] [path in image]
+
+ADD - Download file aus Internet in Image
+
+ENV - Deklarieren einer Variable
+
+WORKDIR - setzt den Pfad, wo die Befehle ausgeführt werden
+
+USER - User umswitchen (um CMD auszuführen muss man auf root - User umschalten)
 
 # Big O
 
@@ -265,8 +275,6 @@ _Conditionals_
 +	Der SONST und der DANN Blöcke sind Optional
     +	(?(WENN) DANN)
     +	(?(WENN)|SONST)
-
-
 
 # __Git__
 ![git_merkblatt_01](.\git_merkblatt_01.jpg)
