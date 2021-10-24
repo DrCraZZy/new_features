@@ -2,6 +2,74 @@
 
 # Python
 
+## REGex with Python
+
+### Python Main Functions 
+__re.match()__
++ Matcht am Anfang eines Strings
++ Achtung: Das gilt auch in Multiline-Mode
++ Rückgabewert: MatchObject | None
+
+re.match(r'pattern', string, flags=0)
+
+|__Flags__||
+|---|---
+|re.IGNORECASE	|Ignoriert Klein- und Großschreibung
+|re.MULTILINE	|Integriert alle Zeilen, nicht nur die erste
+|re.DOALL	    |Erweitert „.“ Auf neue Zeilen (\n)
+|re.UNICODE	    |Erweiter {\w, \W, \b, \B} auf Unicode
+|re.VERBODE	    |Erlaubt Kommentare in dem regulären Ausdruck
+|Mehrfach Auswahl möglich, über den \| - Pipe-Operator.
+
+__re.fullmatch()__
++ Matcht den gesamten String
++ Rückgabewert: MatchObject | None
+
+    re.fullmatch(r'pattern', string, flags=0)
+
+__re.search()__
++ Matcht an dem ersten Vorkommen eines Musters im String
++ Rückgabewert: MatchObject | None
+
+    re.search(r'pattern', string, flags=0)
+
+__matchObject.group()__
++ Ermöglicht den Zugriff auf den Inhalt einer oder mehrere Gruppen des MatchObjects
++ Gruppen starten bei (1), in Gruppe (0) steht kompletter Match
++ Rückgabewert: String
+
+__matchObject.groups()__
++ Zeigt alle inhalte der Gruppen an
++ Rückgabewert: Liste
+
+__re.sub()__
++ Das gematchte Muster wird durch einen definierten Ersatzstring ersetzt
++ Rückgabewert: Vollständiger String mit ersetztem/überschriebenen Inhalt
+
+re.sub(r'pattern', 'repl', string, counter=0, flags=0)
++ Pattern – gesuchter Muster
++ Repl – durch was wird das Gefundene ersetzt
++ String – text in dem nach Muster gesucht wird
++ Counter – wie oft soll das Ersetzen stattfinden
+
+__re.findall()__
++ Scannt den String von links nach rechts und wirft die Matches in der Reihenfolge des Vorkommens zurück
++ Rückgabewert: Liste mit allen Matches
+
+    re.findall(r'pattern', string, flags=0)
+
+__re.finditer()__
++ Erzeugt einen Iterator in der Höhe der Anzahl aller gefundener Matches
++ Rückgabewert: Callable Iterator
+re.finditer(r'pattern', string, flags=0)
+
+__re.split()__
++ Teilt den String an der Stelle an des das Muster gematcht wird.
++ Rückgabewert: Liste mit Strings
+
+    re.split(r'pattern', string, flags=0)
+
+
 ## SQLAlchemy
 
 # WSL2
