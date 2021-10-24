@@ -128,6 +128,8 @@ Official Images sind Images der bekannten Programmen/Server/Services, die auf [d
 
 *_docker run -p [porst of local machin]:[port of image] [repository]:[tag]_* - Starten Container mit Image (repository:tag) im Hintergrund
 
+*_docker run --name [name of container] [porst of local machin]:[port of image] [repository]:[tag]_*
+
 *_docker rm [container id] || [container name]_* - Löschen Container
 
 *_docker rm -f [container id] || [container name]_* - Löschen einen laufenden Container
@@ -136,6 +138,9 @@ Official Images sind Images der bekannten Programmen/Server/Services, die auf [d
 
 *_docker build -t [name of image] -f [path to Dockerfile]_* - Erstellen eines Images 
 
+*_docker build -t [name:version] -f [Dockerfile] --build-arg [name of arg]=[value of arg] [path of dockerfile]_* - mit dem --buildarg werden die Argumente an Dockerfile übergeben
+
+*_docker exec -ti [container name] bash_* - Container öffnen
 
 ### Dockerfile:
 FROM - Gibt einen Start Image an
