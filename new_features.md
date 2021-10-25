@@ -159,6 +159,8 @@ WORKDIR - setzt den Pfad, wo die Befehle ausgeführt werden
 
 USER - User umswitchen (um CMD auszuführen muss man auf root - User umschalten)
 
+CMD - 
+
 # Big O
 
 - O(1) -> const time
