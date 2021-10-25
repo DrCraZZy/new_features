@@ -120,7 +120,17 @@ Official Images sind Images der bekannten Programmen/Server/Services, die auf [d
 
 *_docker images_* - Zeigt alle zur Verfügung stehende Images an
 
+Wenn man ein neues Image erstellt mit einem Namen und Tag die schon existieren, bekommt das alte Image \<none> \<none> (dangling image) und das neue Image bekommt den Namen und den Tag. 
+
+*_docker images -f dangling=true_* - Zeigt alle dangling Images an
+
+*_docker images -f dangling=true -q_* - Zeigt alle dangling Image IDs an
+
 *_docker rmi [repository]:[tag]_* - Löschen eines Images
+
+Dangling images können anhand der ID gelöscht werden.
+
+*_docker rmi $(docker images -f dangling=true -q) - Löschen alle dangling Images
 
 *_docker run [repository]:[tag]_* - Starten Container mit Image (repository:tag) im Vorgergrund
 
@@ -140,7 +150,16 @@ Official Images sind Images der bekannten Programmen/Server/Services, die auf [d
 
 *_docker build -t [name:version] -f [Dockerfile] --build-arg [name of arg]=[value of arg] [path of dockerfile]_* - mit dem --buildarg werden die Argumente an Dockerfile übergeben
 
+Bei jedem Build-Prozess wird automatisch in .dockerignore-Datei geschaut. Damit werden Datein und Ordner ausgeschlossen, die nicht in den Image reingehören, sich aber in dem Context-Path befinden (also dort wo der Build gestartet wird)
+
 *_docker exec -ti [container name] bash_* - Container öffnen
+
+### Docker Best Practices
++ Ein Service ein Container
++ Build-Context so klein wie möglich
++ Unnötige Packages vermeiden
++ Wenig Layers - Wenn es möglich, mehrere Anweisungen mit && und \ verknüpfen
+
 
 ### Dockerfile:
 FROM - Gibt einen Start Image an
