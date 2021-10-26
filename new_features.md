@@ -198,6 +198,8 @@ WORKDIR - setzt den Pfad, wo die Befehle ausgeführt werden
 
 USER - User umswitchen (um CMD auszuführen muss man auf root - User umschalten)
 
+EXPOSE - Hier wird Port für die Application angegeben
+
 CMD - Wird beim Starten des Images ausgeführt.
 
 # Big O
