@@ -172,7 +172,7 @@ Bei jedem Build-Prozess wird automatisch in .dockerignore-Datei geschaut. Damit 
 
 *_docker exec -ti [container name] bash_* - Container öffnen
 
-*_docker inspect  [container id]_* - Zeigt Container Einstellungen
+*_docker inspect  [container name or id]_* - Zeigt Container Einstellungen
 
 ### Docker Best Practices
     - Ein Service ein Container
