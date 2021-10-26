@@ -180,7 +180,6 @@ Bei jedem Build-Prozess wird automatisch in .dockerignore-Datei geschaut. Damit 
     - Unnötige Packages vermeiden
     - Wenig Layers - Wenn es möglich, mehrere Anweisungen mit && und \ verknüpfen
 
-
 ### Dockerfile:
 FROM - Gibt einen Start Image an
 
