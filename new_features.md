@@ -69,7 +69,6 @@ __re.split()__
 
     re.split(r'pattern', string, flags=0)
 
-
 ## SQLAlchemy
 
 # WSL2
