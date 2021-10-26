@@ -91,7 +91,7 @@ Container - Virtuele isolierung eines Prozesses. Es gibt zwei Konzepte:
     - Cgroups - Zugewiesene Ressourcen
     - Image - Programme (OS -> Server -> Application), die in einem Container laufen
 
-[Docker-Installation on wsl2 Ubuntu](https://docs.docker.com/engine/install/ubuntu/):
+## [Docker-Installation on wsl2 Ubuntu](https://docs.docker.com/engine/install/ubuntu/):
 
     - sudo apt-get update
 
@@ -115,8 +115,12 @@ Container - Virtuele isolierung eines Prozesses. Es gibt zwei Konzepte:
     - sudo apt-get install docker-ce docker-ce-cli containerd.io
 
     - sudo docker run hello-world
-    
+
+## Docker image
+
 Official Images sind Images der bekannten Programmen/Server/Services, die auf [dokerhub](https://hub.docker.com/) runter geladen werden können und man kann sie im Docker laufen lassen. Um die Images Herunterzuladen braucht man den Befehl _docker pull [image name]:version_ (wobei :version ist optional, wenn es nicht angegeben wird, wird die letzte Version genommen).
+
+## Docker Befehle
 
 *_docker images_* - Zeigt alle zur Verfügung stehende Images an
 
@@ -130,7 +134,7 @@ Wenn man ein neues Image erstellt mit einem Namen und Tag die schon existieren, 
 
 Dangling images können anhand der ID gelöscht werden.
 
-*_docker rmi $(docker images -f dangling=true -q) - Löschen alle dangling Images
+*_docker rmi $(docker images -f dangling=true -q)_* - Löschen alle dangling Images
 
 *_docker run [repository]:[tag]_* - Starten Container mit Image (repository:tag) im Vorgergrund
 
@@ -138,7 +142,15 @@ Dangling images können anhand der ID gelöscht werden.
 
 *_docker run -p [porst of local machin]:[port of image] [repository]:[tag]_* - Starten Container mit Image (repository:tag) im Hintergrund
 
-*_docker run --name [name of container] [porst of local machin]:[port of image] [repository]:[tag]_*
+*_docker run --name [name of container] [porst of local machin]:[port of image] [repository]:[tag]_* - Mit dem Parameter --name, kann man dem Container einen Name zuweisen
+
+*_docker run -e "[var_name]=[var_value]" [repository]:[tag]_* - Container starten und eine Environment-Variable im Container anlegen.
+
+*_docker rename [old name] [new name]_* - Container umbennenen
+
+*_docker start [container name or id]_* - Container starten
+
+*_docker stop [container name or id]_* - Container stoppen
 
 *_docker rm [container id] || [container name]_* - Löschen Container
 
@@ -146,25 +158,33 @@ Dangling images können anhand der ID gelöscht werden.
 
 *_docker ps_* - Container Liste anzeigen
 
+*_docker ps -a_* - Zeitg alle Container an, auch die gestoppte Container
+
 *_docker build -t [name of image] -f [path to Dockerfile]_* - Erstellen eines Images 
 
 *_docker build -t [name:version] -f [Dockerfile] --build-arg [name of arg]=[value of arg] [path of dockerfile]_* - mit dem --buildarg werden die Argumente an Dockerfile übergeben
 
 Bei jedem Build-Prozess wird automatisch in .dockerignore-Datei geschaut. Damit werden Datein und Ordner ausgeschlossen, die nicht in den Image reingehören, sich aber in dem Context-Path befinden (also dort wo der Build gestartet wird)
 
+*_docker logs [Container name]_* - Zeigt Logeintrag zu dem Container
+
+*_docker logs -f [Container name]_* - Zeigt Logeintrag zu dem Container (voll)
+
 *_docker exec -ti [container name] bash_* - Container öffnen
 
+*_docker inspect  [container id]_* - Zeigt Container Einstellungen
+
 ### Docker Best Practices
-+ Ein Service ein Container
-+ Build-Context so klein wie möglich
-+ Unnötige Packages vermeiden
-+ Wenig Layers - Wenn es möglich, mehrere Anweisungen mit && und \ verknüpfen
+    - Ein Service ein Container
+    - Build-Context so klein wie möglich
+    - Unnötige Packages vermeiden
+    - Wenig Layers - Wenn es möglich, mehrere Anweisungen mit && und \ verknüpfen
 
 
 ### Dockerfile:
 FROM - Gibt einen Start Image an
 
-RUN - Führt beliebige linux-cmd aus
+RUN - Führt beliebige linux-cmd aus. Wird bei Zusammen stellen des Imges ausgeführt.
 
 LABLE - Meta Informationen zu dem Build/Image. Es können mehrere hintereinander geschrieben werden.
 
@@ -178,17 +198,17 @@ WORKDIR - setzt den Pfad, wo die Befehle ausgeführt werden
 
 USER - User umswitchen (um CMD auszuführen muss man auf root - User umschalten)
 
-CMD - 
+CMD - Wird beim Starten des Images ausgeführt.
 
 # Big O
 
-- O(1) -> const time
-- O(log n) -> binary search
-- O(n) -> search element in Array
-- O(n log n) -> search algorithm (Quicksort, - mergsort, heapsort)
-- O(n²) -> for in for, sort algorithm
-- O(2^n)
-- O(n!)
+    - O(1) -> const time
+    - O(log n) -> binary search
+    - O(n) -> search element in Array
+    - O(n log n) -> search algorithm (Quicksort, - mergsort, heapsort)
+    - O(n²) -> for in for, sort algorithm
+    - O(2^n)
+    - O(n!)
 
 # Cmd
 
