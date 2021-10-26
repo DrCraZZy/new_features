@@ -146,6 +146,10 @@ Dangling images können anhand der ID gelöscht werden.
 
 *_docker run -e "[var_name]=[var_value]" [repository]:[tag]_* - Container starten und eine Environment-Variable im Container anlegen.
 
+*_docker run --memory "200mb" [repository]:[tag]_* - Begrenzen der zur Verfügung stehenden RAM für Container
+
+*_docker run -v [local path]:[container path] [repository]:[tag]_* - Voluem, hierbei werden alle Inhalt aus [container path] Container in [lockal path] gesichert und wenn man einen neuen Container starten dann können bestimmte daten aus diesem Ordner mit Container syncronisier werden und so bekommt der Container alle Daten wieder.
+
 *_docker rename [old name] [new name]_* - Container umbennenen
 
 *_docker start [container name or id]_* - Container starten
@@ -173,6 +177,14 @@ Bei jedem Build-Prozess wird automatisch in .dockerignore-Datei geschaut. Damit 
 *_docker exec -ti [container name] bash_* - Container öffnen
 
 *_docker inspect  [container name or id]_* - Zeigt Container Einstellungen
+
+*_docker stats  [container name or id]_* - Zeigt Container Resourcen
+
+*_docker cp [container name]:[destination in container(path)]_* - Datei vom Dockerhost nach Container kopieren
+
+*_docker cp [container name]:[destination in container(path)] [local path]_* - Datei vom Container zu Dockerhost kopieren
+
+*_docer commit [container id] [name of new image]:[tag]_* - Erstellt ein Image aus einem Container
 
 ### Docker Best Practices
     - Ein Service ein Container
