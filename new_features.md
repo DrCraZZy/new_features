@@ -149,7 +149,15 @@ Dangling images können anhand der ID gelöscht werden.
 
 *_docker run --memory "200mb" [repository]:[tag]_* - Begrenzen der zur Verfügung stehenden RAM für Container
 
-*_docker run -v [local path]:[container path] [repository]:[tag]_* - Voluem, hierbei werden alle Inhalt aus [container path] Container in [lockal path] gesichert und wenn man einen neuen Container starten dann können bestimmte daten aus diesem Ordner mit Container syncronisier werden und so bekommt der Container alle Daten wieder.
+*_docker run -v [local path OR valuem]:[container path] [repository]:[tag]_* - Volume, hierbei werden alle Inhalt aus [container path] Container in [lockal path] gesichert und wenn man einen neuen Container starten dann können bestimmte daten aus diesem Ordner mit Container syncronisier werden und so bekommt der Container alle Daten wieder. Wenn man beim Erstellen eines Containers *_[local path OR valuem]_* weglässt, dann wird ein Anonymous-Valume erstellt (hat ein HASH-String als name). Um zu erfahren werlches Volume zu dem Container gehört kann man es mit _docker inpect_ in dem Unterpunkt Mounts nachschauen.
+
+*_docker volume create_* - Erstellt einen Volume. Ist eine Ordner im Docker-Verzeichnis
+
+*_docker volume rm [volume name]_* - Volume löschen
+
+*_docker valume ls -f=dangling=true_* - Liste aller nicht gebungenen Volumes (-q - Zeigt nur die ID-Liste an)
+
+
 
 *_docker rename [old name] [new name]_* - Container umbennenen
 
@@ -160,6 +168,8 @@ Dangling images können anhand der ID gelöscht werden.
 *_docker rm [container id] || [container name]_* - Löschen Container
 
 *_docker rm -f [container id] || [container name]_* - Löschen einen laufenden Container
+
+*_docker rm -fv [container id] || [container name]_* - Löschen einen laufenden Container und dazugehörige Volume !!! Funktioniert nur bei Anonymous-Volume
 
 *_docker ps_* - Container Liste anzeigen
 
@@ -197,6 +207,8 @@ Bei jedem Build-Prozess wird automatisch in .dockerignore-Datei geschaut. Damit 
 
 ### Dockerfile:
 FROM - Gibt einen Start Image an
+
+VOLUME - Erstellen und Verknüpfen des Volumes
 
 RUN - Führt beliebige linux-cmd aus. Wird bei Zusammen stellen des Imges ausgeführt.
 
