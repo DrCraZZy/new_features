@@ -121,6 +121,8 @@ Official Images sind Images der bekannten Programmen/Server/Services, die auf [d
 
 ## Docker Befehle
 
+*_docker info | grep -i root_* - Zeigt Docker-Root Verzeichnis
+
 *_docker images_* - Zeigt alle zur Verfügung stehende Images an
 
 Wenn man ein neues Image erstellt mit einem Namen und Tag die schon existieren, bekommt das alte Image \<none> \<none> (dangling image) und das neue Image bekommt den Namen und den Tag. 
