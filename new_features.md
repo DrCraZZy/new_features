@@ -2,6 +2,114 @@
 
 # Python
 
+## Best practice
+
+### <u>Unpacking</u>
+```python
+x, y, z = (12, 23, 34)
+```
+### <u>map</u>
+Volumen berechnen, hierbei wir die erste Funktion auf alle nachfolgende Werte angewendet.
+```python
+x, y, z = map(int, input().strip().split())
+print(f'Volume is {x * y * z}")
+
+
+names = ['John ', ' Nonex ', '  Test']
+names = map(str.strip, names)
+```
+
+### <u>reduce</u>
+reduce(fun, list) - wird benutzt um aus einer Liste der Elemente eine Element zu bekommen, z. B. Summe, Max, Min
+
+```python
+import functools
+ 
+# initializing list
+lis = [1, 3, 5, 6, 2, ]
+ 
+# using reduce to compute sum of list
+print("The sum of the list elements is : ", end="")
+print(functools.reduce(lambda a, b: a+b, lis))
+ 
+# using reduce to compute maximum element from list
+print("The maximum element of the list is : ", end="")
+print(functools.reduce(lambda a, b: a if a > b else b, lis))
+```
+
+### <u>List comprehensions</u>
+```python
+names = ['Max', 'Test', 'John', 'Sven', 'Tor']
+names_start_t = [f'_{name}_' for name in names if name.startswith('T')]
+```
+
+### <u>Filter</u>
+```python
+names = ['Max', 'Test', 'John', 'Sven', 'Tor']
+names_start_t = filter(lambda name: name.startswith('T', names))
+```
+
+### <u>Kopiere der Liste</u>
+```python
+indexes = [1, 2, 3]
+another_indexes = [x for x in indexes] # zu lang
+another_indexes = indexes[:] # alle Werte aus der alten Liste in neue Liste
+```
+
+### <u>Reverse der Liste</u>
+```python
+indexes = [1, 2, 3]
+another_indexes = indexes[::-1] Liste
+```
+
+### <u>Prüfen ob alles True</u>
+```python
+if a and b and c and d:
+    print('Ok')
+
+ODER
+
+if all(a,b,c,d):
+    print('Ok')
+```
+
+### <u>Prüfen ob eins True</u>
+```python
+if a or b or c or d:
+    print('Ok')
+
+ODER
+
+if any(a,b,c,d):
+    print('Ok')
+```
+
+### <u>IF in line</u>
+```python
+color = 'green' if user.active else 'red'
+```
+
+### <u>Aufrufkonfiguration</u>
+```python
+if user.group == 'admin':
+    process_admin_request(user, request)
+elif user.group == 'manager':
+    process_manager_request(user, request)
+elif user.group == 'client':
+    process_client_request(user, request)
+
+ODER
+
+group_to_method = {
+    'admin': process_admin_request,
+    'manager': process_manager_request,
+    'client': process_manager_request
+}
+
+group_to_method[user.group](user, request)
+```
+
+
 ## REGex with Python
 
 ### Python Main Functions 
