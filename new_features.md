@@ -2,6 +2,8 @@
 
 # Python
 
+$ f(x) = \Delta x $
+
 ## Best practice
 
 ### <u>Unpacking</u>
@@ -457,5 +459,10 @@ _Conditionals_
 ![git_merkblatt_01](.\git_merkblatt_01.jpg)
 ![git_merkblatt_02](.\git_merkblatt_02.jpg)
 
+<hr/>
+
+## Zum Nachschlagen
 
 ### [Markdown Cheatsheet](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet)
+
+### [LaTeX Formeln](https://www.grund-wissen.de/informatik/latex/mathematischer-formelsatz.html)
