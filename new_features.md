@@ -223,6 +223,25 @@ Container - Virtuele isolierung eines Prozesses. Es gibt zwei Konzepte:
 
     - sudo docker run hello-world
 
+## Docker premission denied
+
+```bash
+#Create the docker group if it does not exist
+$ sudo groupadd docker
+
+#Add your user to the docker group.
+$ sudo usermod -aG docker $USER
+
+#Run the following command or Logout and login again and run (that doesn't work you may need to reboot your machine first)
+$ newgrp docker
+
+#Check if docker can be run without root
+$ docker run hello-world
+
+#Reboot if still got error
+$ reboot
+```
+
 ## Docker image
 
 Official Images sind Images der bekannten Programmen/Server/Services, die auf [dokerhub](https://hub.docker.com/) runter geladen werden können und man kann sie im Docker laufen lassen. Um die Images Herunterzuladen braucht man den Befehl _docker pull [image name]:version_ (wobei :version ist optional, wenn es nicht angegeben wird, wird die letzte Version genommen).
