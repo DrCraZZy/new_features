@@ -109,6 +109,87 @@ group_to_method = {
 group_to_method[user.group](user, request)
 ```
 
+## Unittest
+Bei der Erstellung der Unittest wird normalerweise eine neue Date erstellt, die einen *test_* prefix bekommt *test_{test file}.py*. In diese neue Datei wird zutestende Datei importiert
+
+```python
+import unittest
+import {zu testende Datei}
+
+class Test{Name}(unittest.TestCase):
+
+    # jede Test-Methode muss mit test_ anfangen sonst wird es nicht als Test
+    # vom Framework gesehen
+    def test_{method_name}(self):
+        assertEqual({call_method}, {right_return})
+
+```
+
+Starten der Tests
+```bash
+python -m unittest test_{name der Datei}.py
+```
+
+Wenn man die Datei mit Tests wie folgt erweitern:
+```python
+import unittest
+import {zu testende Datei}
+
+class Test{Name}(unittest.TestCase):
+
+    # jede Test-Methode muss mit test_ anfangen sonst wird es nicht als Test
+    # vom Framework gesehen
+    def test_{method_name}(self):
+        assertEqual({call_method}, {right_return})
+
+
+if __name__ == "__main__":
+    unittest.main()
+```
+
+dann kann die Datei wie gewohnt gestartet werden.
+
+```bash
+python test_{name der Datei}.py
+```
+
+|Method|Checks that|New in|
+|---|---|---|
+|assertEqual(a, b)|a == b||
+|assertNotEqual(a, b)|a != b||
+|assertTrue(x)|bool(x) is True||
+|assertFalse(x)|bool(x) is False||
+|assertIs(a, b)|a is b|3.1|
+|assertIsNot(a, b)|a is not b|3.1|
+|assertIsNone(x)|x is None|3.1|
+|assertIsNotNone(x)|x is not None|3.1|
+|assertIn(a, b)|a in b|3.1|
+|assertNotIn(a, b)|a not in b|3.1|
+|assertIsInstance(a, b)|isinstance(a, b)|3.2|
+|assertNotIsInstance(a, b)|not isinstance(a, b)|3.2
+
+Wenn man bei mehreren Tests z. B. man testet eine Klasse, jede Test-Methode mit dem Anlegen eines Objektes anfängt. Dann kann man diese Zeile auslagern. Es gibt Methoden
+
+```python
+def setUp(self):
+    pass
+
+def tearDown(self):
+    pass
+```
+die namen sollen genau so geschrieben werden. Die Methode ```setUp(self)``` wird am Anfang jeden Test gestartet. Die Methode ```tearDown(self)``` wird am Ende jeden Test gestartet.
+
+Außerdem kann man am Anfang aller Tests und am Ende aller Tests bestimmten Code ausführen lassen. Dafür muss man folgende Methoden anlegen
+
+```python
+@classmethod
+def setUpClass(cls):
+    pass
+
+@classmethod
+def tearDown(cls):
+    pass
+```
 
 ## REGex with Python
 
