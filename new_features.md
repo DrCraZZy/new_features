@@ -440,40 +440,6 @@ EXPOSE - Hier wird Port für die Application angegeben
 
 CMD - Wird beim Starten des Images ausgeführt.
 
-# <u>Jankins</u>
-
-1. Install Docker
-2. [Download](https://hub.docker.com/r/jenkins/jenkins) Jenkins-Image
-
-    a. Docker pull jenkins/jenkins
-3. Docker-Compose-File erstellen: _docker-compose.yml_
-
-``` docker-compose
-version: '3'
-services:
-  jenkins:
-    container-name: jenkins
-    image: jenkins/jenkins
-    ports:
-      - "8080:8080"
-    volumes:
-      - "$PWD/jenkins_home:/var/jenkins_home
-    networks:
-      - net
-networks:
-  net:
-```
-
-Vor dem Start soll der jenkins_home - Pfad existieren
-Sicher gehen, dass der User Zugriff auf diesen Ordner hat
-
-```bash
-sudo chown [user id]:[group id] [Pfad zu dem Ordner] -R
-# -R - auch für alle Verzeichnise in dem Pfad
-```
-
-4. _docker-compose up -d_ - Starten Docker-Container
-
 # <u>Big O</u>
 
     - O(1) -> const time
