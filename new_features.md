@@ -1,8 +1,8 @@
-# Documentation for New commands
+# <u>Documentation for New commands</u>
 
-# Python
+# <u>Python</u>
 
-## Best practice
+## <u>Best practice</u>
 
 ### <u>Unpacking</u>
 ```python
@@ -110,9 +110,9 @@ group_to_method[user.group](user, request)
 ```
 
 
-## REGex with Python
+## <u>REGex with Python</u>
 
-### Python Main Functions 
+### <u>Python Main Functions</U>
 __re.match()__
 + Matcht am Anfang eines Strings
 + Achtung: Das gilt auch in Multiline-Mode
@@ -177,9 +177,9 @@ __re.split()__
 
     re.split(r'pattern', string, flags=0)
 
-## SQLAlchemy
+## <u>SQLAlchemy</u>
 
-# WSL2
+# <u>WSL2</u>
 
 ->suchen in Windows nach _"Windows Feature"_. In dem Fenster _Windows-Subsystem for Linux_ & _Virtual Machine Platform_ anhacken.
 
@@ -188,7 +188,7 @@ __re.split()__
 Die .appx - Datein in .zip umbennen und zip - Datei öffnen. Von dort die .exe starten.
 Erst nach der Installation soll Docker installiert werden. In Dockereinstellungen kann dann WSL2 und Docker Zusammenarbeit einstellen.
 
-# Docker
+# <u>Docker</u>
 
 Docker - ist ein Software zur Isolierung von Anwendungen mit Hilfe von Containervirtualisierung.
 
@@ -198,7 +198,7 @@ Container - Virtuele isolierung eines Prozesses. Es gibt zwei Konzepte:
     - Cgroups - Zugewiesene Ressourcen
     - Image - Programme (OS -> Server -> Application), die in einem Container laufen
 
-## [Docker-Installation on wsl2 Ubuntu](https://docs.docker.com/engine/install/ubuntu/):
+## <u>[Docker-Installation on wsl2 Ubuntu](https://docs.docker.com/engine/install/ubuntu/)</u>
 
     - sudo apt-get update
 
@@ -223,11 +223,11 @@ Container - Virtuele isolierung eines Prozesses. Es gibt zwei Konzepte:
 
     - sudo docker run hello-world
 
-## Docker image
+## <u>Docker image</u>
 
 Official Images sind Images der bekannten Programmen/Server/Services, die auf [dokerhub](https://hub.docker.com/) runter geladen werden können und man kann sie im Docker laufen lassen. Um die Images Herunterzuladen braucht man den Befehl _docker pull [image name]:version_ (wobei :version ist optional, wenn es nicht angegeben wird, wird die letzte Version genommen).
 
-## Docker Befehle
+## <u>Docker Befehle</u>
 
 *_docker info | grep -i root_* - Zeigt Docker-Root Verzeichnis
 
@@ -307,13 +307,13 @@ Bei jedem Build-Prozess wird automatisch in .dockerignore-Datei geschaut. Damit 
 
 *_docer commit [container id] [name of new image]:[tag]_* - Erstellt ein Image aus einem Container
 
-### Docker Best Practices
+### <u>Docker Best Practices</u>
     - Ein Service ein Container
     - Build-Context so klein wie möglich
     - Unnötige Packages vermeiden
     - Wenig Layers - Wenn es möglich, mehrere Anweisungen mit && und \ verknüpfen
 
-### Dockerfile:
+### <u>Dockerfile</u>
 FROM - Gibt einen Start Image an
 
 VOLUME - Erstellen und Verknüpfen des Volumes
@@ -336,7 +336,7 @@ EXPOSE - Hier wird Port für die Application angegeben
 
 CMD - Wird beim Starten des Images ausgeführt.
 
-# Big O
+# <u>Big O</u>
 
     - O(1) -> const time
     - O(log n) -> binary search
@@ -346,9 +346,9 @@ CMD - Wird beim Starten des Images ausgeführt.
     - O(2^n)
     - O(n!)
 
-# Cmd
+# <u>Cmd</u>
 
-# REGex
+# <u>REGex</u>
 
 ||_Anchors_|
 | --- | --- |
@@ -453,7 +453,7 @@ _Conditionals_
     +	(?(WENN) DANN)
     +	(?(WENN)|SONST)
 
-# __Git__
+# <u>Git</u>
 ![git_merkblatt_01](.\git_merkblatt_01.jpg)
 ![git_merkblatt_02](.\git_merkblatt_02.jpg)
 
