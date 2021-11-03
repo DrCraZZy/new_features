@@ -453,12 +453,12 @@ CMD - Wird beim Starten des Images ausgeführt.
 version: '3'
 services:
   jenkins:
-    container-name: jenkins
+    container_name: jenkins
     image: jenkins/jenkins
     ports:
       - "8080:8080"
     volumes:
-      - "$PWD/jenkins_home:/var/jenkins_home
+      - "$PWD/jenkins_home:/var/jenkins_home"
     networks:
       - net
 networks:
@@ -474,6 +474,9 @@ sudo chown [user id]:[group id] [Pfad zu dem Ordner] -R
 ```
 
 4. _docker-compose up -d_ - Starten Docker-Container
+5. Nach dem Starte des Containers kann Jenkins im Browser gestartet werden. Hierfür wir als Adresse _[server id/sever adresse]:8080_ angegeben. 
+6. Man wird nach einem Password gefragt. __docker logs -f jenkins__ bekommt man den benötigten Password angezeigt.
+
 
 # <u>Big O</u>
 
