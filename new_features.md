@@ -2,6 +2,10 @@
 
 # <u>Python</u>
 
+## <u>NumPy</u>
+![numpy_merkblatt.jpg](.\numpy_merkblatt.jpg)
+
+
 ## <u>Best practice</u>
 
 ### <u>Unpacking</u>
