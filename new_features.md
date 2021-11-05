@@ -44,8 +44,59 @@ print(functools.reduce(lambda a, b: a if a > b else b, lis))
 
 ### <u>List comprehensions</u>
 ```python
-names = ['Max', 'Test', 'John', 'Sven', 'Tor']
+# Ausdruck/Transformation for Element in Quelle if Bedinung
+# Dieser Konstrukt [] {} oder in () stehen
+# [] -> es entsteht eine Liste
+# {} -> es entsteht ein Set oder Dict
+
+# List
+names = ['Max', 'Test', 'John', 'Sven', 'Tor'] 
 names_start_t = [f'_{name}_' for name in names if name.startswith('T')]
+
+# Set
+names = ['Max', 'Test', 'John', 'Sven', 'Tor', 'Test'] 
+names_start_t = {f'_{name}_' for name in names if name.startswith('T')}
+
+# Dict
+names = ['Max', 'Test', 'John', 'Sven', 'Tor', 'Test'] 
+names_start_t = {index: f'_{name}_' for index, name in enumerate(names) if name.startswith('T')}
+
+# Genexp -> Ergebnis dieser Operation ist ein Objekt und keine Datenstruktur
+# dieses Objekt kann mit for - Loop iteriert werden oder es kann auf nächstes 
+# Element mit next() zugegriffen werden.
+names = ['Max', 'Test', 'John', 'Sven', 'Tor'] 
+names_start_t_gen = (f'_{name}_' for name in names if name.startswith('T'))
+# Genexp verfolg lazy - Prinzip, das heißt es wir nur dann Speicher beansprucht,
+# wenn auf nächstes Element zugegriffen wird. Davor wir nur eine ein Objekt 
+# angelet => geht sehr sparsam mit Speicher um 
+```
+
+### <u>Generator-Funktion</u>
+yield - zeigt, das die Funktion ein Generator-Objekt zurückkommt. Dieses Objekt beinhaltet nicht die Daten, sondern die Logik wie die Daten erzeugt werden. Auf die Daten kann mit der Funktion _next()_ => _for-Loop_ zugegriffen werden. 
+
+```python
+def squares2():
+    for e in range(0, 11, 2):
+        yield e ** 2
+
+# Generator-Funktion kann auch einen "return" beinhalten
+```
+
+### <u>Unboxing</u>
+```python
+# hierbei werden die Werte der linken Seite der Variablen der rechten Seite zugewiesen
+a, b, c = [1, 2, 3]
+a, b, c = (1, 2, 3)
+a, b, c = 1, 2, 3
+a, b, c = '123'
+
+a, *b = [1, 2, 3] 
+# => a = 1 und b = [2, 3]
+# * - 1 in a und Rest in b
+```
+#### First and Last of iterable
+```python
+first, *_, last = [1,2,3,4,5,6,7] # => first = 1 and last = 7
 ```
 
 ### <u>Filter</u>
