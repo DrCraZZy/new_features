@@ -503,17 +503,17 @@ CMD - Wird beim Starten des Images ausgeführt.
     ``` docker-compose
     version: '3'
     services:
-    jenkins:
-        container_name: jenkins
-        image: jenkins/jenkins
-        ports:
-        - "8080:8080"
-        volumes:
-        - "$PWD/jenkins_home:/var/jenkins_home"
-        networks:
-        - net
+        jenkins:
+            container_name: jenkins
+            image: jenkins/jenkins
+            ports:
+            - "8080:8080"
+            volumes:
+            - "$PWD/jenkins_home:/var/jenkins_home"
+            networks:
+            - net
     networks:
-    net:
+        net:
     ```
 
     Vor dem Start soll der jenkins_home - Pfad existieren
