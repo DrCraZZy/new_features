@@ -2,6 +2,673 @@
 
 # <u>Python</u>
 
+## <u>Python Syntax</u>
+
+### <U>Variablen</u>
+
+```python
+example_number = 1
+example_float = 1.0
+example_string = "Example String"
+example_boolean = True
+```
+
+### <U>Conditionals</u>
+```python
+if mood == "good":
+  print("I am happy!")
+else:
+  print("I am grumpy!")
+
+#oder 
+
+if mood == "good":
+  print("I am happy!")
+elif mood == "bad":
+  print("I am grumpy!")
+else:
+  print("I am smack-dab in the middle!")
+```
+
+### <U>Loops</u>
+```python
+# for - loop
+answer = 0
+for i in range(1, 10**9 + 1):
+  answer += i
+
+# while - loop
+answer = 0
+number = 0
+while number < 10**9 + 1:
+ answer += number
+ number += 1
+```
+
+### <U>Data Structures</u>
+
+### List
+```python
+# create list of strings
+groceries = ['apples', 'oranges', 'avocados', 'grapes']
+
+# empty list
+my_list = list()
+my_list = []
+
+# list with mixed data types
+my_list = [1, "Hello", 3.4]
+
+# nested list
+my_list = ["mouse", [8, 4, 6], ['a']]
+
+# convert to list
+lett_set = {'a', 'e', 'i', 'o', 'u'}
+lett_list = list(lett_set)
+```
+
+```python
+# Access list elements
+my_list = ['p', 'r', 'o', 'b', 'e']
+
+# List Index 
+# first item
+print(my_list[0])
+
+# third item
+print(my_list[2])
+
+# Nested indexing
+print(n_list[0][1])
+
+# last item
+print(my_list[-1])
+
+# fifth last item
+print(my_list[-5])
+
+# ----------------------------------------------
+
+# List slicing
+# List slicing in Python
+
+my_list = ['p','r','o','g','r','a','m','i','z']
+
+# elements from index 2 to index 4
+print(my_list[2:5])
+
+# elements from index 5 to end
+print(my_list[5:])
+
+# elements beginning to end
+print(my_list[:])
+```
+
+```python
+# Add/Change List Elements
+# Correcting mistake values in a list
+odd = [2, 4, 6, 8]
+
+# change the 1st item    
+odd[0] = 1  # -> [1, 4, 6, 8]           
+
+# change 2nd to 4th items
+odd[1:4] = [3, 5, 7] # -> [1, 3, 5, 7]
+
+# ----------------------------------------------
+
+# Appending and Extending lists in Python
+odd = [1, 3, 5]
+
+odd.append(7) # -> [1, 3, 5, 7]
+
+odd.extend([9, 11, 13]) # -> [1, 3, 5, 7, 9, 11, 13]
+
+# ----------------------------------------------
+
+# Concatenating and repeating lists
+odd = [1, 3, 5]
+
+odd + [9, 7, 5] # -> [1, 3, 5, 9, 7, 5]
+
+["re"] * 3 # -> ['re', 're', 're']
+
+# Demonstration of list insert() method
+odd = [1, 9]
+
+odd.insert(1,3) # -> [1, 3, 9]
+
+odd[2:2] = [5, 7] # -> [1, 3, 5, 7, 9]
+```
+
+```python
+# Deleting list items
+my_list = ['p', 'r', 'o', 'b', 'l', 'e', 'm', 'z', 'x']
+
+# delete one item
+del my_list[2] # -> ['p', 'r', 'b', 'l', 'e', 'm', 'z', 'x']
+
+# delete multiple items
+del my_list[1:5] # -> ['p', 'm', 'z', 'x']
+
+# delete the entire list
+del my_list # -> NameError: name 'my_list' is not defined
+
+# remove
+my_list.remove('p') # -> ['m']
+
+# pop - pop ohne Argumente pop() -> letzter element
+my_list.pop(0) # -> m
+my_list # -> ['z', 'x']
+
+# clear
+my_list.clear() # -> []
+```
+
+|Methods|Descriptions|
+|---|---|
+|append()|	adds an element to the end of the list|
+|extend()|	adds all elements of a list to another list|
+|insert()|	inserts an item at the defined index|
+|remove()|	removes an item from the list|
+|pop()|	returns and removes an element at the given index|
+|clear()|	removes all items from the list|
+|index()|	returns the index of the first matched item|
+|count()|	returns the count of the number of items passed as an argument|
+|sort()|	sort items in a list in ascending order|
+|reverse()|	reverse the order of items in the list|
+|copy() |	returns a shallow copy of the list|
+
+### Tuple
+Tuple ist wie eine Liste aber unveränderlich (immutable)
+
+```python
+# Empty tuple
+my_tuple = ()
+
+# Tuple having integers
+my_tuple = (1, 2, 3)
+
+# tuple with mixed datatypes
+my_tuple = (1, "Hello", 3.4)
+
+# nested tuple
+my_tuple = ("mouse", [8, 4, 6], (1, 2, 3))
+
+# tuple unpacking is also possible
+my_tuple = 3, 4.6, "dog" # create tuple without parentheses 
+a, b, c = my_tuple
+
+# Creating a tuple having one element
+my_tuple = ("hello",)
+
+# Element access and slicing work like with a list
+# Changing fo tuples is imposible because they are immutable
+# but if the element in tuple is mutable, then is it posible
+# to change an item
+
+# Concatenation
+print((1, 2, 3) + (4, 5, 6)) # -> (1, 2, 3, 4, 5, 6)
+
+# Repeat
+print(("Repeat",) * 3) # -> ('Repeat', 'Repeat', 'Repeat')
+
+# can't delete items
+del my_tuple[3] # -> TypeError: 'tuple' object doesn't support item deletion
+
+# Can delete an entire tuple
+del my_tuple
+
+# tuple methods
+my_tuple = ('a', 'p', 'p', 'l', 'e',)
+
+print(my_tuple.count('p'))  # -> 2
+print(my_tuple.index('l'))  # -> 3
+
+# Membership test in tuple
+my_tuple = ('a', 'p', 'p', 'l', 'e',)
+
+# In operation
+'a' in my_tuple # -> True
+'b' in my_tuple # -> False
+
+# Not in operation
+'g' not in my_tuple # -> True
+
+# Using a for loop to iterate through a tuple
+for name in ('John', 'Kate'):
+    print("Hello", name)
+```
+
+### Set
+Sets sind für das Speichern der einzigartige Daten zu speichern (Daten ohne Wiederholungen).
+
+```python
+# Create Sets
+# set of integers
+my_set = {1, 2, 3} # -> {1, 2, 3}
+
+# set of mixed datatypes
+my_set = {1.0, "Hello", (1, 2, 3)} # -> {1.0, (1, 2, 3), 'Hello'}
+
+# we can make set from a list
+my_set = set([1, 2, 3, 2]) # -> {1, 2, 3}
+
+# initialize a with {}
+a = {} # -> <class 'dict'>
+
+# initialize a with set()
+a = set() # -> <class 'set'>
+
+# Modifying a set
+# initialize my_set
+my_set = {1, 3}
+
+# add an element
+my_set.add(2) # -> {1, 2, 3}
+
+my_set[0] # -> TypeError: 'set' object does not support indexing
+
+# add multiple elements
+my_set.update([2, 3, 4]) # -> {1, 2, 3, 4}
+
+# add list and set
+my_set.update([4, 5], {1, 6, 8}) # -> {1, 2, 3, 4, 5, 6, 8}
+
+# Removing elements from a set, discard() and remove()
+# initialize my_set
+my_set = {1, 3, 4, 5, 6}
+my_set.discard(4) # -> {1, 3, 5, 6}
+my_set.remove(6) # -> {1, 3, 5}
+
+# discard an element not present in my_set
+my_set.discard(2) # -> {1, 3, 5}
+
+# remove an element not present in my_set
+my_set.remove(2) # -> KeyError
+
+# pop an element
+my_set.pop() # -> random element
+
+# clear my_set
+my_set.clear() # -> set()
+
+# Set Operations
+# Set Union
+
+# Set union method initialize A and B
+A = {1, 2, 3, 4, 5}
+B = {4, 5, 6, 7, 8}
+
+# use | operator
+A | B # -> {1, 2, 3, 4, 5, 6, 7, 8}
+
+# use union function
+A.union(B) # -> {1, 2, 3, 4, 5, 6, 7, 8}
+B.union(A) # -> {1, 2, 3, 4, 5, 6, 7, 8}
+
+#Set Intersection
+A & B # -> {4, 5}
+
+#Set Difference
+A - B # -> {1, 2, 3}
+A.difference(B) # -> {1, 2, 3}
+
+
+B - A # -> {8, 6, 7}
+B.difference(A) # -> {8, 6, 7}
+
+
+# Set Symmetric Difference
+# use ^ operator
+A ^ B # -> {1, 2, 3, 6, 7, 8}
+
+A.symmetric_difference(B) # -> {1, 2, 3, 6, 7, 8}
+B.symmetric_difference(A) # -> {1, 2, 3, 6, 7, 8}
+
+# check if 'a' is present
+'a' in my_set # -> True
+'p' not in my_set # -> False
+
+# Iteration through a Set
+for letter in set("apple"):
+    print(letter) # -> a p e l
+```
+
+|Method|Description|
+|---|---|
+|add()|	Adds an element to the set|
+|clear()|	Removes all elements from the set|
+|copy()|	Returns a copy of the set|
+|difference()|	Returns the difference of two or more sets as a new set|
+|difference_update()|	Removes all elements of another set from this set|
+|discard()|	Removes an element from the set if it is a member. (Do nothing if the element is not in set)|
+|intersection()|	Returns the intersection of two sets as a new set|
+|intersection_update()|	Updates the set with the intersection of itself and another|
+|isdisjoint()|	Returns True if two sets have a null intersection|
+|issubset()|	Returns True if another set contains this set|
+|issuperset()|	Returns True if this set contains another set|
+|pop()|	Removes and returns an arbitrary set element. Raises KeyError if the set is empty|
+|remove()|	Removes an element from the set. If the element is not a member, raises a KeyError|
+|symmetric_difference()|	Returns the symmetric difference of two sets as a new set|
+|symmetric_difference_update()|	Updates a set with the symmetric difference of itself and another|
+|union()|	Returns the union of sets in a new set|
+|update()|	Updates the set with the union of itself and others|
+
+### Build-in functions with set
+
+|Function|Description|
+|---|---|
+|all()|Returns True if all elements of the set are true (or if the set is empty).
+|any()|Returns True if any element of the set is true. If the set is empty, returns False.
+|enumerate()| an enumerate object. It contains the index and value for all the items of the set as a pair.
+|len()|Returns the length (the number of items) in the set.
+|max()|Returns the largest item in the set.
+|min()|Returns the smallest item in the set.
+|sorted()|Returns a new sorted list from elements in the set(does not sort the set itself).
+|sum()|Returns the sum of all elements in the set.
+
+### Dictionary
+
+```python
+# empty dictionary
+my_dict = {}
+
+# dictionary with integer keys
+my_dict = {1: 'apple', 2: 'ball'}
+
+# dictionary with mixed keys
+my_dict = {'name': 'John', 1: [2, 4, 3]}
+
+# using dict()
+my_dict = dict({1:'apple', 2:'ball'})
+
+# from sequence having each item as a pair
+my_dict = dict([(1,'apple'), (2,'ball')
+```
+
+### Access elements
+```python
+# get vs [] for retrieving elements
+my_dict = {'name': 'Jack', 'age': 26}
+
+print(my_dict['name']) # -> Jack
+
+print(my_dict.get('age')) # -> 26
+
+# Trying to access keys which doesn't exist throws error
+print(my_dict.get('address')) # -> None
+
+print(my_dict['address']) # -> KeyError
+```
+
+### Changing and Adding Dictionary elements
+```python
+# update value
+my_dict['age'] = 27
+
+print(my_dict) # -> {'age': 27, 'name': 'Jack'}
+
+# add item
+my_dict['address'] = 'Downtown'
+
+print(my_dict) # -> {'address': 'Downtown', 'age': 27, 'name': 'Jack'}
+```
+
+### Removing elements from Dictionary
+```python
+# create a dictionary
+squares = {1: 1, 2: 4, 3: 9, 4: 16, 5: 25}
+
+# remove a particular item, returns its value
+print(squares.pop(4)) # -> 16
+
+print(squares) # -> {1: 1, 2: 4, 3: 9, 5: 25}
+
+# remove an arbitrary item, return (key,value)
+print(squares.popitem()) # -> (5, 25)
+
+print(squares) # -> {1: 1, 2: 4, 3: 9}
+
+# remove all items
+squares.clear()
+
+print(squares) # -> {}
+
+# delete the dictionary itself
+del squares
+
+print(squares) # -> NameError: name 'squares' is not defined
+```
+
+### Python Dictionary Methods
+|Method|Description|
+|---|---|
+|clear()|	Removes all items from the dictionary.|
+|copy()|	Returns a shallow copy of the dictionary.|
+|fromkeys(seq[, v])|	Returns a new dictionary with keys from seq and value equal to v (defaults to None).|
+|get(key[,d])|	Returns the value of the key. If the key does not exist, returns d (defaults to None).|
+|items()|	Return a new object of the dictionary's items in (key, value) format.|
+|keys()|	Returns a new object of the dictionary's keys.|
+|pop(key[,d])|	Removes the item with the key and returns its value or d if key is not found. If d is not provided and the key is not found, it raises KeyError.|
+|popitem()|	Removes and returns an arbitrary item (key, value). Raises KeyError if the dictionary is empty.|
+|setdefault(key[,d])|	Returns the corresponding value if the key is in the dictionary. If not, inserts the key with a value of d and returns d (defaults to None).|
+|update([other])|	Updates the dictionary with the key/value pairs from other, overwriting existing keys.|
+|values()|	Returns a new object of the dictionary's values|
+
+```python
+marks = {}.fromkeys(['Math', 'English', 'Science'], 0) # -> # Output: {'English': 0, 'Math': 0, 'Science': 0}
+
+for item in marks.items():
+    print(item)
+
+print(list(sorted(marks.keys()))) # -> # Output: ['English', 'Math', 'Science']
+```
+
+### Python Dictionary Comprehension
+```python
+# Dictionary Comprehension
+squares = {x: x*x for x in range(6)}
+print(squares) # -> {0: 0, 1: 1, 2: 4, 3: 9, 4: 16, 5: 25}
+
+# Dictionary Comprehension with if conditional
+odd_squares = {x: x*x for x in range(11) if x % 2 == 1}
+print(odd_squares) # -> {1: 1, 3: 9, 5: 25, 7: 49, 9: 81}
+```
+
+### Dictionary Membership Test
+```python
+# Membership Test for Dictionary Keys
+squares = {1: 1, 3: 9, 5: 25, 7: 49, 9: 81}
+
+print(1 in squares) # -> True
+
+print(2 not in squares) # -> True
+
+print(49 in squares) # -> False
+```
+
+### Iterating Through a Dictionary
+```python
+squares = {1: 1, 3: 9, 5: 25, 7: 49, 9: 81}
+for i in squares: # -> iteration over keys
+    print(squares[i])
+```
+
+### Build-in functions with dict
+|Function|Description|
+|---|---|
+|all()|	Return True if all keys of the dictionary are True (or if the dictionary is empty).|
+|any()|	Return True if any key of the dictionary is true. If the dictionary is empty, return False.|
+|len()|	Return the length (the number of items) in the dictionary.|
+|sorted()|	Return a new sorted list of keys in the dictionary.|
+
+
+### <u>Python File I/O</u>
+### Opening Files in Python
+```python
+f = open("test.txt")    # open file in current directory
+```
+Open Mods
+
+|Mode|Description|
+|---|---|
+|r|	Opens a file for reading. (default)|
+|w|	Opens a file for writing. Creates a new file if it does not exist or truncates the file if it exists.|
+|x|	Opens a file for exclusive creation. If the file already exists, the operation fails.|
+|a|	Opens a file for appending at the end of the file without truncating it. Creates a new file if it does not exist.|
+|t|	Opens in text mode. (default)|
+|b|	Opens in binary mode.|
+|+|	Opens a file for updating (reading and writing)|
+
+```python
+f = open("test.txt")      # equivalent to 'r' or 'rt'
+f.close()
+
+f = open("test.txt",'w')  # write in text mode
+f.close()
+
+f = open("img.bmp",'r+b') # read and write in binary mode
+f.close()
+
+f = open("test.txt", mode='r', encoding='utf-8')
+f.close()
+```
+
+Open in try - block
+```python
+try:
+   f = open("test.txt", encoding = 'utf-8')
+   # perform file operations
+finally:
+   f.close()
+```
+
+Open with context manager
+```python
+with open("test.txt", encoding = 'utf-8') as f:
+   # perform file operations
+
+with open("test.txt",'w',encoding = 'utf-8') as f:
+   f.write("my first file\n")
+   f.write("This file\n\n")
+   f.write("contains three lines\n")
+```
+
+Reading file
+```python
+f = open("test.txt",'r',encoding = 'utf-8')
+f.read(4)    # read the first 4 data
+'This'
+
+f.read(4)    # read the next 4 data
+' is '
+
+f.read()     # read in the rest till end of file
+'my first file\nThis file\ncontains three lines\n'
+
+f.read()  # further reading returns empty sting
+
+f.tell()    # get the current file position
+
+f.seek(0)   # bring file cursor to initial position
+
+# read file line by line
+for line in f:
+    print(line)
+
+# Methon readline() reads a file till the newline
+f.readline() # -> 'This is my first file\n'
+f.readline() # -> 'This file\n'
+f.readline() # -> 'contains three lines\n'
+f.readline() # -> empty value
+```
+|Method|Description|
+|---|---|
+|close()|	Closes an opened file. It has no effect if the file is already closed.
+|detach()|	Separates the underlying binary buffer from the TextIOBase and returns it.
+|fileno()|	Returns an integer number (file descriptor) of the file.
+|flush()|	Flushes the write buffer of the file stream.
+|isatty()|	Returns True if the file stream is interactive.
+|read(n)|	Reads at most n characters from the file. Reads till end of file if it is negative or None.
+|readable()|	Returns True if the file stream can be read from.
+|readline(n=-1)|	Reads and returns one line from the file. Reads in at most n bytes if specified.
+|readlines(n=-1)|	Reads and returns a list of lines from the file. Reads in at most n bytes/characters if specified.
+|seek(offset,from=SEEK_SET)|	Changes the file position to offset bytes, in reference to from (start, current, end).
+|seekable()|	Returns True if the file stream supports random access.
+|tell()|	Returns the current file location.
+|truncate(size=None)|	Resizes the file stream to size bytes. If size is not specified, resizes to current location.
+|writable()|	Returns True if the file stream can be written to.
+|write(s)|	Writes the string s to the file and returns the number of characters written.
+|writelines(lines)|	Writes a list of lines to the file.
+
+### <u>Exception</u>
+
+### Catching Exceptions
+```python
+try:
+    # do something
+    ...
+    if a <= 0:
+        raise ValueError("That is not a positive number!") # raise error
+except ValueError as e: # Specific Exceptions
+   # handle ValueError exception
+   print(e)
+except (TypeError, ZeroDivisionError): # Specific Exceptions
+   # handle multiple exceptions
+   # TypeError and ZeroDivisionError
+except Exception as e: # Unspecific Exceptions
+    print(e)
+else: # if inside try everithing is well, then go to else
+    # do something
+finally: # this block will be execute no matter what
+   # do something f.close()
+```
+
+### Custom Exception
+```python
+class CustomError(Exception):
+    pass
+
+# after that it is pasable to raise CustomError
+raise CustomError
+
+raise CustomError("An error occurred")
+```
+
+|Exception|	Cause of Error|
+|---|---|
+|AssertionError|	Raised when an assert statement fails.
+|AttributeError|	Raised when attribute assignment or reference fails.
+|EOFError|	Raised when the input() function hits end-of-file condition.
+|FloatingPointError|	Raised when a floating point operation fails.
+|GeneratorExit|	Raise when a generator's close() method is called.
+|ImportError|	Raised when the imported module is not found.
+|IndexError|	Raised when the index of a sequence is out of range.
+|KeyError|	Raised when a key is not found in a dictionary.
+|KeyboardInterrupt|	Raised when the user hits the interrupt key (Ctrl+C or Delete).
+|MemoryError|	Raised when an operation runs out of memory.
+|NameError|	Raised when a variable is not found in local or global scope.
+|NotImplementedError|	Raised by abstract methods.
+|OSError|	Raised when system operation causes system related error.
+|OverflowError|	Raised when the result of an arithmetic operation is too large to be represented.
+|ReferenceError|	Raised when a weak reference proxy is used to access a garbage collected referent.
+|RuntimeError|	Raised when an error does not fall under any other category.
+|StopIteration|	Raised by next() function to indicate that there is no further item to be returned by iterator.
+|SyntaxError|	Raised by parser when syntax error is encountered.
+|IndentationError|	Raised when there is incorrect indentation.
+|TabError|	Raised when indentation consists of inconsistent tabs and spaces.
+|SystemError|	Raised when interpreter detects internal error.
+|SystemExit|	Raised by sys.exit() function.
+|TypeError|	Raised when a function or operation is applied to an object of incorrect type.
+|UnboundLocalError|	Raised when a reference is made to a local variable in a function or method, but no value has been bound to that variable.
+|UnicodeError|	Raised when a Unicode-related encoding or decoding error occurs.
+|UnicodeEncodeError|	Raised when a Unicode-related error occurs during encoding.
+|UnicodeDecodeError|	Raised when a Unicode-related error occurs during decoding.
+|UnicodeTranslateError|	Raised when a Unicode-related error occurs during translating.
+|ValueError|	Raised when a function gets an argument of correct type but improper value.
+|ZeroDivisionError|	Raised when the second operand of division or modulo operation is zero.
+
 ## <u>NumPy</u>
 ![numpy_merkblatt.jpg](.\numpy_merkblatt.jpg)
 
