@@ -669,7 +669,7 @@ raise CustomError("An error occurred")
 |ValueError|	Raised when a function gets an argument of correct type but improper value.
 |ZeroDivisionError|	Raised when the second operand of division or modulo operation is zero.
 
-## <u>NumPy</u>
+## [<u>NumPy</u>](https://numpy.org/doc/stable/index.html)
 ### Arrays
 ```python
 import numpy as np
