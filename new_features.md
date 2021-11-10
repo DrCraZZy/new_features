@@ -179,6 +179,72 @@ my_list.clear() # -> []
 |reverse()|	reverse the order of items in the list|
 |copy() |	returns a shallow copy of the list|
 
+### Tuple
+Tuple ist wie eine Liste aber unveränderlich (immutable)
+
+```python
+# Empty tuple
+my_tuple = ()
+
+# Tuple having integers
+my_tuple = (1, 2, 3)
+
+# tuple with mixed datatypes
+my_tuple = (1, "Hello", 3.4)
+
+# nested tuple
+my_tuple = ("mouse", [8, 4, 6], (1, 2, 3))
+
+# tuple unpacking is also possible
+my_tuple = 3, 4.6, "dog" # create tuple without parentheses 
+a, b, c = my_tuple
+
+# Creating a tuple having one element
+my_tuple = ("hello",)
+
+# Element access and slicing work like with a list
+# Changing fo tuples is imposible because they are immutable
+# but if the element in tuple is mutable, then is it posible
+# to change an item
+
+# Concatenation
+print((1, 2, 3) + (4, 5, 6)) # -> (1, 2, 3, 4, 5, 6)
+
+# Repeat
+print(("Repeat",) * 3) # -> ('Repeat', 'Repeat', 'Repeat')
+
+# can't delete items
+del my_tuple[3] # -> TypeError: 'tuple' object doesn't support item deletion
+
+# Can delete an entire tuple
+del my_tuple
+
+# tuple methods
+my_tuple = ('a', 'p', 'p', 'l', 'e',)
+
+print(my_tuple.count('p'))  # -> 2
+print(my_tuple.index('l'))  # -> 3
+
+# Membership test in tuple
+my_tuple = ('a', 'p', 'p', 'l', 'e',)
+
+# In operation
+'a' in my_tuple # -> True
+'b' in my_tuple # -> False
+
+# Not in operation
+'g' not in my_tuple # -> True
+
+# Using a for loop to iterate through a tuple
+for name in ('John', 'Kate'):
+    print("Hello", name)
+```
+
+
+
+
+
+
 ## <u>NumPy</u>
 ![numpy_merkblatt.jpg](.\numpy_merkblatt.jpg)
 
