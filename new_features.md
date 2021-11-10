@@ -368,6 +368,143 @@ for letter in set("apple"):
 |sorted()|Returns a new sorted list from elements in the set(does not sort the set itself).
 |sum()|Returns the sum of all elements in the set.
 
+### <u>Dictionary</u>
+
+```python
+# empty dictionary
+my_dict = {}
+
+# dictionary with integer keys
+my_dict = {1: 'apple', 2: 'ball'}
+
+# dictionary with mixed keys
+my_dict = {'name': 'John', 1: [2, 4, 3]}
+
+# using dict()
+my_dict = dict({1:'apple', 2:'ball'})
+
+# from sequence having each item as a pair
+my_dict = dict([(1,'apple'), (2,'ball')
+```
+
+### Access elements
+```python
+# get vs [] for retrieving elements
+my_dict = {'name': 'Jack', 'age': 26}
+
+print(my_dict['name']) # -> Jack
+
+print(my_dict.get('age')) # -> 26
+
+# Trying to access keys which doesn't exist throws error
+print(my_dict.get('address')) # -> None
+
+print(my_dict['address']) # -> KeyError
+```
+
+### Changing and Adding Dictionary elements
+```python
+# update value
+my_dict['age'] = 27
+
+print(my_dict) # -> {'age': 27, 'name': 'Jack'}
+
+# add item
+my_dict['address'] = 'Downtown'
+
+print(my_dict) # -> {'address': 'Downtown', 'age': 27, 'name': 'Jack'}
+```
+
+### Removing elements from Dictionary
+```python
+# create a dictionary
+squares = {1: 1, 2: 4, 3: 9, 4: 16, 5: 25}
+
+# remove a particular item, returns its value
+print(squares.pop(4)) # -> 16
+
+print(squares) # -> {1: 1, 2: 4, 3: 9, 5: 25}
+
+# remove an arbitrary item, return (key,value)
+print(squares.popitem()) # -> (5, 25)
+
+print(squares) # -> {1: 1, 2: 4, 3: 9}
+
+# remove all items
+squares.clear()
+
+print(squares) # -> {}
+
+# delete the dictionary itself
+del squares
+
+print(squares) # -> NameError: name 'squares' is not defined
+```
+
+### Python Dictionary Methods
+|Method|Description|
+|---|---|
+|clear()|	Removes all items from the dictionary.|
+|copy()|	Returns a shallow copy of the dictionary.|
+|fromkeys(seq[, v])|	Returns a new dictionary with keys from seq and value equal to v (defaults to None).|
+|get(key[,d])|	Returns the value of the key. If the key does not exist, returns d (defaults to None).|
+|items()|	Return a new object of the dictionary's items in (key, value) format.|
+|keys()|	Returns a new object of the dictionary's keys.|
+|pop(key[,d])|	Removes the item with the key and returns its value or d if key is not found. If d is not provided and the key is not found, it raises KeyError.|
+|popitem()|	Removes and returns an arbitrary item (key, value). Raises KeyError if the dictionary is empty.|
+|setdefault(key[,d])|	Returns the corresponding value if the key is in the dictionary. If not, inserts the key with a value of d and returns d (defaults to None).|
+|update([other])|	Updates the dictionary with the key/value pairs from other, overwriting existing keys.|
+|values()|	Returns a new object of the dictionary's values|
+
+```python
+marks = {}.fromkeys(['Math', 'English', 'Science'], 0) # -> # Output: {'English': 0, 'Math': 0, 'Science': 0}
+
+for item in marks.items():
+    print(item)
+
+print(list(sorted(marks.keys()))) # -> # Output: ['English', 'Math', 'Science']
+```
+
+### Python Dictionary Comprehension
+```python
+# Dictionary Comprehension
+squares = {x: x*x for x in range(6)}
+print(squares) # -> {0: 0, 1: 1, 2: 4, 3: 9, 4: 16, 5: 25}
+
+# Dictionary Comprehension with if conditional
+odd_squares = {x: x*x for x in range(11) if x % 2 == 1}
+print(odd_squares) # -> {1: 1, 3: 9, 5: 25, 7: 49, 9: 81}
+```
+
+### Dictionary Membership Test
+```python
+# Membership Test for Dictionary Keys
+squares = {1: 1, 3: 9, 5: 25, 7: 49, 9: 81}
+
+print(1 in squares) # -> True
+
+print(2 not in squares) # -> True
+
+print(49 in squares) # -> False
+```
+
+### Iterating Thruogh a Dictionary
+```python
+squares = {1: 1, 3: 9, 5: 25, 7: 49, 9: 81}
+for i in squares: # -> iteration over keys
+    print(squares[i])
+```
+
+### Build-in functions with dict
+|Function|Description|
+|---|---|
+|all()|	Return True if all keys of the dictionary are True (or if the dictionary is empty).|
+|any()|	Return True if any key of the dictionary is true. If the dictionary is empty, return False.|
+|len()|	Return the length (the number of items) in the dictionary.|
+|sorted()|	Return a new sorted list of keys in the dictionary.|
+
+
+
 ## <u>NumPy</u>
 ![numpy_merkblatt.jpg](.\numpy_merkblatt.jpg)
 
