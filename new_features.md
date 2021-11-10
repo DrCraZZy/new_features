@@ -2,6 +2,183 @@
 
 # <u>Python</u>
 
+## <u>Python Syntax</u>
+
+### <U>Variablen</u>
+
+```python
+example_number = 1
+example_float = 1.0
+example_string = "Example String"
+example_boolean = True
+```
+
+### <U>Conditionals</u>
+```python
+if mood == "good":
+  print("I am happy!")
+else:
+  print("I am grumpy!")
+
+#oder 
+
+if mood == "good":
+  print("I am happy!")
+elif mood == "bad":
+  print("I am grumpy!")
+else:
+  print("I am smack-dab in the middle!")
+```
+
+### <U>Loops</u>
+```python
+# for - loop
+answer = 0
+for i in range(1, 10**9 + 1):
+  answer += i
+
+# while - loop
+answer = 0
+number = 0
+while number < 10**9 + 1:
+ answer += number
+ number += 1
+```
+
+### <U>Data Structures</u>
+
+### List
+```python
+# create list of strings
+groceries = ['apples', 'oranges', 'avocados', 'grapes']
+
+# empty list
+my_list = list()
+my_list = []
+
+# list with mixed data types
+my_list = [1, "Hello", 3.4]
+
+# nested list
+my_list = ["mouse", [8, 4, 6], ['a']]
+
+# convert to list
+lett_set = {'a', 'e', 'i', 'o', 'u'}
+lett_list = list(lett_set)
+```
+
+```python
+# Access list elements
+my_list = ['p', 'r', 'o', 'b', 'e']
+
+# List Index 
+# first item
+print(my_list[0])
+
+# third item
+print(my_list[2])
+
+# Nested indexing
+print(n_list[0][1])
+
+# last item
+print(my_list[-1])
+
+# fifth last item
+print(my_list[-5])
+
+# ----------------------------------------------
+
+# List slicing
+# List slicing in Python
+
+my_list = ['p','r','o','g','r','a','m','i','z']
+
+# elements from index 2 to index 4
+print(my_list[2:5])
+
+# elements from index 5 to end
+print(my_list[5:])
+
+# elements beginning to end
+print(my_list[:])
+```
+
+```python
+# Add/Change List Elements
+# Correcting mistake values in a list
+odd = [2, 4, 6, 8]
+
+# change the 1st item    
+odd[0] = 1  # -> [1, 4, 6, 8]           
+
+# change 2nd to 4th items
+odd[1:4] = [3, 5, 7] # -> [1, 3, 5, 7]
+
+# ----------------------------------------------
+
+# Appending and Extending lists in Python
+odd = [1, 3, 5]
+
+odd.append(7) # -> [1, 3, 5, 7]
+
+odd.extend([9, 11, 13]) # -> [1, 3, 5, 7, 9, 11, 13]
+
+# ----------------------------------------------
+
+# Concatenating and repeating lists
+odd = [1, 3, 5]
+
+odd + [9, 7, 5] # -> [1, 3, 5, 9, 7, 5]
+
+["re"] * 3 # -> ['re', 're', 're']
+
+# Demonstration of list insert() method
+odd = [1, 9]
+
+odd.insert(1,3) # -> [1, 3, 9]
+
+odd[2:2] = [5, 7] # -> [1, 3, 5, 7, 9]
+```
+
+```python
+# Deleting list items
+my_list = ['p', 'r', 'o', 'b', 'l', 'e', 'm', 'z', 'x']
+
+# delete one item
+del my_list[2] # -> ['p', 'r', 'b', 'l', 'e', 'm', 'z', 'x']
+
+# delete multiple items
+del my_list[1:5] # -> ['p', 'm', 'z', 'x']
+
+# delete the entire list
+del my_list # -> NameError: name 'my_list' is not defined
+
+# remove
+my_list.remove('p') # -> ['m']
+
+# pop - pop ohne Argumente pop() -> letzter element
+my_list.pop(0) # -> m
+my_list # -> ['z', 'x']
+
+# clear
+my_list.clear() # -> []
+```
+
+|Methods|Descriptions|
+|---|---|
+|append()|	adds an element to the end of the list|
+|extend()|	adds all elements of a list to another list|
+|insert()|	inserts an item at the defined index|
+|remove()|	removes an item from the list|
+|pop()|	returns and removes an element at the given index|
+|clear()|	removes all items from the list|
+|index()|	returns the index of the first matched item|
+|count()|	returns the count of the number of items passed as an argument|
+|sort()|	sort items in a list in ascending order|
+|reverse()|	reverse the order of items in the list|
+|copy() |	returns a shallow copy of the list|
+
 ## <u>NumPy</u>
 ![numpy_merkblatt.jpg](.\numpy_merkblatt.jpg)
 
