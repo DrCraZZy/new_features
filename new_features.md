@@ -508,6 +508,12 @@ for i in squares: # -> iteration over keys
 ### Opening Files in Python
 ```python
 f = open("test.txt")    # open file in current directory
+f.close()
+
+# or
+
+with open("test.txt") as f:
+    pass
 ```
 Open Mods
 
@@ -966,7 +972,7 @@ another_indexes = indexes[::-1] Liste
 if a and b and c and d:
     print('Ok')
 
-ODER
+# OR
 
 if all(a,b,c,d):
     print('Ok')
@@ -977,7 +983,7 @@ if all(a,b,c,d):
 if a or b or c or d:
     print('Ok')
 
-ODER
+# OR
 
 if any(a,b,c,d):
     print('Ok')
@@ -1006,6 +1012,39 @@ group_to_method = {
 }
 
 group_to_method[user.group](user, request)
+```
+
+### <u>Enumerate()</u>
+
+```python
+a = [1, 2, 3]
+
+# enumerate returns index and value
+for i, v in enumerate(a):
+    pass
+```
+
+### <u>zip</u>
+```python
+a = [1, 2, 3]
+b = [4, 5, 6]
+
+# zip returns values of both lists
+for av, bv in zip(a, b):
+    pass
+    
+for i, (av, bv) in enumerate(zip(a, b)):
+    pass
+```
+
+### <u>Timing</u>
+```python
+import time
+
+start = time.perf_counter()
+#do something
+end = time.perf_counter()
+print (end - start)
 ```
 
 ## <u>Unittest</u>
