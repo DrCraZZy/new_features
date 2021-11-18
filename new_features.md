@@ -856,6 +856,11 @@ print(v.T)  # Prints "[1 2 3]"
 
 ![numpy_merkblatt.jpg](.\numpy_merkblatt.jpg)
 
+## [<u>Pandas</u>](https://pandas.pydata.org/docs/)
+
+![Pandas_merkblatt_01](.\Pandas_Merkblatt_01.png)
+![Pandas_merkblatt_01](.\Pandas_Merkblatt_02.png)
+
 ## <u>Best practice</u>
 
 ### <u>Unpacking</u>
@@ -1015,7 +1020,6 @@ group_to_method[user.group](user, request)
 ```
 
 ### <u>Enumerate()</u>
-
 ```python
 a = [1, 2, 3]
 
