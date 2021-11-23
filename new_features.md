@@ -871,6 +871,44 @@ print(v.T)  # Prints "[1 2 3]"
 
 ## [<u>Pandas</u>](https://pandas.pydata.org/docs/)
 
+### <u>Series</u>
+```python
+import numpy as np
+import pandas as pd
+
+labels = ["a", "b", "c"]
+liste = [10, 20, 30]
+arr = np.array(liste)
+d = {"a": 10, "b": 20, "c":30}
+
+# create Series from list
+pd.Series(data=liste)
+
+# create Series from list with index
+pd.Series(data=liste,index=labels)
+
+# create Series from numpy array with index
+pd.Series(arr, labels)
+
+# pandas recognise keys of dict automaticly 
+# and makes them to index
+pd.Series(d)
+```
+
+```python
+ser1 = pd.Series([1,2,3,4], index=["USA", "Deutschland", "Russland", "Japan"])
+ser2 = pd.Series([5,6,7,8], index=["USA", "Deutschland", "Italien", "Japan"])
+ser1 + ser2
+
+# result
+Deutschland     8.0
+Italien         NaN
+Japan          12.0
+Russland        NaN
+USA             6.0
+dtype: float64
+```
+
 ![Pandas_merkblatt_01](.\Pandas_Merkblatt_01.png)
 ![Pandas_merkblatt_01](.\Pandas_Merkblatt_02.png)
 
