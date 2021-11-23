@@ -4,6 +4,19 @@
 
 ## <u>Python Syntax</u>
 
+### <u>Virtual environment erstellen</u>
+```bash
+python -m venv env
+```
+Enterpräter ändern zu dem in env
+___.ipynb___ - Dateiendung für Jupyter
+
+### <u>Install Jupyter Notebook in VS Code</u>
+
+- Download Python extention
+- Open new file (CTRL + N)
+- F1 type "_Jupyter: create new jupyter notebook_"
+
 ### <U>Variablen</u>
 
 ```python
