@@ -26,6 +26,11 @@ example_string = "Example String"
 example_boolean = True
 ```
 
+### <u>requirements.txt</u>
+```bash
+pip3 freeze > requirements.txt
+```
+
 ### <U>Conditionals</u>
 ```python
 if mood == "good":
