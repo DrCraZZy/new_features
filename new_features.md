@@ -985,8 +985,30 @@ df.set_index('Staaten', inplace=True)
 
 # returns name of Index
 df.index.name
+```
+### <u>Data Frames</u>
 
+```python
+import numpy as np
+import pandas as pd
 
+# create DataFrame
+df = pd.DataFrame({'A':[1,2,np.nan], 'B':[5,np.nan,np.nan], 'C':[1,2,3]})
+
+# Elimination process
+# returns only rows without nan-values, if axis=0 (default values) returns columns
+df.dropna(axis=1)
+
+# Threshold (Schwelle)
+# returns rows with number of nan-values lessthen 2
+df.dropna(thresh=2)
+
+# Inputation
+# returns DataFrame and fill nan-values with value (=0)
+df.fillna(value=0)
+
+# returns column 'A' and fill nan-values with mean of column 'A'
+df['A'].fillna(value=df['A'].mean())
 ```
 
 ![Pandas_merkblatt_01](.\Pandas_Merkblatt_01.png)
