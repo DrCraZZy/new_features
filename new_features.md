@@ -1011,6 +1011,29 @@ df.fillna(value=0)
 df['A'].fillna(value=df['A'].mean())
 ```
 
+### <u>GroupBy</u>
+```python
+import pandas as pd
+data = {'Firma':['GOOG', 'GOOG','MSFT', 'MSFT', 'FB', 'FB'],
+        'Person':['Sam','Charlie', 'Amy', 'Vanessa', 'Carl', 'Sarah'],
+        'Sales':[200,120,340,124,243,350]
+}
+
+df = pd.DataFrame(data)
+
+# create groupby-object
+by_firma = df.groupby('Firma')
+
+by_firma.mean() # calculate a mean value
+by_firma.std() # calculate a std value
+by_firma.min() # calculate a min value
+by_firma.max()['Sales'] # calculate a max value for sales column
+by_firma.count() # calculate a count value
+by_firma.describe() # calculate a statistic values of the data frame
+by_firma.describe().transpose() # transpose the matrix with statsitsc values
+by_firma.describe().transpose()['GOOG'] # calculate a statistic values only for column 'GOOG'
+
+```
 ![Pandas_merkblatt_01](.\Pandas_Merkblatt_01.png)
 ![Pandas_merkblatt_01](.\Pandas_Merkblatt_02.png)
 
