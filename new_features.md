@@ -913,6 +913,81 @@ Russland        NaN
 USA             6.0
 dtype: float64
 ```
+### <u>Data Frames</u>
+```python
+import numpy as np
+import pandas as pd
+
+from numpy.random import randn
+
+#
+np.random.seed(101)
+
+# create DataFrame, matrix with random numbers 5-rows (index) 4-columns
+# index tells the 'names' of rows column tells 'names' of columns
+df = pd.DataFrame(randn(5,4), index='A B C D E'.split(), columns='W X Y Z'.split())
+
+# returns column 'W'
+df["W"]
+
+# returns columns 'W' and 'Z', it has to be a list of indixes
+df[["W","Z"]] 
+
+# returns column 'W' (SQL syntax)
+df.W
+
+# crate a new column
+df["F"] = df["W"] + df["Y"]
+
+# drop create new DataFrame without column 'F', parameter axis tells what has to be delete
+# axis=0 -> drop row (default value)
+# axis=1 -> drop column
+df.drop('F', axis=1)
+
+# don't create a new DataFrame, but drop from this DataFrame
+df.drop('F', axis=1, inplace=True)
+
+# returns a row 'A', access the row by name
+df.loc['A']
+
+# returns a row with index 2, access the row by index
+df.iloc[2]
+
+# returns value of coordinate, is also posible with coordinates with iloc[1,2]
+df.loc['B', 'Y']
+
+# returns a subset, by changing of values in subset effects to df
+df.loc[['A','B'], ['W', 'Y']]
+
+# conditions
+df>0
+
+df[df>0]
+
+df['W']>0
+
+# returns all rows from DataFrame, where value of 'W'-row is <0 
+df[df['W']>0]
+
+# returns all rows from 'Y', where value of 'W'-row is <0 
+df[df['W']>0]['Y']
+
+# returns all rows from 'Y' and 'X', where value of 'W'-row is <0 
+df[df['W']>0][['Y', 'X']]
+
+# set index to 0, 1, ....
+df.reset_index()
+
+# create new index List and set it to the DataFrame
+index_staaten = 'BY BW HH BB NW'.split()
+df['Staaten'] = index_staaten
+df.set_index('Staaten', inplace=True)
+
+# returns name of Index
+df.index.name
+
+
+```
 
 ![Pandas_merkblatt_01](.\Pandas_Merkblatt_01.png)
 ![Pandas_merkblatt_01](.\Pandas_Merkblatt_02.png)
