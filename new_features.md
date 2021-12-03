@@ -1101,6 +1101,39 @@ rechts = pd.DataFrame({'C': ['C0', 'C2', 'C3'],
 links.join(rechts, how='outer')
 ```
 
+## <u>Operations</u>
+```python
+import pandas as pd
+
+df = pd.DataFrame({'spa1':[1,2,3,4],
+                   'spa2':[444,555,666,444],
+                   'spa3':['abc','def','ghi','xyz']})
+
+df.head() # returns x first rows of DataFrame
+df.loc[2].unique() # returns unique values of row with index 2
+df['spa2'].unique() # returns unique values of column with name spa2
+df['spa1'].nunique() # returns number of unique values
+df['spa2'].value_counts() # returns number of values
+df['spa1'].apply(function name) # applies the function to all values
+df['spa2'].apply(lambda x: x*3) # applies lambda is posible
+df.drop('spa1', axis=1) # delete row or col not permanently
+del df['spa1'] # Delete row or column from DataFrame permanently
+df.columns # show all columns names
+df.index
+df.sort_values(by='spa2', inplace=True) # sorts DF by spa2
+
+data = {'A':['foo','foo','foo','bar','bar','bar'],
+        'B':['one','one','two','two','one','one'],
+        'C':['x','y','x','y','x','y'],
+        'D':[1,3,2,5,4,1]
+}
+
+df = pd.DataFrame(data)
+
+# pivote table
+df.pivot_table(values='D', index=['A','B'],columns='C')
+```
+
 ![Pandas_merkblatt_01](.\Pandas_Merkblatt_01.png)
 ![Pandas_merkblatt_01](.\Pandas_Merkblatt_02.png)
 
