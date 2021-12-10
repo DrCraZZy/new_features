@@ -441,5 +441,27 @@ df = pd.DataFrame(data)
 df.pivot_table(values='D', index=['A','B'],columns='C')
 ```
 
+# <u>CSV, Excel and SQL</u>
+```python
+import numpy as np
+import pandas as pd
+
+df = pd.read_csv(<file path>)
+df.to_csv(<file name>)
+
+df = pd.read_excel(<path>, sheetname=<sheetname>)
+df.to_excel(<path>, sheetname=<name>)
+
+# es werden alle Tabellen auf der Seit geparst
+# und als liste in df_html gespeichern
+df_html = pd.read_html(<link>)
+
+from sqlalchemy import create_engine
+
+engine = create_engine('sqlite:///:memory:')
+df.to_sql('Daten', engine)
+sql_df = pd.read_sql('Daten', con=engine)
+```
+
 ![Pandas_merkblatt_01](.\Pandas_Merkblatt_01.png)
 ![Pandas_merkblatt_01](.\Pandas_Merkblatt_02.png)
