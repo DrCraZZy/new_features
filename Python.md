@@ -1031,6 +1031,11 @@ __re.split()__
     re.split(r'pattern', string, flags=0)
 
 ## <u>SQLAlchemy</u>
+```python
+from sqlalchemy import create_engine
+
+engine = create_engine(<engine of the DB>)
+```
 
 # <u>WSL2</u>
 
