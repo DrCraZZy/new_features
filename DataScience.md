@@ -417,6 +417,7 @@ df = pd.DataFrame({'spa1':[1,2,3,4],
                    'spa3':['abc','def','ghi','xyz']})
 
 df.head() # returns x first rows of DataFrame
+df['spa2'].nunique # returns a nubmer of unique values
 df.loc[2].unique() # returns unique values of row with index 2
 df['spa2'].unique() # returns unique values of column with name spa2
 df['spa1'].nunique() # returns number of unique values
