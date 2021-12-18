@@ -519,6 +519,155 @@ for i in squares: # -> iteration over keys
 |len()|	Return the length (the number of items) in the dictionary.|
 |sorted()|	Return a new sorted list of keys in the dictionary.|
 
+### <u>Python pipe library</u>
+
+Library __pipe__ make it posible to use pipes ( | ) to apply multiple methods on an iterable.
+```bash
+pip install pipe
+```
+
+```python
+from pipe import select, where, chain, groupby
+
+arr = [1, 2, 3, 4, 5]
+list(arr
+    | where(lambda x: x % 2 == 0)
+    | select(lambda x: x * 2))
+```
+
+__where - Filter elements in an Iterable__
+```python
+list(arr | where(lambda x: x % 2 == 0)) # -> [2, 4]
+```
+
+__select - Apply a Function to an Iterable__
+```python
+list(arr | select(lambda x: x * 2)) # -> [2, 4, 6, 8, 10]
+```
+
+__chain - Unfold Iterables__
+```python
+nested = [[1, 2, [3]], [4, 5]]
+list(nested | chain) # -> [1, 2, [3], 4, 5]
+```
+
+__traverse - Traverse__
+```python
+list(nested | traverse) # -> [1, 2, 3, 4, 5]
+```
+
+__groupby - Group Elements__
+```python
+list(
+    (1, 2, 3, 4, 5, 6, 7, 8, 9)
+    | groupby(lambda x: "Even" if x % 2==0 else "Odd")
+    | select(lambda x: {x[0]: list(x[1])})
+) # -> [{'Even': [2, 4, 6, 8]}, {'Odd': [1, 3, 5, 7, 9]}]
+
+list(
+    (1, 2, 3, 4, 5, 6, 7, 8, 9)
+    | groupby(lambda x: "Even" if x % 2==0 else "Odd")
+    | select(lambda x: {x[0]: list(x[1] | where(lambda x: x > 2))})
+) # -> [{'Even': [4, 6, 8]}, {'Odd': [3, 5, 7, 9]}]
+```
+
+__dedup - Deduplicate__
+```python
+arr = [1, 2, 2, 3, 4, 5, 6, 6, 7, 9, 3, 3, 1]
+list(arr | dedup) # -> [1, 2, 3, 4, 5, 6, 7, 9]
+
+list(
+    data
+    | dedup(key=lambda fruit: fruit["name"])
+    | select(lambda fruit: fruit["count"])
+    | where(lambda count: isinstance(count, int))
+) #-> [2, 4]
+```
+
+__uniq() - Like dedup() but only deduplicate consecutive values, using the given key function if provided (or else the identity)__
+```python
+list([1, 1, 2, 2, 3, 3, 1, 2, 3] | uniq) # -> [1, 2, 3, 1, 2, 3]
+```
+__tee - outputs to the standard output and yield unchanged items, usefull for debugging__
+```python
+sum([1, 2, 3, 4, 5] | tee)
+# -> 1
+# -> 2
+# -> 3
+# -> 4
+# -> 5
+# -> 15
+```
+
+__take_while() - yields elements of the given iterable while the predicat is true__
+```python
+list([1, 2, 3, 4] | take_while(lambda x: x < 3)) # ->[1, 2]
+```
+__skip_while() - skips elements of the given iterable while the predicat is true, then yields others__
+```python
+list([1, 2, 3, 4] | skip_while(lambda x: x < 3)) # -> [3, 4]
+```
+
+__chain_with() - yields elements of the given iterable, then yields elements of its parameters__
+```python
+list((1, 2, 3) | chain_with([4, 5], [6])) # -> [1, 2, 3, 4, 5, 6]
+```
+
+__take() - yields the given quantity of the first elements of the given iterable.__
+```python
+list((1, 2, 3, 4, 5) | take(2)) # -> [1, 2]
+```
+
+__tail() - yields the given quantity of the last elements of the given iterable.__
+```python
+list((1, 2, 3, 4, 5) | tail(3)) # -> [3, 4, 5]
+```
+
+__skip() - Skips the given quantity of elements from the given iterable, then yields__
+```python
+list((1, 2, 3, 4, 5) | skip(2)) # -> [3, 4, 5]
+```
+
+__reverse__
+```python
+list([1, 2, 3] | reverse) # -> [3, 2, 1] 
+```
+
+__strip - Like Python's strip-method for str (also lstrip and rstrip).__
+```python
+'  abc   ' | strip # -> 'abc'
+'.,[abc] ] ' | strip('.,[] ') # -> 'abc'
+```
+
+__permutations() - Returns all possible permutations__
+```python
+list('ABC' | permutations(2)) # -> [('A', 'B'), ('A', 'C'), ('B', 'A'), ('B', 'C'), ('C', 'A'), ('C', 'B')]
+list(range(3) | permutations) # -> [(0, 1, 2), (0, 2, 1), (1, 0, 2), (1, 2, 0), (2, 0, 1), (2, 1, 0)]
+```
+
+__transpose() - Transposes the rows and columns of a matrix__
+```python
+[[1, 2, 3], [4, 5, 6], [7, 8, 9]] | transpose # -> [(1, 4, 7), (2, 5, 8), (3, 6, 9)]
+```
+    
+__izip() - Just the itertools.izip__
+```python
+list((1, 2, 3, 4, 5, 6, 7, 8, 9) | izip([9, 8, 7, 6, 5, 4, 3, 2, 1])) 
+# -> [(1, 9), (2, 8), (3, 7), (4, 6), (5, 5), (6, 4), (7, 3), (8, 2), (9, 1)]
+```
+    
+   
+
+
+
+
+
+
+
+
+
+
+
 
 ### <u>Python File I/O</u>
 ### Opening Files in Python
