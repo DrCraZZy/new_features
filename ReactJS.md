@@ -78,3 +78,48 @@ ReactDOM.render(
 );
 ```
 
+## Project structure
+
+index.js:
+```javascript
+import React from "react";
+import ReactDOM from "react-dom";
+import App from "./App";
+
+ReactDOM.render(<App />, document.getElementById("root"));
+```
+
+App.jsx:
+```javascript
+import React from "react";
+import Hearding from "./Hearding.jsx";
+import Listing from "./Listing.jsx";
+
+function App() {
+  return (
+    <div>
+      <Hearding />
+      <Listing />
+    </div>
+  );
+}
+
+export default App;
+```
+
+Component.jsx as example:
+```javascript
+import React from "react";
+
+function Listing() {
+  return (
+    <ul>
+      <li>Bacon</li>
+      <li>Jamon</li>
+      <li>Noodles</li>
+    </ul>
+  );
+}
+
+export default Listing;
+```
