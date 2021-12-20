@@ -123,3 +123,14 @@ function Listing() {
 
 export default Listing;
 ```
+
+## Setup local environment
+
+1. Install Node.js
+2. VS Code + Erweiterungen:
+    - vscode-icons
+    - babel-javascript
+3. [Create React App](https://reactjs.org/docs/create-a-new-react-app.html)
+    - npx create-react-app [app name]
+    - cd my-app
+    - npm start
