@@ -23,3 +23,58 @@ const name = "Maxim";
 
 ReactDOM.render(<h1>Hello {name}!</h1>, document.getElementById("root"));
 ```
+
+## Create new Componing
+
+Zu erstellen eines neuen Komponeneten wird eine Datei erstellt (__DateiName.jsx__). In diese Datei soll als erstes __React__ importiert werden.
+
+```javascript
+import React from "react";
+```
+
+Dies ermöglicht uns den HTML/JSX Syntax zu schreiben.
+
+Als nächstes wird eine `function` erstellt und anschließend exportiert.
+
+```javascript
+//step 1
+import React from "react";
+
+//step 2
+function Hearding() {
+  return <h1>My Favourite Foods</h1>;
+}
+
+//step3
+export default Hearding;
+```
+
+Zum Schluß wird das Component in die index.js Datei importiert:
+
+```javascript
+import Hearding from "./Hearding.jsx";
+```
+
+Component wird mit den Namen der Funktioni angesprochen:
+
+```javascript
+<Heading />
+```
+
+```javascript
+import React from "react";
+import ReactDOM from "react-dom";
+
+import Hearding from "./Hearding.jsx";
+import Listing from "./Listing.jsx";
+
+ReactDOM.render(
+  <div>
+    //anfügen des Components
+    <Hearding /> 
+    <Listing />
+  </div>,
+  document.getElementById("root")
+);
+```
+
