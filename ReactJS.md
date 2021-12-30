@@ -12,7 +12,7 @@ import ReactDOM from "react-dom";
 ReactDOM.render(<h1>Hello World!</h1>, document.getElementById("root"));
 ```
 
-`render` der von ReactDOM nimmt ein Element (wenn es mehrere sind einfach in __div__ verpacken). Und als zweites wird einfach ein id von dem Element übergeben, wo dieser Inhalt in HTML-File plaziert werden soll (standard ist "root")
+`render`-Funktion von ReactDOM nimmt ein Element (wenn es mehrere sind einfach in __div__ verpacken). Und als zweites wird einfach ein id von dem Element übergeben, wo dieser Inhalt in HTML-File plaziert werden soll (standard ist "root")
 
 ## Javascript-Variablen in HTML
 
@@ -157,8 +157,7 @@ function Card(props) {
 ReactDOM.render(
   <div>
     <h1>My Contacts</h1>
-    <Card
-      
+    <Card      
       name="Beyonce"
       imageUrl="https://blackhistorywall.files.wordpress.com/2010/02/picture-device-independent-bitmap-119.jpg"
       phone="+123 456 789"
@@ -245,7 +244,7 @@ import Entry from "./Entry";
 
 function createEntry(item) {
   return <Entry
-    key={item.id} //key property wird ist wichtig und wird vom React erwartet
+    key={item.id} //key property ist wichtig und wird vom React erwartet
     emoji={item.emoji}
     name={item.name}
     meaning={item.meaning}
@@ -334,7 +333,7 @@ function App () {
   // unboxing the returns
   // count is a stateful value
   // setCount is a function to change this value
-  const [count, setCount] = useState(0); //0 is hier an initiale value of count
+  const [count, setCount] = useState(0); //0 is here an initiale value of count
 
   function increase(){
     setCount(count + 1);
