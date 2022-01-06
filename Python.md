@@ -1179,13 +1179,6 @@ __re.split()__
 
     re.split(r'pattern', string, flags=0)
 
-## <u>SQLAlchemy</u>
-```python
-from sqlalchemy import create_engine
-
-engine = create_engine(<engine of the DB>)
-```
-
 # <u>WSL2</u>
 
 ->suchen in Windows nach _"Windows Feature"_. In dem Fenster _Windows-Subsystem for Linux_ & _Virtual Machine Platform_ anhacken.
