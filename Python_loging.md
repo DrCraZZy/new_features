@@ -25,7 +25,7 @@ logger.error(message)
 def divide(a,b):
     return a/b
 
-@logger.catch
+@logger.catch  # logs data in terminal and in file
 def main():
     divide(2/0)
 
