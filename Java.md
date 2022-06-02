@@ -1,5 +1,13 @@
 # <u>Java</u>
 
+Abstraction
+
+Incapsulation
+
+Polymorphism
+
+Inheritance
+
 ## Datatypes
 |Type|Value|
 |---|---|
@@ -252,4 +260,148 @@ public class Main {
 |orElse(T other)|return other| return value|
 |orElseGet(Supplier s)|return call Supplier|return value|
 |orElseThrow(Supplier s)|throw exception of Supplier|return value|
+
+## Stream API
+
+Streams sind aufeinander folgende Bearbeitung einer Collection.
+Stream pipeline besteht aus 3 Operationen:
+- Source
+- Intermediate operations
+- Terminal operation
+
+Stream kann nur 1 MAL benutzt werden. Wenn Terminal operation abgeschlossen ist, kann stream nicht noch mal gestartet werden. 
+
+Stream verfolgt lazy Prinzip. Intermediat operations werden nur dann ausgeführt, wenn Terminal operation definiert ist.
+
+### Stream erstellen
+```java
+Stream<String> empty = Stream.empty(); // leerer Stream
+Stream<Integer> singleElement = Stream.of(1); 
+Stream<Integer> anyElements = Stream.of(1, 2, 3); 
+Stream<Integer> fromArray = Arrays.stream(new Integer[] {1, 2, 3});
+
+List<String> list = Arrays.asList("a", "b", "c");
+Stream<String> listStream = list.stream();
+```
+
+### Source
+Source kann beliebige Collection sein.
+
+### Intermediate operations
+```java
+// gibt Element zurück, die dem Predicate entsprächen
+Stream<T> filter(Predicate<? super T> predicate);
+
+// liefert Stream mit uniq Werten zurück
+Stream<T> distinct();
+
+// verkürzt den Stream
+Stream<T> limit(long maxSize);
+Stream<T> skip(long n);     //überspring die ersten n Elemente
+
+// transformiert die Stream-Elemente
+<R> Stream<R> map(Function<? super T, ? extends R> mapper);
+<R> Stream<R> flatMap(Function<? super T, ? extends Stream<? extends R>> mapper);
+
+// Stream sortieren
+Stream<T> sorted();
+Stream<T> sorted(Comparator<? super T> comparator);
+```
+
+### Terminal operations
+```java
+// prüft ob alle Elemente dem Predicate entsprächen
+boolean allMatch(Predicate<? super T> predicate);
+
+// prüft ob ein Element dem Predicate entspricht
+boolean anyMatch(Predicate<? super T> predicate);
+
+// prüft ob alle Elemente dem Predicate nicht entsprächen
+boolean noneMatch(Predicate<? super T> predicate);
+
+// kombiniert alle stream-Elemente in mutable-Objekt
+<R, A> R collect(Collector<? super T, A, R> collector);
+
+// gibt Anzahl der Elemente in Stream
+long count();
+
+// gibt ein Element aus dem Stream zur+ck
+Optional<T> findAny();
+Optional<T> findFirst();
+
+// macht etwas mit jedem Stream-Element
+void forEach(Consumer<? super T> action);
+
+// gibt min/max Stream-Element
+Optional<T> min(Comparator<? super T> comparator);
+Optional<T> max(Comparator<? super T> comparator);
+
+// Kombiniert alle Elemente zu einem Primitiv oder Objekt
+<R> R collect(Supplier<R> supplier, BiConsumer<R, ? super T> accumulator,  BiConsumer<R, R> combiner);
+
+// reduce Kombiniert alle Elemente
+int[] numbers = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+
+// 1st argument, init value = 0
+int sum = Arrays.stream(numbers).reduce(0, (a, b) -> a + b);
+
+System.out.println("sum : " + sum);
+```
+
+- IntStream - arbeitet mit int, short, byte, char
+- LongStream - arbeitet mit long
+- DoubleStream - arbeitet mit double
+
+```java 
+// erstellt ein Stream von ... bis ... obere Grenze nicht eingeschlossen
+public static IntStream range(int startInclusive, int endExclusive)
+
+public static LongStream range(long startInclusive, final long endExclusive)
+
+// Stream, obere Grenze mit eingeschlossen
+public static IntStream rangeClosed(int startInclusive, int endInclusive)
+
+public static LongStream rangeClosed(long startInclusive, final long endInclusive)
+
+// erstellt Stream nach Builder-Prinzip
+public static Builder builder()
+
+DoubleStream ds = DoubleStream.builder()
+.add(3d)
+.add(5.6d)
+.add(8d)
+.build(); // 3 5.6 8
+
+// erstellt eine Summe von allen Streamelementen
+int sum();
+long sum();
+double sum();
+
+IntStream range = IntStream.range(1, 5);
+range.sum(); // 10
+
+// erstellt einen Type ähnlich wie Optional
+OptionalDouble average();
+DoubleStream ds = DoubleStream.of(2d, 4d, 6d);
+ds.average().orElse(Double.NaN); // 4
+```
+
+```java
+//Collectors
+Stream<String> ohMy = Stream.of("lions", "tigers", "bears");
+String result = ohMy.collect(Collectors.joining(", ")); // lions, tigers, bears
+
+Stream<String> ohMy = Stream.of("lions", "tigers", "bears");
+Double result = ohMy.collect(Collectors.averagingInt(String::length)); // 5.33333333333333333
+
+Stream<String> ohMy = Stream.of("lions", "tigers", "bears");
+TreeSet<String> result = ohMy
+       .filter(s -> s.startsWith("t"))
+       .collect(Collectors.toCollection(TreeSet::new)); // [tigers]
+
+Stream<String> ohMy = Stream.of("lions", "tigers", "bears");
+Map<String, Integer> map = ohMy.collect(Collectors.toMap(
+       s -> s, String::length
+)); // {lions = 5, bears = 5, tigers = 6}
+```
 
