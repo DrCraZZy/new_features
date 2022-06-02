@@ -1,6 +1,6 @@
 # <u>Java</u>
 
-### Datatypes
+## Datatypes
 |Type|Value|
 |---|---|
 |byte| min: -128|
@@ -51,7 +51,7 @@ switch(statement) {
 }
 ```
 
-### _DateTime API_
+## _DateTime API_
 _java.util.Date_ ist Deprecated dafür muss man jetzt _java.time_ benutzen. 
 
 |Typ|Beschreibung|
@@ -192,7 +192,7 @@ Link sind Parameter des _Functional-Interface_, Rechts ist die Logik.
 - Parameter (links) dürfen nicht neudefiniert werden
 - Lambda hat zugang zu den Variablen und Parameter der Funktion, in der diese definiert ist. Aber die müssen faktisch _final_ sein. Also man könnte die Variablen/Parameter _final_ setzen und es kommt kein Fehler.
 
-## Standart _functional-intefaces_ (java.util.function)
+### Standart _functional-intefaces_ (java.util.function)
 |Name|Parameter|Return|Methode|Beschreibung|
 |---|---|---|---|---|
 |Supplier<T>|0|T|get|Liefert Werte. 
@@ -206,3 +206,50 @@ Link sind Parameter des _Functional-Interface_, Rechts ist die Logik.
 |BinaryOperator<T>|2 (T, T)|T|apply|	принимает 2 параметра и возвращает результат такого же типа («двойной оператор»)
 
 Method reference - Vereinfachter Lambdaausdruck.
+
+## Interface Default und static-Methoden
+
+Default - Methode ist normale Methode. Die Befindet sich im Interface und hat Schlüsselwort _default_. _Default_ Methoden sind für alle Objekte der Klassen (die dierekt oder indierekt das Interface implementi) verfügbar. Die Methoden könn überschrieben werden und die Methode muss nicht implementiert werden. Wie jede _static_ Methode werden diese über _Interface.methode_ aufgerufen. Wie jede Statische-Methode kann die nicht geerbt werden.
+
+## _Optional< T >_
+Ein Optional ist eine Objekt, das man sich als Datenbehälter vorstellen kann, der entweder einen Wert enthält oder leer (empty) ist. Leer ist hier auch nicht gleichbedeutend mit null!
+
+```java
+Optional<String> oe = Optional.empty();              // leeres Optional
+Optional<String> os = Optional.of("Hallo Welt!");    // enthält den String "Hallo Welt!"
+
+Optional<String> on = Optional.of(null);             // NullPointerException
+Optional<String> onb = Optional.ofNullable(null);    // leeres Optional
+
+Optional<Double> optional = Optional.of(22.4d);      // erstellt Optional ohne null Möglichkeit
+Optional<Double> optional = Optional.ofNullable(22.4d);  //erstellt Optional mit null Möglichkeit
+Optional<Double> optional = Optional.ofNullable(null);
+Double nullDouble = null;
+Optional<Double> optional = Optional.ofNullable(nullDouble);
+
+// Beispiel
+import java.util.Optional;
+
+public class Main {
+   public static Optional<Double> average(int... scores) {
+       if (scores.length == 0) {
+           return Optional.empty();
+       }
+       int sum = 0;
+       for (int score : scores) {
+           sum += score;
+       }
+       return Optional.of((double) sum / scores.length);
+   }
+}
+```
+
+|Methoden|Wenn Optional.empty()|Wenn Optional.of(value)|
+|---|---|---|
+|get()|throw Runtime| return value|
+|ifPresent(Consumer c)||call Consumer with value|
+|isPresent()|return false|return true|
+|orElse(T other)|return other| return value|
+|orElseGet(Supplier s)|return call Supplier|return value|
+|orElseThrow(Supplier s)|throw exception of Supplier|return value|
+
