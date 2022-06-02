@@ -155,3 +155,54 @@ public LocalDateTime convertToLocalDateTimeViaInstant(Date dateToConvert) {
       .toLocalDateTime();
 }
 ```
+
+## Lambda-Function
+ 
+Lambda-Funktionen bauen auf _Functional-Intefaces_ auf. _Functional-Inteface_ ist ein Interface, das nur eine abstrakte Methode enthält.
+
+### Lambda syntax 
+```java
+//Concise
+n -> System.out.print(n);
+//Expanded
+(String n) -> System.out.print(n);
+//Verbose
+(String n) -> { System.out.print(n); }
+```
+Link sind Parameter des _Functional-Interface_, Rechts ist die Logik.
+
+|Fall|Regel|Beispiel|
+|---|---|---|
+|Keine Parameter|Immer Klammer|() -> new Integer(12)|
+|Eine Variable ohne Typ|mit oder ohne Klammern| s -> s.contains("m");|
+|||(s) -> s.contains("m")|
+|Variable mit Typ|immer Klammern|(String s) -> s.length()|
+|mehrere Parameter (gleicher Typ)|immer klammern|(s, t) -> s + t|
+|mehrere Parameter mit Typ|immer Klammern|(String a, int b) -> a.substring(b)|
+|Eine Code Zeile|Kann vereinfacht werden|(int b) -> b + 12|
+|||(int b) -> System.out.print(b)|
+|||(int b) -> {return b + 12;}|
+|Mehrere Zeilen|Nur im Block|(String s) -> {return s.length();}
+|||(String s) -> {
+|||    System.out.print(s); 
+|||    return s;
+|||}
+
+!Wichtig:
+- Parameter (links) dürfen nicht neudefiniert werden
+- Lambda hat zugang zu den Variablen und Parameter der Funktion, in der diese definiert ist. Aber die müssen faktisch _final_ sein. Also man könnte die Variablen/Parameter _final_ setzen und es kommt kein Fehler.
+
+## Standart _functional-intefaces_ (java.util.function)
+|Name|Parameter|Return|Methode|Beschreibung|
+|---|---|---|---|---|
+|Supplier<T>|0|T|get|Liefert Werte. 
+|Consumer<T>|1 (T)|void|accept|Consumer, In 1 return 0
+|BiConsumer<T, U>|2 (T, U)|void|accept|
+|Predicate<T>|1 (T)|boolean|test| 1 параметр и возвращает true-false («проверяльщик»)
+|BiPredicate<T, U>|2 (T, U)|boolean|test|принимает 2 параметра и возвращает true-false («двойной проверяльщик»)
+|Function<T, R>|1 (T)|R|apply| 1 параметр и возвращает результат другого типа («функция»)
+|BiFunction<T, U, R>|2 (T, U)|R|apply|	принимает 2 параметр и возвращает результат другого типа («двойная функция»)
+|UnaryOperator<T>|1 (T)|T|apply|	принимает 1 параметр и возвращает результат такого же типа («оператор»)
+|BinaryOperator<T>|2 (T, T)|T|apply|	принимает 2 параметра и возвращает результат такого же типа («двойной оператор»)
+
+Method reference - Vereinfachter Lambdaausdruck.
