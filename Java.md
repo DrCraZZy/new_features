@@ -59,7 +59,7 @@ switch(statement) {
 }
 ```
 
-## _DateTime API_
+## DateTime API
 _java.util.Date_ ist Deprecated dafür muss man jetzt _java.time_ benutzen. 
 
 |Typ|Beschreibung|
@@ -403,5 +403,117 @@ Stream<String> ohMy = Stream.of("lions", "tigers", "bears");
 Map<String, Integer> map = ohMy.collect(Collectors.toMap(
        s -> s, String::length
 )); // {lions = 5, bears = 5, tigers = 6}
+```
+
+## NIO.2 - Non-bloking I/O
+
+- Java 1.4 -> NIO
+- Java 1.7 -> NIO.2
+
+### Path
+Neu Path alt File
+```java
+// erstellt relativ Pfad
+Path path1 = Paths.get("pandas/cuddly.png");
+
+// erstellt absolut Pfad
+Path path2 = Paths.get("c:\\zooinfo\\November\\employees.txt");
+
+// erstellt absolut Pfad bei UNIX
+Path path3 = Paths.get("/home/zoodirector");
+```
+
+```java
+//URI
+Path path1 = Paths.get(new URI("file:///c:/zooinfo/November/employees.txt"));
+Path path2 = Paths.get(new URI("http://www.wiley.com"));
+```
+
+Alt in neu konvertieren
+```java
+File file = new File("pandas/cuddly.png");
+Path path = file.toPath(); // in Path
+
+Path path2 = Paths.get("cuddly.png");
+File file2 = path2.toFile(); // in File
+```
+
+### Files
+```java
+// prüfet ob File existiert
+boolean exists1 = Files.exists(Paths.get("/ostrich/feathers.png"));
+boolean exists2 = Files.exists(Paths.get("/ostrich"));
+
+// prüft ob Filelink stimmt
+try {
+   Files.isSameFile(Paths.get("/user/home/cobra"), Paths.get("/user/home/snake")); // true
+   Files.isSameFile(Paths.get("/user/tree/../monkey"), Paths.get("user/monkey")); // true
+} catch (IOException e) {
+   // Handle file I/O exception
+}
+
+// create directory
+try {
+   Files.createDirectory(Paths.get("bison/field"));
+   Files.createDirectories(Paths.get("bison/field/pasture/green"));
+} catch (IOException e) {
+   // Handle file I/O exception
+}
+
+// copy files
+try {
+   Files.copy(Paths.get("/panda"), Paths.get("/panda-save"));
+   Files.copy(Paths.get("panda/bamboo.txt"), Paths.get("panda-save/bamboo.txt"));
+} catch (IOException e) {
+   // Handle file I/O exception
+}
+
+// verschieben der Files/Ordner
+try {
+   Files.move(Paths.get("c:\\zoo"), Paths.get("c:\\zoo-new"));
+   Files.move(Paths.get("c:\\zoo\\addresses.txt"), Paths.get("c:\\zoo-new\\addresses.txt"));
+} catch (IOException e) {
+   // Handle file I/O exception
+}
+
+// löschen
+try {
+   Files.delete(Paths.get("vulture/feathers.txt"));
+   Files.deleteIfExists(Paths.get("pigeon"));
+} catch (IOException e) {
+   // Handle file I/O exception
+} 
+
+// Files lesen und schreiben
+Path path = Paths.get("/animals/gopher.txt");
+try (BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.US_ASCII)) { // Выбираем кодировку файла
+   // читаем со стрима
+   String currentLine = null;
+   while ((currentLine = reader.readLine()) != null) {
+       System.out.println(currentLine);
+   }
+} catch (IOException e) {
+   // Handle file I/O exception
+}
+
+// File lesen
+Path path2 = Paths.get("/animals/gorilla");
+List<String> data = new ArrayList<>();
+try (BufferedWriter writer = Files.newBufferedWriter(path2, Charset.defaultCharset())) {
+   writer.write("Hello World");
+} catch (IOException e) {
+   // Handle file I/O exception
+}
+
+// file lesen allLines
+Path path = Paths.get("fish/sharks.log");
+try {
+   List<String> lines = Files.readAllLines(path); // сохраняем строки из файла в лист
+   for (String line : lines) {
+       System.out.println(line); // выводим содержимое на консоль
+   }
+} catch (IOException exception) {
+   // Handle file I/O exception
+}
 ```
 
