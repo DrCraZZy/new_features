@@ -4,9 +4,9 @@ Abstraction
 
 Incapsulation
 
-Polymorphism
+Polymorphism - mehrere Formen. Ist eine Fähigkeit mithilfe eines Interfaces
 
-Inheritance
+Inheritance - ist ein Prozess bei dem ein Objekt bekommt Eigenschaften eines anderen Objektes. 
 
 ## Datatypes
 |Type|Value|
