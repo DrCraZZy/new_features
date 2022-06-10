@@ -13,4 +13,5 @@ unpleasant|unangenehm|неприятный
 dire|sehr ernst|очень серьёзно
 to be in dire straits|schwirige Situation|тяжолая ситуация
 facilities|Einrichtung, Ausstattung|Мебель, оборудование
+at the work|auf der Arbeit|на работе
 
