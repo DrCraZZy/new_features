@@ -59,6 +59,40 @@ switch(statement) {
 }
 ```
 
+## Datenstrukturen
+__Datenstruktur__ - Daten werden in einer bestimmten Art und Weise angeordnet. Es gibt dabei verschiedene Datenstrukturen, jede hat Vor-und Nachteile. Eine bekannte Datenstruktur ist zum Beispiel das Array. Dort werden die Daten quasi in einer Tabelle hinterlegt. Zugriff auf die Daten erfolgt über den Index.
+
+__Algorithmus__ - Ein Algorithmus ist eine Kette von Anweisungen um ein Problem zu lösen. Zum Beispiel, sobald man etwas bei google suchst, sucht ein Algorithmus die Informationen. Im Grunde ist ein Algorithmus eine Funktion / Methode, welches ein bestimmtes Problem löst.
+
+__O-Notation__ - Die O-Notation sagt etwas über die Performance eines Algorithmus aus. Die Performance gibt Auskunft darüber wie lange ein Algorithmus braucht um ein bestimmtes Problem / Aufgabe zu lösen.
+
+__BubbleSort__
+Beim Bubblesort Algorithmus wird ein Array – also eine Eingabe-Liste – immer paarweise von links nach rechts in einer sogenannten Bubble-Phase durchlaufen. Man startet also mit der ersten Zahl und vergleicht diese dann mit ihrem direkten Nachbarn nach dem Sortierkriterium. Sollten beide Elemente nicht in der richtigen Reihenfolge sein, werden sie ganz einfach miteinander vertauscht. Danach wird direkt das nächste Paar miteinander verglichen, bis die gesamte Liste einmal durchlaufen wurde. Die Phase wird so oft wiederholt, bis der gesamte Array vollständig sortiert ist.
+
+__Rekursion__
+Eine Methode, die sich selbst aufruft.
+
+### Komplexität O-Notation
+ - O(1) Konstant
+ - O(n) Linear
+ - O(log_2 n) Logarithmisch
+ - O(n^2) Quadratisch
+ - O(n^3) Kubisch
+ - Ο(n log n) n log n
+
+### List
+Array -> Suche -> O(1)
+
+LinkedList -> Suche -> O(n)
+
+
+### Set
+
+
+### Map
+
+
+
 ## DateTime API
 _java.util.Date_ ist Deprecated dafür muss man jetzt _java.time_ benutzen. 
 
