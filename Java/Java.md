@@ -143,17 +143,25 @@ __Vergleich ArrayList и LinkedList__
 |Anfügen/Löschen am Anfang|O(n)|O(1)|
 |Anfügen/Löschen am Ende|O(1)|O(n)|
 |Element per Index|O(1)|O(n)|
+|Contains|O(n)|O(n)|
 
 Wenn man Elemente häufig am Anfang ändern möchten, verwendet man LinkedList.
 In anderen Fällen ist es besser, ArrayList den Vorzug zu geben.
 
 ### Set
+Das Hauptmerkmal der Set-Interfaces ist das Fehlen von Duplikaten in dieser Sammlung. Ein einzigartiger Satz von Elementen ist das Hauptmerkmal dieser Datenstruktur. Schnelles Hinzufügen, Entfernen und Finden im Set ist ein ebenso wichtiges „Feature“.
+
+
+
+
+
+
 
 
 ### Map
 
 
-
+<hr><hr>
 ## DateTime API
 _java.util.Date_ ist Deprecated dafür muss man jetzt _java.time_ benutzen. 
 
