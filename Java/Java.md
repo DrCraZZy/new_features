@@ -87,11 +87,65 @@ Eine Methode, die sich selbst aufruft.
  - O(n^3) Kubisch
  - Ο(n log n) n log n
 
-### List
-Array -> Suche -> O(1)
+![complexity](../img/JAVA_15_GRAPH.jpg)
 
-LinkedList -> Suche -> O(n)
+### Collection Übersicht
+![collection](../img/Collection-framework-hierarchy.png)
 
+### __List__
+__ArrayList__
+ArrayList ist im Inneren ein Array. Der Unteschied von Array lieg daran, dass ArrayList das Array intern erweitert, wenn wir mehr Platz für neue Elemente benötigen. Bei dem ausruf
+```java
+List<String> list = new ArrayList<>();
+```
+wird intern ein Array mit der Größe 10 erstellt. Wenn man die Größe beeinflußen möchte, kann man eine Überladung des Konstruktors aufrufen.
+```java
+List<String> list = new ArrayList<>(25);
+```
+Außer dem ist es auch möglich bei der Initialisierung gleich eine Collection zu übergeben
+```java
+Queue<String> queue = new LinkedList<>();
+
+queue.add(“John”);
+queue.add(“Sam”);
+queue.add(“Mary”);
+queue.add(“Smith”);
+queue.add(“Adam”);
+
+List<String> list = new ArrayList<>(queue);
+```
+Bei der Arbeit kann man nicht auf inneres Array zugreifen. Man arbeitet nur mit den Daten die in ArrayList hinzugefügt wurden. Wenn innere Array volle größe erreicht hat, vergrößert sich das Array automatisch. Normalerweise verdoppelt sich die Größe.
+
+__LinkedList__
+LinkedList ist eine Datenstruktur, die gleich zwei Interfaces implementiert: Queue und List. Im Inneren ist es keine Array sondern eine Kette der Objekte der Klasse Node.
+```java 
+private static class Node<E> {
+   E item;        // Referenz zum Objekt in dem Node
+   Node<E> next;  // Referenz zum nächsten Objekt der Klasse Node
+   Node<E> prev;  // Referenz zum vorherigen Objekt der Klasse Node
+
+   Node(Node<E> prev, E element, Node<E> next) {
+       this.item = element;
+       this.next = next;
+       this.prev = prev;
+   }
+}
+```
+
+![LinkedList_Organisation](../img/JAVA_15_LINKEDLIST.png)
+
+Wenn wir ein Element in LinkedList einfügen, prüfen wir, ob die Liste leer ist. Wenn die Liste leer ist, wird ein Node-Objekt erstellt, das keine Verknüpfungen zu den vorherigen und nächsten Node hat. Bei der nächsten Hinzufügung wird jeder vorhandene NOde überprüft, um zu sehen, ob es einen Link zum nächsten Node gibt. Wenn also ein solcher Link für einen bestimmten Node null ist, dann ist der Knoten der letzte in der Sammlung, und das hinzugefügte Element kann daran „angehängt“ werden. Dasselbe passiert mit der Suche, nur vergleichen wir jetzt das gewünschte Element mit dem Element im Knoten und folgen bei Ungleichheit dem Link zum nächsten Knoten.
+
+__Vergleich ArrayList и LinkedList__
+
+|Operation|ArrayList|LinkedList|
+|---|---|---|
+|Anfügen/Löschen am Anfang|O(n)|O(1)|
+|Anfügen/Löschen am Ende|O(1)|O(n)|
+|Element per Index|O(1)|O(n)|
+
+Wenn man Elemente häufig am Anfang ändern möchten, verwendet man LinkedList.
+In anderen Fällen ist es besser, ArrayList den Vorzug zu geben.
 
 ### Set
 
