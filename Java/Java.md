@@ -1,5 +1,12 @@
 # <u>Java</u>
 
+### JDK
+![JDK](../img/JDK.png)
+
+### JRE
+![JRE](../img/JRE.png)
+
+
 Abstraction
 
 Incapsulation
@@ -516,4 +523,206 @@ try {
    // Handle file I/O exception
 }
 ```
+
+<hr><hr>
+
+## Memory model und Garbage Collection
+Speicher einer Anwendung, welche mit _JVM_ gestartet wurde, wird als _native memory_ bezeichnet. Die besteht aus verschiedenen Bereichen. Zwei davon sind __heap__ und __stack__.
+
+__Heap__ ist für Objekte und Klassen vorgesehen:
+- alle Threads haben den globalen Zugang zu _heap_ - jeder Thread kann auf jeden Objekt im _heap_ bekommen
+- _heap_ wird mit dem Start einer Anwendung erstellt und mit dem Beenden der Anwendung gelöscht
+- _heap_ Größe kann sich wehrend der Laufzeit ändern
+
+__Stack__ wird für das Speichern der Ausführungsreihenfolge der Threads benutzt. Jeder _stack_ funktioniert nach dem __LIFO__ Prinzip .
+- _stack_ wird bei Thread initialisierung erstellt
+- vor jeder Aufruf einer Methode wird ein _stack frame_ erstellt, dieser wird für das Speichern der lokalen Variablen/Parameter (Primitiv) und Links auf Objekt in _heap_
+- nach dem Beenden einer Methode wird _stack frame_ gelöscht und Speicher kann für andere Methoden benutzt werden
+- nach dem Beenden eines Threads wird auch sein _stack_ gelöscht
+
+__stack__ und __heap__ manuel angeben:
+- -Xms{size}, -Xmx{size} - min bis max Größe für _heap_, wenn zuwenig Speicher _java.lang.OutOfMemoryError_
+- -Xss{size} - max Größe für _stack_, wenn zuwenig Speicher _java.lang.StackOverflowError_
+- size kann in Gigabyte (G/g) oder Megabyte (M/m) oder Kilobyte (K/k) angegeben werden (Beispiel: -Xmx3g / -Xmx3072m /-Xmx3145728)
+
+Beispiel:
+```java
+//heap
+import java.util.*;
+
+public class OOMExample {
+   public static void main(String[] args) {
+       List<Object> objects = new LinkedList<>();
+       for (int i = 0; i < 100; i++) {
+           objects.add(new byte[1024 * 1024]);
+       }
+       System.out.println("Success!");
+   }
+}
+
+//stack
+public class SOExample {
+   public static void main(String[] args) {
+       // рекурсивный вызов глубиной в
+       // 50 тысяч фреймов
+       loop(50_000);
+       System.out.println("Success!");
+   }
+
+   public static void loop(int repeats) {
+       if (repeats > 0) {
+           loop(repeats - 1);
+       }
+   }
+}
+```
+```shell
+% javac OOMExample.java
+% java -Xmx100m OOMExample
+Exception in thread "main" java.lang.OutOfMemoryError: Java heap space
+       at OOMExample.main(OOMExample.java:7)
+% java -Xmx200m OOMExample
+Success!
+
+% javac SOExample.java
+% java -Xss1m SOExample    
+Exception in thread "main" java.lang.StackOverflowError
+       at SOExample.loop(SOExample.java:8)
+       at SOExample.loop(SOExample.java:8)
+       at SOExample.loop(SOExample.java:8)
+       ...
+% java -Xss3m SOExample
+Success!
+```
+
+## Native Memory
+__Native Memory Tracking ([NMT](https://docs.oracle.com/en/java/javase/14/troubleshoot/diagnostic-tools.html#GUID-1F53A50E-86FF-491D-A023-8EC4F1D1AC77))__ - Tool für das Beobachten des Speicherverbrauchs
+-XX:NativeMemoryTracking={mode} (mode - ditalisierung der Ausgabe, _off_, _summary_ und _detail_)
+Mit dem Tool _jps_ kann man Prozessindentifikator erfahren. Dieser wird für den Tool [_jcmd_](https://docs.oracle.com/en/java/javase/14/docs/specs/man/jcmd.html) benötigt um damit einen Bericht für den Prozess aufzurufen.
+
+```cmd
+Prozess kompilieren und starten mit NTM
+% javac NMTExample.java
+% java -XX:NativeMemoryTracking=detail NMTExample
+
+Prozess ID abrufen
+% jps
+19248 NMTExample
+22225 Jps
+
+Bericht für NMTExample ansehen
+% jcmd 19248 VM.native_memory
+
+9248:
+
+Native Memory Tracking:
+
+Total: reserved=5620109KB, committed=667801KB
+-                 Java Heap (reserved=4061184KB, committed=561152KB)
+                           (mmap: reserved=4061184KB, committed=561152KB)  
+ 
+-                     Class (reserved=1056879KB, committed=4975KB)
+                           (classes #474)
+                           (  instance classes #401, array classes #73)
+                           (malloc=111KB #574)  
+                           (mmap: reserved=1056768KB, committed=4864KB)  
+                           (  Metadata:   )
+                           (    reserved=8192KB, committed=4352KB)
+                           (    used=141KB)
+                           (    free=4211KB)
+                           (    waste=0KB =0.00%)
+                           (  Class space:)
+                           (    reserved=1048576KB, committed=512KB)
+                           (    used=8KB)
+                           (    free=504KB)
+                           (    waste=0KB =0.00%)
+ 
+-                    Thread (reserved=31947KB, committed=1599KB)
+                           (thread #31)
+                           (stack: reserved=31808KB, committed=1460KB)
+                           (malloc=105KB #188)  
+                           (arena=34KB #60)
+ 
+-                      Code (reserved=247725KB, committed=7585KB)
+                           (malloc=37KB #398)  
+                           (mmap: reserved=247688KB, committed=7548KB)  
+ 
+-                        GC (reserved=208309KB, committed=78425KB)
+                           (malloc=23809KB #14174)  
+                           (mmap: reserved=184500KB, committed=54616KB)  
+ 
+-                  Compiler (reserved=239KB, committed=239KB)
+                           (malloc=74KB #66)  
+                           (arena=165KB #5)
+ 
+-                  Internal (reserved=578KB, committed=578KB)
+                           (malloc=542KB #998)  
+                           (mmap: reserved=36KB, committed=36KB)  
+
+-    Native Memory Tracking (reserved=502KB, committed=502KB)
+                           (malloc=176KB #2497)  
+                           (tracking overhead=326KB)
+```
+- _reserved_ - reservierter Speicher
+- _committed_ - benutzter Speicher
+
+## Garbage Collector
+Solange ein Thread am Leben ist, alle Objekte, die in seinem _stack frame_ verlinkt sind, werden nicht gelöscht. In dem Kontext werden Threads und deren _stack frames_ als __gc roots__.
+
+Codeblock ist Code, der von geschweiften Klammern umgeben ist. Sobald der Thread die Ausführung im verschachtelten Block beendet hat, stehen die Variablen dem äußeren Block nicht mehr zur Verfügung. Wenn die lokale Variable Referenztyp ist, hat die JVM nachdem die Variable den Gültigkeitsbereich verlassen hat, das Recht, die Referenz zu löschen (aber nicht das Objekt, auf das sie zeigt).
+
+Ein Objekt, das den Root-Status hat, wird automatisch als erreichbar betrachtet, und der Garbage Collector hat nur dann das Recht, es zu löschen, wenn dieser Status verloren geht.
+Die vollständige Liste der __gc roots__ lautet wie folgt:
+- Aktive Threads und Referenzen, die auf ihrem _stack frame_ liegen (sowohl lokale Variablen als auch Methodenparameter).
+- Vom Systemklassenloader geladene Klassen.
+- Objekte, auf die von Low-Level-Code verwiesen wird, der mit nativer Schnittstelle (JNI) geschrieben oder von der virtuellen Maschine selbst verwendet wird (implementierungsspezifisch).
+
+Der Garbage-Collection-Prozess kann in zwei Phasen unterteilt werden:
+- Erstellen eines Erreichbarkeitsdiagramms, ausgehend von den Wurzeln, mit dem Markieren von Objekten als erreichbar (Mark) 
+- Das Löschen aller Objekte, die nicht in diesem Diagramm enthalten sind (Sweep).
+
+![GC-Prozess](../img/JAVA_18.2_mark_sweep.gif/)
+
+### Stop The World
+Eine der häufigsten Nebenwirkungen der Garbage Collection ist das Anhalten der Welt (Stop The World oder stw-pause). In verschiedenen Phasen der Arbeit des Sammlers muss er die Anwendung möglicherweise unterbrochen werden. Die Pausen selbst sind nicht notwendig, aber sie vereinfachen das Leeren des _heaps_ erheblich. Die meisten Java Virtual Machines können keine Pausen verarbeiten. Der Grund für Pausen ist die Dynamik des Erreichbarkeitsgraphen. Während seiner Durchquerung können zuvor markierte Objekte unzugänglich werden, und der Garbage Collector entfernt möglicherweise nicht, was gerade zu Garbage wurde. Oder umgekehrt – die Wurzel kann auf ein neues Objekt verweisen und der Garbage Collector muss dies berücksichtigen, um die verwendeten Objekte nicht versehentlich zu löschen.
+
+__Generationshypothese__
+Der einfachster Weg die Zeit zu sparen ist weniger sinnlose Arbeit zu erledigen. Im Falle der Garbage Collection kann nutzlose Arbeit als unnötiges Durchlaufen von Objekten angesehen werden, die höchstwahrscheinlich kein Garbage sind. Basierend auf empirischen Beobachtungen für objektorientierte Sprachen wurde die sogenannte Generationshypothese formuliert. Im Allgemeinen enthält diese Hypothese zwei Axiome:
+- Die Lebensdauer der meisten Objekte ist extrem kurz und sie „sterben jung“.
+- Die Zahl der Verweise auf „junge“ Objekte von „alten“ ist gering.
+
+![GC-Prozess](../img/JAVA_18.2_survival.png/)
+
+__Der Algorithmus der Arbeit von Garbage Collectors, der auf der Hypothese von Generationen basiert, kann wie folgt beschrieben werden:__
+
+- Alle Objekte sind Eden zugeordnet.
+- Wenn in Eden nicht genügend Speicherplatz vorhanden ist, wird der Garbage Collector ausgelöst. Alle verbleibenden Live-Objekte werden auf S0 kopiert. Das gesamte Eden-Gebiet wird geräumt.
+- Wenn in S0 nicht genügend Speicherplatz vorhanden ist, findet ein Garbage Collector unter den verbleibenden Objekten statt. Alle verbleibenden Objekte von S0 werden nach S1 verschoben, S0 wird gelöscht und diese Bereiche werden umgekehrt.
+- Wenn Objekte im Survivor Space genügend Bauzyklen durchlaufen haben, um als alt zu gelten, werden sie in die alte Generation verschoben.
+- Wenn in der alten Generation nicht genügend Speicherplatz vorhanden ist, findet dort ein Garbage Collector statt. Zusätzlich zum Löschen von Objekten können sie komprimiert werden, um die Speicherfragmentierung zu beseitigen.
+- Wenn keine Objekte mehr in die alte Generation platziert werden können, tritt ein Speicherfehler (java.lang.OutOfMemoryError) auf. Denken Sie daran, dass dieser Fehler bei Threads auftritt, die versucht haben, ein Objekt zuzuweisen.
+
+_Es ist erwähnenswert, dass es Situationen gibt, in denen junge Objekte vorzeitig in die alte Generation fallen können. Wenn beispielsweise die Größe eines Objekts die Größe von Eden überschreitet, kann es sofort in der alten Generation zugewiesen werden. Dasselbe gilt für Survival._
+
+Bei einigen Garbage Collectors kann ein Speichermangel nicht nur dann auftreten, wenn es physikalisch unmöglich ist, ein Objekt zuzuordnen, sondern auch, wenn der Garbage Collector die meiste Zeit der Anwendung in Anspruch nimmt, wenn die Anzahl der zu löschenden Objekte gering ist . Diese Situation wird _gc overlimit_ genannt und tritt normalerweise auf, wenn der Garbage Collector mehr als 98 % der Zeit in Anspruch nimmt und nicht mehr als 2 % des Heapspeichers durch der Garbage Collector freigegeben werden.
+
+## Memory leak. Heapdump
+Ein Speicherleck ist eine Situation, in der sich Objekte auf dem Heap befinden, die nicht mehr verwendet werden, der Garbage Collector sie jedoch nicht entfernen kann, was zu einer Verschwendung von Speicher führt.
+
+Lecks sind ein Problem, da sie Speicherressourcen sperren, was mit der Zeit zu einer Verschlechterung der Performance führt. Und wenn es nicht behoben wird, erschöpft die Anwendung ihre Ressourcen und wird mit einem __java.lang.OutOfMemoryError__-Fehler beendet.
+
+Es gibt zwei Arten von Heap-basierten Objekten: solche, die aktive Referenzen in der Anwendung haben, und solche, auf die von keiner Variablen des Referenztyps verwiesen wird.
+Der Garbage Collector entfernt regelmäßig Objekte, die keine aktiven Verweise mehr haben, entfernt jedoch niemals Objekte, auf die verwiesen wird.
+
+### Memory leak durch Inner-Class
+
+None static inner Klassen (anonym) erfordern immer eine Instanz der äußeren Klasse, um initialisiert zu werden. Jede nichtstatische innere Klasse hat standardmäßig einen impliziten (verborgenen) Verweis auf die Klasse, in der sie sich befindet. Wenn wir dieses Objekt der inneren Klasse in unserer Anwendung verwenden, wird es auch nach Abschluss der Arbeit des Objekts der äußeren Klasse nicht vom Garbage Collector zurückgefordert.
+
+### Memory leak durch Static-Fields
+
+Systemloader/Classloader ist __root__ für GC und initialisierte static fields der geladenen Klassen sind aus dem Classloader erreichbar, also darf der GC die nicht entsorgen, weil es immer noch ein Link auf die Felder existiert.
+
+### Memory leak durch nicht geschloßen Resource
+
+Immer wenn men eine neue Verbindung erstellt oder einen Thread öffnet, weist die JVM Speicher für diese Ressourcen zu. Dies können Datenbankverbindungen, eingehende Streams oder Sitzungsobjekte sein. Indem man vergisst, diese Ressourcen zu schließen, kann man Speicher sperren, wodurch sie für den Garbage Collector nicht verfügbar sind. Dies kann selbst dann passieren, wenn eine Ausnahme auftritt, die das Programm daran hindert, den Code auszuführen, der für das Schließen der Ressourcen verantwortlich ist.
 
