@@ -6,6 +6,10 @@ __Present Perfect__ - wird verwendet, um über etwas zu sprechen, das zu einer n
 
 _Hinweis zur Sprache: Im amerikanischen Englisch bedeutet __I've got__ Besitz, wie zum Beispiel __I've got my ticket__ (ich habe mein Ticket). Wenn Sie __I've gotten a ticket__ sagen, heißt das, dass Sie gerade ein Ticket bekommen bzw. sich eines gekauft hat._
 
+__Past Continuous__ - wird verwendt, um sich auf eine Tätigkeit oder ein Ereignis zu beziehen, das innerhalb einer Zeitspanne in der Vergangenheit stattgefunden hat. Bilden Sie das Past Continuous mit der Vergangenheitsform des Verbs be und einem Verb *. Past Continuous oft verwendet wird, um Hintergrundinformationen zu einer Geschichte zu geben.
+
+I was + V+ing - Ich war gerade dabei etwas zu machen
+
 __Adverbien für das Present Perfect__
 
 Verwenden Sie die Adverbien _yet_, _already_, _never_ und _ever_ mit dem Present Perfect, um auf einen Zeitraum hinzuweisen, der bis in die Gegenwart reicht.
