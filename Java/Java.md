@@ -211,8 +211,14 @@ TreeSet — Implementierung von NavigableSet, ermöglicht es Ihnen, die Elemente
 <hr><hr>
 
 ### Map
+Map - speichert Key-Value - Paar
 
+__HashMap__
 
+Meist benutzte Implementierung der Map ist HashMap.
+![hash_map](../img/JAVA_15_HASHMAP.png)
+
+Links (table[]) ist die Hash-Tabelle. Beim Hinzufügen eines Schlüssel-Wert-Paares zur Map wird der HashCode für den Schlüssel berechnet, daraus der Index des internen Arrays berechnet und das Node-Objekt dort platziert:
 <hr><hr>
 
 ## DateTime API
