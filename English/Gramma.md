@@ -14,6 +14,13 @@ __Adverbien für das Present Perfect__
 
 Verwenden Sie die Adverbien _yet_, _already_, _never_ und _ever_ mit dem Present Perfect, um auf einen Zeitraum hinzuweisen, der bis in die Gegenwart reicht.
 
+Nebensätze mit 'when' im Past Continuous.
+Verwenden Sie das Past Continuous, um die erste Handlung zu beschreiben, und dann einen Nebensatz mit when und Past Simple, um die Unterbrechung zu beschreiben.
+
+_I was writing an email when the phone rang._
+_I was taking a shower when someone knocked on the door._
+
+
 <hr>
 
 __as + _Adjektiv_ + as__ um Vergleich anzustellen. Dieser Ausdruck wird oft in der negativen Form verwendet und diese kann man auf verscheidene Weisen bilden.

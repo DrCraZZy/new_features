@@ -16,3 +16,5 @@ facilities|Einrichtung, Ausstattung|Мебель, оборудование
 at the work|auf der Arbeit|на работе
 relatives |Verwandtschaft|родственики
 acquaintance|Bekannter|знакомый
+guilty|schuldig|виноват|
+upset|traurig|грустно|
