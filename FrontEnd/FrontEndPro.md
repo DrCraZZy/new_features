@@ -317,3 +317,103 @@ _animation-fill-mode_ - was passiert mit dem Objekt nach der Animation
 |backwards|Zustand bis zur Animation|
 |both|
 
+
+# Modul 10 (JavaScript)
+
+## Arrays
+```javascript
+// type of array
+typeof [];
+"object"
+
+// length
+const arr =  [1, 2];
+console.log(arr.length);
+2
+
+// Array.isArray()
+const arr =  [1, 2];
+console.log(Array.isArray(arr));
+true
+```
+
+### Array-Methoden
+_.push(...items), .unshift(...items)_ - Elemente am Ende / am Anfang des Arrys anfügen
+_.pop(), .shift()_ - Elemente am Ende / am Anfang des Arrys löschen
+_.splice(index[, deleteCount, elem1, ..., elemN])_ - Elemente löschen / anfügen
+_.concat()_ - Arrays konkatenieren
+
+```javascript
+let arr = [ "orange"];
+arr.unshift("apple");// arr = ["apple", "orange"];
+arr.push("strawberry");// arr = ["apple", "orange", "strawberry"];
+arr.shift(); //arr =  ["orange", "strawberry"];
+arr.pop();// arr =  ["orange"];
+```
+
+_.map(function)_ - geht durch Array durch und bearbeitet die Elemente entsprechend der funktion (es entsteht eine neues Array)
+
+```javascript
+let result = arr.map(function(item, index, array) {
+
+  // gibt eine neues Element zurück
+  // item — aktueller Element des Arrays
+  // index — Index des aktuellen Elements
+  // array — Array
+
+});
+```
+
+_.reduce(cb) или reduceRight(cb)_ - akkumuliert die Elemente des Arrays
+
+```javascript
+let result = arr.reduce(function(previousValue, item, index, array) {
+
+  // ...
+  // item — aktueller Element des Arrays
+  // index — Index des aktuellen Elements
+  // array — Array
+
+}, [initial]);
+```
+
+## Schleifen
+
+```javascript
+for(let i = 0; i < 10; i++) {...}
+
+for(let i in object) {...}
+
+while(){...}
+
+do {...} while()
+
+arr.forEach(function(item, index, array) {
+  ...
+});
+```
+
+## Map
+```javascript
+// Kann beliebigen Typ als Schlüssel benutzen
+let map = new Map(); // Map anlegen
+
+map.set("1", "string"); // Wert anfügen
+
+map.get(1); // Wert auslesen 
+
+map.size; // größe erfahren
+
+// schleife über map
+for (let name of fruits.keys()) { // .keys() - gibt Schlüssel zurück
+  console.log(name); // apple, strawberry, blueberry
+}
+
+for (let color of fruits.values()) { // .values() - gibt Werte zurück
+  console.log(color); // green, red, blue
+}
+
+for (let elem of fruits) { // gibt Schlüssel Wert nach einander
+   console.log(elem); // apple, green, strawberry, red, blueberry, blue
+}
+```
