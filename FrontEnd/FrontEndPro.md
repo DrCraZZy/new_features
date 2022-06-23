@@ -136,7 +136,99 @@ _order_ - Damit kann man die Reihenfolge der Element eingeben. (Default: _order:
 
 ### grid
 
+Mithilfe von _grid_ können Spalten erstellt werden. 
+```html
+<div class="grid-wrapper">
+    <div class="grid-item item-1"></div>
+    <div class="grid-item item-2"></div>
+    <div class="grid-item item-3"></div>
+    <div class="grid-item item-4"></div>
+    <div class="grid-item item-5"></div>
+</div>
+```
 
+```css
+.item-1 {
+    background-color: rgb(161, 48, 48);
+}
+
+.item-2 {
+    background-color: rgb(49, 163, 68);
+}
+
+.item-3 {
+    background-color: rgb(34, 32, 180);
+}
+
+.item-4 {
+    background-color: rgb(207, 219, 29);
+}
+
+.item-5 {
+    background-color: rgb(175, 52, 165);
+}
+
+.grid-wrapper {
+    display: grid; /* 1 */
+    grid-template-columns: 200px 200px; /* 2 */
+    grid-template-rows: 100px 100px 100px; /* 3 */
+}
+
+/* oder */
+
+.grid-wrapper {
+    display: grid;
+    grid-template-columns: 500px 200px;
+    grid-template-rows: 100px 300px 100px;
+} 
+```
+
+Es muss nicht jede Spalte/Zeile aufgeschrieben werden, wenn die Größen gleich sind, kann auch _repeat()_ benutzt werden.
+
+```css
+.grid-wrapper {
+    display: grid;
+    grid-template-columns: repeat(2, 200px);
+    grid-template-rows: repeat(3, 100px);
+}
+```
+
+Damit die Größen (Breite) der Spalten sich flexibel verhält werden "Verhältnisseinheiten" __fr__ verwendet.
+
+```css
+grid-template-columns: 1fr 1fr; /* zwei Spalten 1 zu 1*/
+
+grid-template-columns: 2fr 1fr; /* zwei Spalten 2 zu 1*/
+```
+
+Damit die Anzahl der Zellen pro Reihe sich anpasst, können kann __auto-fit__ anstatt Anzahl der spalten benutzt werden.
+
+```css
+.grid-wrapper {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, 200px);
+    grid-template-rows: auto;
+}
+
+.grid-item {
+    min-height: 100px;
+}
+```
+
+Damit der Inhalt des Grides immer gut aussieht:
+
+```css
+.grid-wrapper {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    /* auto-fit - Anzahl der Spalten wird automatisch angepasst */
+    /* minmax(200px, 1fr) - min-Größe 200px; max-Größe die komplette Breite, die zur verfügung steht */
+    grid-template-rows: auto;
+    /* anzahl der Zeilen hängt von der Breite des Fensters ab */
+    grid-gap: 2vw;
+    /* grid-gap - macht Abstände zwischen den Zellen möglich */
+}
+```
 
 # Modul 8
 
