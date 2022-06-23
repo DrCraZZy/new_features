@@ -105,6 +105,39 @@ und zusätzlich Achse:
 
 Nach dem Hinzugüfen der Eigenschaft _display: flex;_ dem Container werden alle darin enthaltene Element entlang der Hauptachse ausgerichtet. Mit _flex-direction_ Position und Reihnfolge der Elemente bestimmen.
 
+_flex-direction_ Element ausrichten _row_, _row-reverse_, _column_, _column-reverse_
+
+_flex-wrap_ - Artikel in die nächste Reihe umbrechen (gilt nur, wenn die kombinierte Breite der Artikel größer ist als die des Containers)
+
+_align-content_ - gilt nur, wenn es mehrere Reihen da sind ( flex-wrapper )
+
+_justify-content_
+_flex-start_ — Anfang der Flexbox-Zeile
+_flex-end_ — Ende der Flexbox-Zeile
+_center_ — Zentrum der Zeile
+_space-between_ — vom Anfang bis Ende mit gleichmäßengen Abständen zwischen den Elementen
+_space-around_ — ordnet alle Elemente auf die Breite/Höhe mit gleichmäßigen Abständen
+
+_align-items_ - ausrichten nach auf der zusatz Achse
+_stretch_ — Element streching, wenn Höhe nicht fixiert
+_flex-start_ — Anfang der Zusatzachse
+_flex-end_ — Ende der Zusatzachse
+_center_ - Zentral
+
+_align-self_ - richtet Flex-Element auf der Zusatzachse aus. Wird dem bestimmten Element zugeordnet
+_align-self_ - auto;
+_align-self_ - center; /* Put the item around the center */
+_align-self_ - flex-start; /* Put the flex item at the start */
+_align-self_ - flex-end; /* Put the flex item at the end */
+_align-self_ - baseline; /* Baseline alignment */
+_align-self_ - stretch; /* Stretch 'auto'-sized items to fit the container */
+
+_order_ - Damit kann man die Reihenfolge der Element eingeben. (Default: _order: 0_) Kann sowohl positiv als auch negativ sein.
+
+### grid
+
+
+
 # Modul 8
 
 ## Transition
