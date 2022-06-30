@@ -165,3 +165,12 @@ USER - User umswitchen (um CMD auszuführen muss man auf root - User umschalten)
 EXPOSE - Hier wird Port für die Application angegeben
 
 CMD - Wird beim Starten des Images ausgeführt.
+
+<hr><hr>
+
+## Beispiele:
+
+### MySQL in Kontainer starten
+__mysql image holen:__ docker pull mysql
+
+__container mit dem Image starten:__ docker run --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=\<password> mysql - letzter Parameter ist der Imagename
