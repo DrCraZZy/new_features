@@ -583,3 +583,251 @@ _Higher-order function_ - Funktionen, die andere Funktionen als Argument annehme
 Es ist eine Kombination aus der Funktion und allen lexikalisch erhaltenen übergeordneten Gültigkeitsbereichen. Durch diese gespeicherten Bereichsobjekte kann die Funktion jedoch freie Variablen verwenden. Mit anderen Worten, eine Closure ist eine Funktion zusammen mit allen ihr zur Verfügung stehenden externen Variablen. Theoretisch sind alle Funktionen in JavaScript Closures.
 
 Wenn eine Funktion erstellt wird, erhält sie eine versteckte __[[Environment]]__-Eigenschaft, die sich auf den Geltungsbereich bezieht, in dem sie erstellt wurde. Wenn eine Funktion aufgerufen wird, wo immer sie im Code übergeben wird, sucht sie zuerst in sich selbst nach Variablen und dann in externen Gültigkeitsbereichen, die aus __[[Environment]]__ stammen.
+
+### Callback-Function
+Wenn nach dem _function_ ein Name steht, wird die Funktion benannt, andernfalls ist sie anonym. Wenn eine Funktion die als _Function Expression_ deklariert wurde einen Namen hat, kann man diesen Namen __nur__ im Falle einer _Rekurtion_ verwenden. 
+
+Anonyme Funktionen werden als __Callback-Function__ verwendet, wenn eine Funktion über  _Function Expression_ und __IIFE__ (immediately invoked function expression) definiert wird.
+
+__IIFE__ - Es wird eine Funktion als  _Function Expression_ deklariert und sofort aufgerufen.
+
+```javascript
+const func = function () {
+  // ...
+}();
+
+(function () {
+  // ...
+}());
+
+(function () {
+  // ...
+})();
+```
+
+__Wofür werden IIFE benutzt?__
+1. Erstellen eines lokalen Geltungsbereichs (_scope_)
+
+    Die erste, auf der alle anderen aufbauen, ist die Schaffung eines lokalen _scope_.
+    ```javascript
+    (function () {
+      const local = 123;
+      console.log(local);  // 123
+    }());
+    console.log(local);  // Uncaught ReferenceError: local is not defined
+    ```
+    Das Erstellen eines solchen Bereichs hält den globalen Bereich sauber: Wenn mehrere Skripte (z. B. Bibliotheken von Drittanbietern) den globalen Bereich verwenden, verwenden sie möglicherweise versehentlich denselben Namen für eine Variable, und aus diesem Grund funktionieren beide möglicherweise nicht mehr , weil erwartet wird, dass nur sie mit dieser Variable arbeiten können.
+
+    Zweitens kann die JS-Engine solchen Code besser optimieren – ungenutzte lokale Variablen entfernen (z. B. die lokale Variable im obigen Beispiel).
+
+    Drittens ermöglicht Ihnen der lokale Geltungsbereich Folgendes:
+    ```javascript
+    const count = function() {
+      let counter = 1;
+      function count() {
+        console.log(counter);
+        counter++;
+      }
+      return count;
+    }();
+
+    count();  // 1
+    count();  // 2
+    counter = 1;
+    count();  // 3
+
+    // Nach dem counter = 1 außerhalb der Funktion gesetzt wurde, hat es keine Einfluß auf der count() genommen, weil die Funktion und global verschiedene scopes haben.
+    ```
+
+2. Lösen der Konflikten der Variablen aus Bibliotheken
+    Der zweite Anwendungsfall für IIFE besteht darin, Konflikte zwischen Variablen aus Bibliotheken zu lösen. Beispielsweise exportieren sowohl jQuery als auch Cash die $-Variable in den globalen Gültigkeitsbereich, sodass nicht klar ist, auf welche Bibliothek Sie sich im Skript beziehen. Dies lässt sich leicht beheben, wenn Sie IIFE mit Parametern als Wrapper verwenden:
+    ```javascript
+    (function ($) {
+      // nutzen $ und wissen, dass es jQuery ist.
+    })(jQuery);
+    ```
+
+3. Modulmuster
+    Und die dritte Option haben wir im Wesentlichen schon erfunden – das Modulmuster in JavaScript. Lassen Sie uns ein einfaches Modul schreiben, das die Variable MAX_COUNT aus dem globalen Bereich importiert und mehrere Zählfunktionen exportiert:
+    ```javascript
+    MAX_COUNT = 3;
+
+    const counter = (function (max) {
+      let current = 0;
+
+      return {
+        getCurrent() {
+          return current;
+        },
+
+        increment() {
+          if (current === max) {
+            return;
+          }
+          current++;
+        },
+
+        decrement() {
+          if (current === 0) {
+            return;
+          }
+          current--;
+        },
+      };
+    })(MAX_COUNT);
+
+    counter.getCurrent();  // 0
+    counter.decrement();
+    counter.getCurrent();  // 0
+    counter.increment();
+    counter.getCurrent();  // 1
+    counter.increment();
+    counter.getCurrent();  // 1
+    counter.increment();
+    counter.getCurrent();  // 3
+    counter.increment();
+    counter.getCurrent();  // 3
+    counter.decrement();
+    counter.getCurrent();  // 2
+    ```
+    Wie inkapsulierung in OOP.
+
+__Callback__ - eine Funktion, die am Ende der Operation ausgeführt wird, wenn alle anderen Operationen bereits abgeschlossen sind. Normalerweise wird eine Rückruffunktion als letztes Argument an die Funktion übergeben. Callbacks sind normale Javascript-Funktionen. Häufig wird eine Callback-Funktion als anonyme Funktion definiert.
+
+__Usage der Callback__
+1. Wenn Sie nach Abschluss einer asynchronen Aktion (z. B. Laden von Informationen aus einer Datenbank) Code ausführen müssen.
+    ```javascript
+    function loadData(url, cb) {
+      let result = doSomethingAndGetResult(url)
+
+      // onload wird ausgelöst, wenn result vollständig geladen ist und der Callback aufgerufen wird
+      result.onload = function () {
+        cb();
+      }
+    }
+
+      loadData('url', function(){
+      // code
+      })
+    ```
+
+    Mit einem Rückruf steuern wir die Aktion.
+
+2. Als Argument in vielen Array-Methoden.
+    ```javascript
+    const arr = [1, 2, 3]
+    arr.forEach(function(item){
+      console.log(item+1)
+    })
+    ```
+
+3. Als Argument in __setTimeout__, __setInterval__ und anderen Methoden.
+
+### Arrow funtion
+
+Mit Hilfe von Function Expression können wir auch eine Pfeilfunktion deklarieren - Arrow Function. Es ist also nicht nötig, das Funktionsschlüsselwort zu schreiben. Wenn es nur einen Parameter gibt, werden keine geschweiften Klammern {} benötigt:
+```javascript
+const logText = text => console.log(text);
+
+const sayHelloWorld = () => console.log('Hello, world!');
+
+const sum = (a, b) => a + b;
+```
+
+Besonderheiten:
+- Kurze Syntax.
+- Keine Bindung dazu (dazu später mehr).
+- Kann nicht als Konstruktor verwendet werden (dazu später mehr).
+- Pseudo-Array ohne Argumente.
+
+### Object
+
+Ein Objekt ist eine ungeordnete Sammlung von Eigenschaften, wobei jede Eigenschaft aus einem Namen (Schlüssel) und einem zugeordneten Wert besteht. Objekte in JavaScript können als assoziative Arrays bezeichnet werden, da sie aus einem Schlüssel-Wert-Paar bestehen. Sie sind darauf ausgelegt, komplexe Datenstrukturen zu speichern.
+
+Ein Objekt wird mit geschweiften Klammern {...} mit einer optionalen Liste von Eigenschaften erstellt. Eigenschaften werden als 'Schlüssel:Wert'-Paar geschrieben, wobei der Schlüssel eine Zeichenfolge ist und der Wert beliebig sein kann.
+
+```javascript
+// leer
+const obj = {};
+
+// zwei key:value - Paare
+const obj2 = {
+    a: 'hello',
+    b: 123,
+};
+
+// mit new
+const obj = new Object();
+```
+
+Wenn der Wert der Eigenschaft eines Objekts eine Funktion ist, wird diese Eigenschaft als Methode bezeichnet. Eine Methode ist eine Eigenschaft, die aufgerufen werden kann.
+
+```javascript
+const obj = {
+    a: 1,
+    f: function() {
+        console.log(1);
+    },
+};
+```
+Aufrufe der Properties
+1. dot notation
+2. bracket notation
+
+Mit der Klammernotation können Sie auch auf eine Eigenschaft verweisen, deren Name in einer Variablen gespeichert ist. Dies wird als berechnete Eigenschaft bezeichnet.
+
+```javascript
+const lang = prompt("Geben Sie den Namen der Programmiersprache ein", "javascript");
+const collection = {
+    [lang]: 'Die beste Programmiersprache!', // der Eigenschaftsname wird aus der Variablen übernommen lang
+};
+alert(collection.javascript);
+```
+
+__Arbeiten mit dem Objekten__
+```javascript
+// Objekt erstellen
+const obj = {a: 1};
+
+obj.a; // 1 – Wert erhalten
+
+obj.a = 9; // neuen Wert zuweisen
+
+console.log(obj.a); // 9
+
+obj.b = 100; // neue Propertie b hinzufügen mit dem Wert 100
+
+// obj['b'] = 100; new Propertie in bracket notation
+
+// löschen der Propertie
+const obj1 = {a: 1};
+delete obj1.a; 
+console.log(obj1) // {}
+
+// Vergleich der Objekte wird nach der Referenz gemacht
+
+// existiert Propertie in Object
+const obj = {a: 1, c: undefined}; 
+console.log('a'  in obj);
+'a' in obj; // true
+'b' in obj; // false
+'c' in obj; // true
+
+// durch Objekt iterieren mit for in
+const obj = {a: 1, b: 2};
+for (let key in obj) {
+    // zeigt alle Properties/keys
+    console.log(key);
+}
+
+// a
+// b
+
+for (let key in obj) {
+    // zeigt alle Werte
+    console.log(obj[key]);
+}
+
+// 1
+// 2
+```
