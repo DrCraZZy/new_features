@@ -53,7 +53,7 @@ $ docker run hello-world
 $ reboot
 ```
 
-## Docker image
+## <u>Docker image</u>
 
 Official Images sind Images der bekannten Programmen/Server/Services, die auf [dokerhub](https://hub.docker.com/) runter geladen werden können und man kann sie im Docker laufen lassen. Um die Images Herunterzuladen braucht man den Befehl _docker pull [image name]:version_ (wobei :version ist optional, wenn es nicht angegeben wird, wird die letzte Version genommen).
 
