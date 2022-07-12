@@ -386,3 +386,27 @@ for (let key in obj) {
 // 1
 // 2
 ```
+
+# Modul 12 (DOM)
+JavaScript wurde ursprünglich für Webbrowser entwickelt. Aber seitdem hat es sich erheblich weiterentwickelt und sich zu einer plattformübergreifenden Programmiersprache zur Lösung einer Vielzahl von Problemen entwickelt.
+
+Heute kann JavaScript in einem Browser, auf einem Webserver oder in einer anderen Umgebung verwendet werden, sogar in einer Kaffeemaschine. Jede Umgebung stellt ihre eigene Funktionalität bereit, die die JavaScript-Spezifikation Umgebung nennt.
+
+Die Umgebung stellt neben der Basissprache eigene Objekte und zusätzliche Funktionen zur Verfügung. Browser bieten beispielsweise die Möglichkeit, Webseiten zu verwalten. Node.js stellt einige serverseitige Funktionen zur Verfügung und so weiter.
+
+Das folgende Bild zeigt allgemein, was für JavaScript in der Browserumgebung verfügbar ist:
+
+![js](../img/m13_browser_environment.png)
+
+Wobei __window__ ein globales Objekt ist, das alle verfügbaren Funktionen speichert. Es wird verwendet, wenn der Entwickler Methoden verwenden möchte, die vom Browser bereitgestellt werden.
+
+__Window__ tritt sowohl als _Globel Object_ für _JS_, als auch Browserfenster.
+
+__Window__ enthaelt __DOM__, __BOM__ und __JS__.
+
+__DOM__ (Document Object Model) ist das Dokumentobjektmodell. Ist eine Web-API, wie sie vom Browser bereitgestellt wird. Das DOM verwaltet eine objektorientierte Darstellung einer Webseite, wodurch es möglich ist, sie beispielsweise mit JavaScript zu ändern. Das Arbeiten mit dem _html_-Dokument wir uber das Objekt _documet_ ermöglicht. _Document_ enthält den Inhalt einer Webseite (den gesamten DOM-Baum) und bietet außerdem Funktionen, die für das _Document_ global sind (z. B. das Erstellen neuer Elemente). Von dort aus können Sie auf jeden Knoten (HTML-Element) zugreifen.
+
+__BOM__ (Browser Object Model) ist eine Browserumgebung. Es bietet Funktionalität (Objekte und Funktionen), die JavaScript verwenden kann, zum Beispiel enthält BOM häufig verwendete Dinge wie:
+- Location – gibt ein Location-Objekt mit Informationen über den aktuellen Ort des Dokuments zurück.
+- Verlauf - bietet eine Schnittstelle zum Bearbeiten des Verlaufs der Browsersitzung (z. B. besuchte Seiten im aktuellen Tab).
+- XMLHttpRequest - wird verwendet, um Anfragen an den Server zu erstellen.
