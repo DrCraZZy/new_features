@@ -22,7 +22,7 @@ __What is the purpose of JMX agent?__
 - Java Management Extensions (JMX) is a Java technology that supplies tools for managing and monitoring applications.
 
 __What is jboss cache?__
-- Frequently accessed Java objects are cached by utilyzing JBoss cache to improve the performance of e-business applications
+- Frequently accessed Java objects are cached by initialyzing JBoss cache to improve the performance of e-business applications
 
 __What is JNDI?__
 - Java Naming and Directory Interface (JNDI) is an application programming interface (API) that provides naming and directory functionality to applications written using the Java programming language
@@ -51,4 +51,26 @@ __How to choose the right JDK for Wildfly and JBoss EAP 7?__
 - [Link to overview](http://www.mastertheboss.com/jbossas/wildfly-8/choosing-the-jdk-for-wildfly-and-jboss-eap-7/)
 
 __JBoss Installation__
-- Straight 
+- Straight installation of _jboss-eap-installer.jar_
+- After installation go to _installpath_ __...\bin\__ and try to start server with _standalone.bat_. Pay attention on Java JDK version and to port for the application must be free. If the standard port ist busy, it is posable to change it in the _standalone.xml_ under _..\standalone\configuration_
+- JBoss install service
+  ```cmd
+  service.bat install /name [name_of_service]
+  ```
+  It can take a while. After the installation is over, you can open _Services_ and a new service will appear there (look for [name_of_service] that was given by installation).
+
+- Delete a service in Windows:
+    - SC STOP [shortservicename]
+  	- SC DELETE [shortservicename]
+
+-  Service starten:
+    - net start [service name] <br>
+    oder
+    - sc start [service name]
+
+-  kill service.msc:
+    - sc queryex [service name] # JBoss-eap-7.1_Int
+    - taskkill /pid [pid number] /f
+
+- For managing multiple site on the system, apache-Server is needed. It is necessary to configure a files for every application. _//apache/Apache24/conf/vhosts_
+  
