@@ -66,6 +66,30 @@ switch(statement) {
 }
 ```
 
+## OOP (Modul 6)
+
+### Vererbung (Inheritance)
+Dies ist eine Eigenschaft des Systems, mit der Sie eine neue Klasse basierend auf einer vorhandenen Klasse mit teilweise oder vollständig geliehener Funktionalität beschreiben können.
+### Verkapselung (Encapsulation)
+Es ist eine Eigenschaft des Systems, mit der Sie Daten in einer Klasse kombinieren und Implementierungsdetails vor dem Benutzer verbergen können.
+### Polymorphismus (Polymorphism)
+Es ist eine Möglichkeit, verschiedene Formen anzunehmen. In der Programmierung bedeutet dies, dass derselbe Code je nach Bedingungen unterschiedlich ausgeführt werden kann. Polymorphismus ist statisch und dynamisch.
+
+## Abstrakte-Klassen und Interfaces
+
+
+## Classes (Inner/Nested/Anonymous)
+
+
+## Input- / OutputStream
+
+
+## Exception
+
+
+## Multithreading
+
+
 ## Datenstrukturen
 __Datenstruktur__ - Daten werden in einer bestimmten Art und Weise angeordnet. Es gibt dabei verschiedene Datenstrukturen, jede hat Vor-und Nachteile. Eine bekannte Datenstruktur ist zum Beispiel das Array. Dort werden die Daten quasi in einer Tabelle hinterlegt. Zugriff auf die Daten erfolgt über den Index.
 
@@ -441,6 +465,7 @@ Stream<String> empty = Stream.empty(); // leerer Stream
 Stream<Integer> singleElement = Stream.of(1); 
 Stream<Integer> anyElements = Stream.of(1, 2, 3); 
 Stream<Integer> fromArray = Arrays.stream(new Integer[] {1, 2, 3});
+Stream<Integer> fromCollection = collection.stream();
 
 List<String> list = Arrays.asList("a", "b", "c");
 Stream<String> listStream = list.stream();
@@ -451,7 +476,7 @@ Source kann beliebige Collection sein.
 
 ### Intermediate operations
 ```java
-// gibt Element zurück, die dem Predicate entsprächen
+// gibt Element zurück, die dem Predicate entsprechen
 Stream<T> filter(Predicate<? super T> predicate);
 
 // liefert Stream mit uniq Werten zurück
@@ -472,13 +497,13 @@ Stream<T> sorted(Comparator<? super T> comparator);
 
 ### Terminal operations
 ```java
-// prüft ob alle Elemente dem Predicate entsprächen
+// prüft ob alle Elemente dem Predicate entsprechen
 boolean allMatch(Predicate<? super T> predicate);
 
 // prüft ob ein Element dem Predicate entspricht
 boolean anyMatch(Predicate<? super T> predicate);
 
-// prüft ob alle Elemente dem Predicate nicht entsprächen
+// prüft ob alle Elemente dem Predicate nicht entsprechen
 boolean noneMatch(Predicate<? super T> predicate);
 
 // kombiniert alle stream-Elemente in mutable-Objekt
@@ -508,6 +533,9 @@ int[] numbers = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 int sum = Arrays.stream(numbers).reduce(0, (a, b) -> a + b);
 
 System.out.println("sum : " + sum);
+
+// toArray()
+Erstellt einen Array aus dem Ergebenis
 ```
 
 - IntStream - arbeitet mit int, short, byte, char
