@@ -400,13 +400,47 @@ Das folgende Bild zeigt allgemein, was für JavaScript in der Browserumgebung ve
 
 Wobei __window__ ein globales Objekt ist, das alle verfügbaren Funktionen speichert. Es wird verwendet, wenn der Entwickler Methoden verwenden möchte, die vom Browser bereitgestellt werden.
 
-__Window__ tritt sowohl als _Globel Object_ für _JS_, als auch Browserfenster.
+__Window__ tritt sowohl als _Global Object_ für _JS_, als auch Browserfenster.
 
-__Window__ enthaelt __DOM__, __BOM__ und __JS__.
+__Window__ enthält __DOM__, __BOM__ und __JS__.
 
-__DOM__ (Document Object Model) ist das Dokumentobjektmodell. Ist eine Web-API, wie sie vom Browser bereitgestellt wird. Das DOM verwaltet eine objektorientierte Darstellung einer Webseite, wodurch es möglich ist, sie beispielsweise mit JavaScript zu ändern. Das Arbeiten mit dem _html_-Dokument wir uber das Objekt _documet_ ermöglicht. _Document_ enthält den Inhalt einer Webseite (den gesamten DOM-Baum) und bietet außerdem Funktionen, die für das _Document_ global sind (z. B. das Erstellen neuer Elemente). Von dort aus können Sie auf jeden Knoten (HTML-Element) zugreifen.
+__DOM__ (Document Object Model) ist das Dokumentobjektmodell. Ist eine Web-API, wie sie vom Browser bereitgestellt wird. Das DOM verwaltet eine objektorientierte Darstellung einer Webseite, wodurch es möglich ist, sie beispielsweise mit JavaScript zu ändern. Das Arbeiten mit dem _html_-Dokument wir über das Objekt _document_ ermöglicht. _Document_ enthält den Inhalt einer Webseite (den gesamten DOM-Baum) und bietet außerdem Funktionen, die für das _Document_ global sind (z. B. das Erstellen neuer Elemente). Von dort aus können Sie auf jeden Knoten (HTML-Element) zugreifen.
 
 __BOM__ (Browser Object Model) ist eine Browserumgebung. Es bietet Funktionalität (Objekte und Funktionen), die JavaScript verwenden kann, zum Beispiel enthält BOM häufig verwendete Dinge wie:
 - Location – gibt ein Location-Objekt mit Informationen über den aktuellen Ort des Dokuments zurück.
 - Verlauf - bietet eine Schnittstelle zum Bearbeiten des Verlaufs der Browsersitzung (z. B. besuchte Seiten im aktuellen Tab).
 - XMLHttpRequest - wird verwendet, um Anfragen an den Server zu erstellen.
+
+## Nodes
+Nodes sind einzelne Bestandteile des DOMs. Elemente sind HTML-Tags. Non-Elemente sind Texte, Kommentare...
+
+### ParentNodes
+Nodes werden in _ParentNodes_, _neighborNodes_ und _ChildrenNodes_. Für die Elements in dem __DOM__ gibt es zwei verschiedene Referenzen für alle Elemente (Texte und andere) und Elemente (HTML-Tags). Für das Arbeiten mit _Parents_ gibt es zwei Methoden _parentNode_ und _parentElement_.
+
+### ChildrenNodes
+Diese Kategorie wird in zwei Typen unterteilt:
+- childNodes - beinhaltet, die Elemente, die in dem Element liegen, welcher angesprochen wird (Text, Kommentare...)
+- children - beinhaltet alle Tag-Elemente in dem jeweiligen Tag
+
+Für alle Nodes: _childNode, firstChild, lastChild_
+Nur für Elemente: _children, firstElementChild, lastElementChild_
+
+Parent-Nodes sind eindeutig. Um auf die zuzugreifen kann man _parentElement_ oder _parentNode_ benutzen, beide geben Parent-Node zurück. Wobei _parentElement_ gibt Node-Element zurück und _parentNode_ gibt einen beliebigen Parent zurück.
+
+### firstChild & lastChild
+- Mit den beiden Methoden kann man den ersten und den letzten Element aus dem _childNodes_-Pseudoarray holen.
+
+- Mit der Methode _elem.hasChildNodes()_ kann man abfragen ob ein Element _childNodes_ beinhaltet.
+
+- _childNodes_ ist ein Pseudoarray und kann mit _for ... of_ durchlaufen. (mit _for...in_ wird es nicht funktionieren)
+
+- Array-Methoden für _childNodes_ funktionieren nicht. Aber _childNodes_ kann in ein Array mit __Array.from()__ umgewandelt werden.
+
+### Siblings
+- Siblings sind Nodes, die den selben Parent haben
+
+- _nextSibling_, _previousSibling_ (_parentNode_) - für alle Nodes
+
+- _previousElementSibling, nextElementSibling_ - nur für Elemente
+
+
