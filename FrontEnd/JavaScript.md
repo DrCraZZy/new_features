@@ -443,4 +443,149 @@ Parent-Nodes sind eindeutig. Um auf die zuzugreifen kann man _parentElement_ ode
 
 - _previousElementSibling, nextElementSibling_ - nur für Elemente
 
+## Suche der Elementen in DOM
+|Funktion|Was|Erklärung|
+|---|---|---|
+|document.getElementById(id)|ID|Akzeptiert die _ID_ als Zeichenfolge. Gibt Element - Objekt zurück
+|document.getElementsByTagName(tagName)|Tag|Akzeptiert den Tag-Namen als Zeichenfolge. Gibt ein Array von Elementen zurück.
+|document.getElementsByClassName(className)|Class|Akzeptiert den Klassennamen als Zeichenfolge. Gibt ein Array von Elementen zurück.
+|document.querySelector(selector)|CSS-Selector|Akzeptiert einen Selektor als Zeichenfolge, das erste Zeichen oder dessen Abwesenheit gibt den Selektor an (. (Punkt) - Klasse, # - ID, Abwesenheit - Tag-Name). Gibt das erste Element zurück.
+|document.querySelectorAll(selector)|all CSS-Selectoren|Akzeptiert einen Selektor als Zeichenfolge, das erste Zeichen oder seine Abwesenheit gibt den Selektor an (. - Klasse, # - ID, Abwesenheit - Tag-Name). Gibt ein Array von Elementen zurück.
+
+## Ändern der Elemente
+
+|Funktion|Was|Erklärung|
+|---|---|---|
+|elem.innerHTML = "content"|Fügt Content an|Bevor Sie Inhalte einfügen, müssen Sie das Element mit speziellen Funktionen finden.|
+|elem.setAttribute(attr, value)|Anfügt/Ändern des Attributs|Akzeptiert den Attributnamen als Zeichenfolge und den Wert für dieses Attribut als Zeichenfolge. Bevor Sie ein Attribut hinzufügen, müssen Sie das Element mithilfe spezieller Funktionen finden.|
+|elem.style.property = "style"|Style anfügen|Bevor Sie einen Stil einfügen, müssen Sie das Element mit speziellen Funktionen finden.|
+
+## Anfügen/Löschen der Elemente 
+|Funktion|Was|Erklärung|
+|---|---|---|
+|document.createElement(elem)|Element anfügen|Akzeptiert den Tag-Namen und -Wert für dieses Attribut als Zeichenfolge.|
+|elem.removeChild(child)|Element löschen|Akzeptiert _child_, das zu entfernende Element. _elem_ ist das übergeordnete Element, aus dem das _child_ entfernt wird.|
+
+```javascript
+// Element erstellen
+const customDiv = document.createElement("div");
+// mit Content füllen
+customDiv.innerHTML = "<span id=\"custom\">Привет!</span>";
+// suchen der Parentelement für den neuen Element
+const parent = document.getElementById("id");
+
+document.body.insertBefore(customDiv, parent);
+```
+
+_innerHTML_ kann auch Tags als Text in Tag bringen. 
+```javascript
+const content = "Hello!"
+const parent = document.getElementById("id");
+parent.innerHTML = `<div><span id="custom"> ${content}</span></div>`;
+```
+
+_insertAdjacentHTML(__position__, __html__)_ - diese Methode analysiert den angegebenen Text als HTML oder XML und fügt die resultierenden Knoten an der angegebenen Position in den DOM-Baum ein. Diese Funktion überschreibt keine bestehenden Elemente. 
+
+__Position__ sagt wo das Element eingefügt wird.
+|Position values|Explanation|
+|---|---|
+|beforebegin|vor dem Element|
+|afterbegin|nach dem öffnenden Tag|
+|beforeend|vor dem  schließenden Tag|
+|afterend|nach dem Element|
+
+```javascript
+// Parentelement such und neues Element anfügen
+const content = "Hello!"
+const parent = document.getElementById("id");
+
+parent.insertAdjacentHTML('afterend', `<div><span id="custom"> ${content}</span></div>`);
+```
+
+## Events
+Event ist Signal vom Browser, dass etwas passiert ist. (Beispiele für Events: mausclick, pageloading...)
+
+![](../img/M12_DOM_Load_Skillfactor.png)
+- __DOMContentLoaded__ - Der DOM-Baum wurde erstellt, aber die Skripte/Stile/Inhalte wurden noch nicht geladen. Feuert auf dem Dokumentobjekt ab, abgefangen mit addEventListener.
+- __load__ - Vollständig geladene HTML-Seite. Sie können es verarbeiten, indem Sie auf die Eigenschaft _window.onload_ zugreifen.
+- __beforeunload__ - Der Benutzer möchte die _window.beforeunload_-Seite verlassen. Sie können fragen, ob der Benutzer wirklich gehen möchte.
+- __unload__ - Der Benutzer hat fast die _window.unload_-Seite verlassen. Sie können Metriken oder Statistiken zur Seitenanalyse senden.
+
+Wenn wir auf ein Ereignis reagieren müssen, weisen wir einen __Handler__ zu. Das heißt, wir stellen eine Funktion ein, die funktioniert, sobald das Ereignis eingetreten ist. Dank Handler ist es möglich, dass JavaScript auf Benutzeraktionen reagieren kann.
+
+### Variante 1
+Benutzen eines Attributes eines Elements.
+```javascript
+// Attribut onclick, hierbei wir ausgeführt das was in "..." steht.
+// Also muss Funktion mit () 
+<button onclick="alert('Clicked!')">Press</button>
+
+oder 
+
+<script>
+  function clickMe() {
+    alert('Clicked!')
+  }
+</script>
+
+<button onclick="clickMe()">Press</button>
+
+// Über onclick property wird eine Referenz einer Funktion übergeben
+<button onclick="alert('HTML clicked')" id="btn">Press</button>
+<script>
+  btn.onclick = function() { // überschreibt den bestehenden Handler
+    alert('JS clicked'); 
+  };
+</script>
+```
+
+Den Handler entfernen, indem man _elem.onclick = null_ zuweisen.
+
+### Variante 2 mit addEventListener
+Vorteil bei der Benutzung __addEventListener__ ist die Möglichkeit einem Element mehrere Handler zuzuweisen.
+
+_element.addEventListener(event, handler [, phase]);_
+-event — Name des Events, für den der Handler ausgeführt wird
+-handler — code, Handler-Funktion, die gestartet wird
+-phase — Phase (normalerweise nicht verwendet, Standard = false)
+-phase true — das Ereignis wird auf dem Weg nach unten abgefangen
+-phase false — das Ereignis wird auf dem Weg nach oben abgefangen
+
+```javascript 
+<button id="btn">Press</button>
+
+<script>
+  function click1() {
+    alert('Click1');
+  };
+
+  function click2() {
+    alert('Click2');
+  }
+
+  btn.onclick = () => alert("The native handler");
+  btn.addEventListener("click", click1); // Click1
+  btn.addEventListener("click", click2); // Click2
+</script>
+```
+
+## Event Object
+
+Bei der Benutzung der Methode _addEventListener_ kann dem Handler ein _event object_ übergeben werden. Es ist ein Objekt, der vom Browser erstellt wird und wird in der Parameterliste der Funktion in Regel als _event_ oder _e_ bezeichnet. Die Eigenschaften des Objektes können über _event.prop_ oder _event[prop]_ aufgerufen werden. Häufig benutzt werden:
+- event.type - Name des Events ('click')
+- event.currentTarget - Element für Event eingegeben ist
+- event.target - Element-Trigger, Auslöser des Events
+
+Andere Evente:
+- eventPhase — Zahl, die Zeigt in welcher Phase Event ist passiert (1-capturing, 2-on target, 3-bubbling)
+- timestamp — Datum, wann Event gefeuert wurde
+- bubbles — Returnt boolean-Wert, kann diese Event "auftauchen"
+- defaultPrevented — prüft ob _preventDefault()_ Methode aufgerufen werden darf
+- view — gibt Referenz zum Window-Object zurück, in dem Event aufgerufen wird
+
+Zweiter Argument ist ein Callback, der gefeuert wird, wenn der Event eintritt
+
+Dritter Argument ist ein Objekt/Boolean, der aussagt, wann die Funktion ausgeführt wird _capturing_ oder _bubbling_ (per default ist der Wert auf false eingestellt; entspricht _bubbling_)
+
+Was bedeutet das? Ereignisse können aufgrund der Benutzer- oder Browserinteraktion mit jedem Teil eines Dokuments ausgelöst werden. Sie beginnen und enden nicht einfach am selben Ort; Sie zirkulieren im gesamten Dokument und durchlaufen ihren eigenen Lebenszyklus.
 
