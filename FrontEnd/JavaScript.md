@@ -495,7 +495,7 @@ __Position__ sagt wo das Element eingefügt wird.
 |afterend|nach dem Element|
 
 ```javascript
-// Parentelement such und neues Element anfügen
+// Parentelement suchen und neues Element anfügen
 const content = "Hello!"
 const parent = document.getElementById("id");
 
