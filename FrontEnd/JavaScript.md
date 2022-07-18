@@ -495,7 +495,7 @@ __Position__ sagt wo das Element eingefügt wird.
 |afterend|nach dem Element|
 
 ```javascript
-// Parentelement such und neues Element anfügen
+// Parentelement suchen und neues Element anfügen
 const content = "Hello!"
 const parent = document.getElementById("id");
 
@@ -589,3 +589,53 @@ Dritter Argument ist ein Objekt/Boolean, der aussagt, wann die Funktion ausgefü
 
 Was bedeutet das? Ereignisse können aufgrund der Benutzer- oder Browserinteraktion mit jedem Teil eines Dokuments ausgelöst werden. Sie beginnen und enden nicht einfach am selben Ort; Sie zirkulieren im gesamten Dokument und durchlaufen ihren eigenen Lebenszyklus.
 
+![](../img/m13_eventflow.svg)
+
+1. Wenn der Browser feuert einen Event, Element, auf dem diese Passiert, wird als Ziel markiert -_event.target_
+1. Event bewegt sich nach unten von dem Root zu _event.target_ und ruft unterwegs alle Handler, die mit der _addEventListener(..., true)_ auf, wobei true = {capture: true}. Dieser Prozess heißt _capturing_
+1. Als nächstes wird der Handler auf dem _event.target_ aufgerufen
+1. Und als letztes bewegt sich das Event wieder zu Root und ruft unterwegs alle Handler, die mit der _addEventListener(..., false)_ auf, wobei false = {capture: false}. Dieser Prozess heißt _bubbling_
+```
+Wichtig!!! Fast alle Events sind _bubbling_ bis auf einige Ausnahmen wie focus
+```
+Meistens bubbling of Events ist störend. Deshalb existieren Methoden und diese zu unterbinden.
+|Funktion|Explanation|
+|---|---|
+|event.stopPropagation()|stoppt das Bubbling des Events|
+|event.stopImmediatePropagation()|Wenn ein Element mehrere Handler besitzt, wird mit der Methode nicht nur Bubbling unterbunden, sondern auch die Restlichen Handler werden nicht ausgeführt|
+|event.preventDefault()|Unterbindet standard Benehmen des Events/Browsers|
+
+### Einen Handler vom Element löschen
+Dies kann mit der Methode _removeEventListener_ 
+```js
+element.removeEventListener(event, handler [, phase]);
+```
+- event - Typ des Events ('click')
+- handler - Handler-Funktion, wobei es die selbe Referenz sein soll
+- phase - ist meistens Default-Wert _false_
+
+```js
+// Richtig
+<button onclick="click()" id="btn">Press</button>
+
+<script>
+  function click1() {
+    alert('Click1');
+  };
+
+  btn.addEventListener("click", click1); // Click1
+  btn.removeEventListener("click", click1); // 
+</script>
+
+// False
+<button onclick="click()" id="btn">Press</button>
+
+<script>
+  btn.addEventListener("click", function() {
+    alert('Click1');
+  };); // Click1
+  btn.removeEventListener("click", function() {
+    alert('Click1');
+  };); // 
+</script>
+```
