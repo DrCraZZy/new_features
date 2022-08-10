@@ -909,7 +909,7 @@ Systemloader/Classloader ist __root__ für GC und initialisierte static fields d
 
 Immer wenn men eine neue Verbindung erstellt oder einen Thread öffnet, weist die JVM Speicher für diese Ressourcen zu. Dies können Datenbankverbindungen, eingehende Streams oder Sitzungsobjekte sein. Indem man vergisst, diese Ressourcen zu schließen, kann man Speicher sperren, wodurch sie für den Garbage Collector nicht verfügbar sind. Dies kann selbst dann passieren, wenn eine Ausnahme auftritt, die das Programm daran hindert, den Code auszuführen, der für das Schließen der Ressourcen verantwortlich ist.
 
-# Modul 21 (Maven)
+# Modul 21 ([Maven](https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html#Lifecycle_Reference))
 ![](../img/JAVA_25.1_maven.png)
 
 Apache Maven, ein deklaratives Build-Automatisierungssystem, ist weit verbreitet. Auch Maven nutzt das XML-Format, aber pom.xml (die Hauptdatei für Maven) enthält keine einzelnen Befehle, sondern eine Beschreibung des Projekts. Auf den Aufbau der pom-Datei gehen wir später noch genauer ein.
@@ -1122,36 +1122,573 @@ Als Ergebnis erhalten Sie mit der Deskriptordatei die Struktur des fertigen Arch
 1. Ändern Sie in archetype-metadata.xml den Namen des generierten Archetyps in Ihren eigenen und ersetzen Sie die generierte Projektstruktur. Fügen Sie zum Beispiel die Ordner src/main/java/db hinzu (für eine hypothetische Datenbankverbindung werden wir keine Verbindung herstellen, erstellen Sie einfach einen Archetyp für Projekte, wo es benötigt wird) und src/main/java/entity (für eine hypothetische Entitätssatz). Die Struktur wird im Tag ```<fileSets>``` angegeben.
 1. Erstellen Sie den erstellten Archetyp und fügen Sie ihn dem lokalen Repository hinzu, indem Sie den folgenden Befehl ausführen:
 ```cmd
-mvn sauber installieren
+mvn clean install
 ```
 Stellen Sie sicher, dass Ihr Archetyp in .m2/repository/archetype-catalog.xml erscheint.
 
 Erstellen Sie ein Projekt mit dem soeben erstellten Archetyp. Dazu können Sie den Befehl zum Erstellen eines Projekts aus einem Archetyp aus der Theorie verwenden, indem Sie den Namen Ihres Archetyps angeben.
 
 ## Abhängigkeitsmanagement. Eigenschaften
+Eines der Hauptmerkmale von Maven ist das Abhängigkeitsmanagement. In dieser Einheit sehen wir uns an, wie Abhängigkeiten in Maven definiert werden, welche Eigenschaften Abhängigkeiten haben und wie Konflikte mit Versionen gelöst werden.
 
+Alle Abhängigkeiten sind in der pom-Datei im Abschnitt <dependencies/> definiert.
 
+Zum Beispiel:
+```xml
+<dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-core</artifactId>
+    <version>5.2.9.RELEASE</version>
+</dependency>
+```
+Für Artefakte, die zur selben Gruppe gehören, ist es praktisch, Variablen zu verwenden. Anstatt beispielsweise für jede Bibliothek aus Spring eine Version definieren zu müssen, können Sie eine Variable definieren und diese in allen Spring-spezifischen Abhängigkeiten verwenden.
 
+```xml
+<properties>
+    <spring.version>5.2.9.RELEASE</spring.version>
+</properties>
 
+<dependencies>
+     
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-data</artifactId>
+        <version>${spring.version}</version>
+        <scope>test</scope>
+    </dependency>
+         
+    <dependency>
+       <groupId>org.springframework</groupId>
+       <artifactId>spring-core</artifactId>
+       <version>${spring.version}</version>
+    </dependency>
+         
+ </dependencies>
+ ```
 
+Wenn Sie einen Maven-Befehl ausführen, versucht Maven, alle Abhängigkeiten zu installieren, indem es sie aus dem lokalen Repository herunterlädt, und wenn sie nicht im lokalen Repository gefunden werden, werden sie aus dem zentralen Repository heruntergeladen und im lokalen gespeichert.
 
+Mit Maven können Sie eine Bibliothek verwenden, die sich weder im zentralen noch im lokalen Repository befindet. Dies sind beispielsweise proprietäre Bibliotheken. Geben Sie dazu im Tag <systemPath> einfach den Pfad zur Bibliothek des Drittanbieters an und definieren Sie den Geltungsbereich <scope> als system.
 
+Zum Beispiel:
+```xml
+<dependency>
+  <groupId>myDependency</groupId>
+  <artifactId>myDependency</artifactId>
+  <scope>system</scope>
+  <version>1.0</version>
+  <systemPath>${basedir}\libs\myDependency.jar</systemPath>
+</dependency>
+```
+Die Abhängigkeit hat Eigenschaften: GroupId, ArtifactId und Version, ähnlich den Eigenschaften des Projekts, die wir bereits in der letzten Einheit betrachtet haben. Überlegen Sie, welche zusätzlichen Eigenschaften eine Abhängigkeit haben kann.
 
+### Scope
+Insgesamt gibt es sechs Arten von _scope_ oder _Sichtbarkeitsbereiche_. Sie bestimmen, in welchen Phasen des Builds oder der Programmausführung die Abhängigkeit sichtbar wird.
 
+|||
+|---|---|
+|compile | Der Standardbereich. Die Abhängigkeit ist in allen Phasen des Builds verfügbar und wird in den Build eingeschlossen. |
+|provided | Gibt eine Abhängigkeit an, die zur Laufzeit vom JDK oder Container bereitgestellt wird. Eine solche Abhängigkeit ist nur zur Kompilierzeit verfügbar. Die Abhängigkeit gelangt nicht in die Assembly. |
+|runtime | Eine Abhängigkeit mit diesem Umfang wird zur Kompilierzeit nicht benötigt, sondern nur zur Laufzeit. |
+|test | Gibt eine Abhängigkeit an, die beim Kompilieren und Ausführen von Tests sichtbar ist. |
+|system | Maven sucht solche Abhängigkeiten nicht im Repository, sie sind im System vorhanden. |
+|import | Dieser Bereich ist nur für den Abhängigkeitstyp pom verfügbar. Wird verwendet, um Abhängigkeiten von anderen pom zu importieren.|
 
+### Classifier
+Es gibt Fälle, in denen das Teilen durch groupId, artifactId und Version nicht ausreicht und dann der Classifier <classifier> verwendet wird. Classifier kann in Fällen verwendet werden, in denen Artefakte für die Verwendung in unterschiedlichen Umgebungen (Entwicklung, Test, Produktion) auf unterschiedlichen Betriebssystemen erstellt werden oder wenn Artefakte für unterschiedliche JDKs funktionieren sollen.
 
+Zum Beispiel gibt es dieselbe Bibliothek, die mit verschiedenen JDKs funktionieren soll: JDK 8 und JDK 11. Diese Bibliothek hat dieselbe Artefakt-ID, aber der Klassifikator ist unterschiedlich.
 
+Ein Beispiel für die Verwendung der Bibliothek zum Arbeiten mit JDK 8:
 
+```xml
+<dependency>
+    <groupId>org.example</groupId>
+    <artifactId>greeting</greeting>
+    <version>1.0.0</version>
+    <classifier>jdk8</classifier>
+</dependency>
+```
 
+Wenn für das Projekt ein Klassifizierer angegeben ist, wird sein Wert zum Assemblynamen hinzugefügt. In diesem Fall erhält das Artefakt den Namen Greeting.1.0.0-jdk8.jar.
 
+### Optional
+Eine Abhängigkeit kann als optional deklariert werden. Fügen Sie dazu einfach das Tag ```<optional>``` mit dem Wert true hinzu. Dies wird verwendet, wenn eine Abhängigkeit nur für bestimmte Funktionen benötigt wird, und ist optional, wenn der Rest des Projekts verwendet wird. Beispielsweise gibt es Projekt A mit Abhängigkeit B. Abhängigkeit B ist als optional deklariert. In meinem C-Projekt füge ich Abhängigkeit A hinzu, aber Abhängigkeit B wird nicht automatisch geladen. Wenn ich in Projekt C Funktionen benötige, die Abhängigkeit B verwenden, muss ich sie als direkte Abhängigkeit zum pom hinzufügen.
 
+Ein Beispiel für das Deklarieren einer Abhängigkeit als optional:
 
+```xml
+<dependency>
+    <groupId>org.example</groupId>
+    <artifactId>greeting</artifactId>
+    <version>1.0.0</version>
+    <optional>true</optional>
+</dependency>
+```
 
+### Abhängigkeitsbaum
 
+Um eine Liste aller Abhängigkeiten im Projekt anzuzeigen, einschließlich der transitiven, führen Sie einfach den folgenden Befehl aus:
 
+```xml
+mvn dependency: tree 
+```
 
+Ein Beispiel für ein Fragment des konstruierten Abhängigkeitsbaums:
+![](../img/JAVA_25.3_3.png)
 
+Hier sehen wir zwei transitive Abhängigkeiten: hibernate-validator und jackson-databind. Hibernate-Validator enthält wiederum Abhängigkeiten: Validation-Api, JBoss-Logging, FasterXml und Jackson-Databind enthält Jackson-Anmerkungen.
 
+### Abhängigkeiten beseitigen
 
+Es gibt zwei Arten von Abhängigkeiten in Maven: direkt und transitiv.
+
+Direkte Abhängigkeiten sind diejenigen, die wir explizit in den Abschnitt ```<dependencies>``` schreiben.
+Transitive Abhängigkeiten sind Abhängigkeiten, die die Abhängigkeiten verwenden, die wir in das Projekt aufnehmen.
+
+Transitive Abhängigkeiten Maven lädt auch automatisch.
+
+Dabei können wir auf das Problem von Versionskonflikten stoßen. Sie besteht darin, dass eine bestimmte Abhängigkeit als transitiv dargestellt wird und die Version 1.0.0 hat, und wir im Projekt die neuere Version 2.0.0 verwenden wollen. Maven kann nur eine Abhängigkeit mit derselben Gruppen- und Artefakt-ID in ein Projekt aufnehmen. Um einen solchen Konflikt zu vermeiden, können wir die Abhängigkeit mit dem Tag ```<exclusion>``` ausschließen und als direkte Abhängigkeit hinzufügen.
+
+```xml
+<dependency>
+    <groupId>junit</groupId>
+    <artifactId>junit</artifactId>
+    <version>${junit.version}</version>
+    <scope>test</scope>
+</dependency>
+<dependency>
+    <groupId>org.dbunit</groupId>
+    <artifactId>dbunit</artifactId>
+    <version>${dbunit.version}</version>
+    <scope>test</scope>
+    <exclusions>
+        <!--Exclude transitive dependency to JUnit-3.8.2 -->
+        <exclusion>
+            <artifactId>junit</artifactId>
+            <groupId>junit</groupId>
+         </exclusion>
+    </exclusions>
+</dependency>
+```
+
+## Assembly-Lebenszyklus
+
+In früheren Einheiten haben wir häufig den Befehl zum Erstellen des Projekts verwendet:
+
+```cmd
+mvn clean install 
+```
+
+Es ist Zeit herauszufinden, was genau dahinter steckt. Überlegen Sie, was der Baugruppenlebenszyklus ist und was sie sind.
+
+Es gibt 3 Lebenszyklen in Maven:
+
+- default – erstellt die Anwendung und stellt sie bereit.
+- clean - entfernt alle seit dem letzten Build generierten Dateien.
+- site - erstellt Dokumentation für das Projekt.
+
+Der Lebenszyklus wird durch das Lösen einer Kette von Aufgaben erreicht. In diesem Fall hat der Lebenszyklus keine abzurufenden Befehle. Wie wird es dann durchgeführt?
+
+Jede Aufgabe wird innerhalb einer Phase (Phase) durchgeführt. Somit ist der Lebenszyklus eine logische Vereinigung von Phasen.
+
+Der Befehl mvn clean install fordert Sie auf, die Bereinigungs- und Installationsphasen auszuführen.
+
+Der Lebenszyklus von Default besteht aus 23 Phasen, Clean - von 3, Site umfasst 4 Phasen. Jede Phase ist für eine bestimmte Aufgabe verantwortlich.
+
+![](../img/JAVA_25.5_1.png)
+
+Die Reihenfolge der Phasen im Zyklus ist nicht zufällig, in dieser Reihenfolge werden die Phasen ausgeführt. Wenn eine Phase beginnt, werden alle Phasen vor der gestarteten Phase ausgeführt. 
+
+Zum Beispiel, wenn Sie den Befehl aufrufen:
+
+```cmd
+mvn clean install
+```
+Nennt man zunächst den __Clean__-Lebenszyklus, der von Anfang an bis zur __Clean__-Phase läuft, es gibt also nur zwei Phasen: __Pre-Clean__ und __Clean__. Dann ruft derselbe Befehl die Installationsphase aus dem Standardlebenszyklus auf, was dazu führt, dass alle Phasen dieses Zyklus von der Überprüfung bis zur Installation ausgeführt werden und die Bereitstellungsphase nicht ausgeführt wird, da sie nach der Installationsphase kommt.
+
+### Default
+Werfen wir einen Blick auf die beliebtesten und nützlichsten Phasen der Standardschleife.
+
+|||
+|---|---|
+|validate| Überprüft, ob die Projektkonfiguration korrekt ist, und stellt sicher, dass die erforderlichen Abhängigkeiten verfügbar sind.|
+|compile| Verantwortlich für das Kompilieren der Quelldateien des Projekts.|
+|test-compile| Verantwortlich für das Kompilieren von Testquelldateien.|
+|test| Führt Komponententests aus.|
+|package| Setzt kompilierte Dateien in Abhängigkeit vom angegebenen Build-Typ (JAR, WAR, EAR) zu einem Archiv zusammen.|
+|integration-test| Führt Integrationstests aus.|
+|install| Kopiert das erstellte Artefakt in das lokale Repository. Es wird für den Bau anderer lokaler Projekte verfügbar.|
+|deploy| Kopiert ein Artefakt in ein Remote-Repository zur Verwendung in anderen Projekten.|
+
+Die Reihenfolge der Phasen in der Tabelle ist nicht zufällig, in dieser Reihenfolge werden die Phasen ausgeführt. Wenn eine Phase beginnt, werden alle Phasen vor der gestarteten Phase ausgeführt. Zum Beispiel, wenn wir den Befehl ausführen
+
+```cmd
+mvn package
+```
+Die folgenden Phasen werden ausgeführt: _validate, compile, test-compile, test_, das heißt, bevor das Projekt erstellt wird, validiert Maven zuerst das Projekt, kompiliert die Projekt- und Testdateien, führt die Tests aus und erstellt erst dann das Projekt.
+
+### Clean
+
+Der Bereinigungszyklus löscht alle Dateien, die während des vorherigen Builds erstellt wurden: .CLASS, .JAR usw. Im Allgemeinen ist dies das Entfernen des Zielordners
+
+Der Zyklus umfasst 3 Phasen:
+
+|||
+|---|---|
+|pre-clean|Vorbereiten zur Entnahme. Standardmäßig enthält die Phase keine Ziele (das Konzept eines Ziels wird weiter unten besprochen).|
+|clean|Eigentlich die Entfernung selbst.|
+|post-clean|Es impliziert die Ausführung einiger Aufgaben nach dem Löschen. Standardmäßig enthält eine Phase keine Ziele.|
+
+Es wird empfohlen, vor einem neuen Projektaufbau immer zu bereinigen, um die Verwendung von Dateien aus einem früheren Build zu vermeiden.
+
+### Site
+Die Site-Schleife dient zum Erstellen von Dokumentationen. Besteht aus 4 Phasen:
+
+|||
+|---|---|
+|Pre-Site| Vorbereitung für die Erstellung.|
+|site| Direktes Erstellen von Dokumentationen.|
+|Post-Site| Vorbereitung für die Bereitstellung.|
+|site-deploy| Stellt die Dokumentation auf einem Webserver bereit.|
+
+### Goals 
+Jede Phase wiederum ist eine Reihe von Zielen (Zielen).
+
+![](../img/JAVA_25.5_2.png)
+
+GoalS sind Aufgaben, die ausgeführt werden, um eine bestimmte Phase abzuschließen. Ein Ziel kann zu mehreren Phasen gehören oder zu keiner.
+
+Ein Beispiel, bei dem sich das Ziel in keiner Phase befindet, ist der Befehl mvndependency:tree, den wir in der vorherigen Einheit ausgeführt haben, um den Abhängigkeitsbaum anzuzeigen. Der Zweck vondependency:tree bezieht sich nicht auf irgendeine Phase.
+
+Ein Beispiel für ein Ziel, das sich über mehrere Phasen erstreckt:
+
+```cmd
+mvn compiler: compile
+```
+
+Es kann sowohl in der Testphase (test) als auch in der Kompilierphase (compile) ausgeführt werden.
+
+Die Besonderheit des Ziels besteht darin, dass bei Erfüllung eines bestimmten Ziels nur dieses Ziel erfüllt wird, im Gegensatz zu der Phase, in der zusätzlich alle vorherigen Phasen durchgeführt werden.
+Wenn Sie beispielsweise ein JAR-Ziel ausführen, das kompilierte Dateien in eine JAR-Datei kompiliert, und Sie die Dateien vorher nicht kompiliert haben, den Kompilierungsbefehl nicht ausgeführt haben, tritt ein Fehler auf, das Ziel wird nicht ausgeführt – die JAR-Datei target wird einfach keine kompilierten Dateien haben, um sie zu erstellen.
+
+Ziele werden dank Plugins erfüllt. Das Maven-Plugin ist grob gesagt eine Reihe von Zielen. Beispielsweise können Sie in den Standardzielen und ihrer Bindung an Phasen sehen, dass in der Clean-Phase das Clean-Ziel vom Clean-Plugin ausgeführt wird.
+
+Das Ziel kann über die Befehlszeile ausgeführt werden, indem der Befehl wie folgt zusammengesetzt wird:
+
+```cmd
+mvn plugin:goal
+```
+Um eine Liste von Zielen und Plugins anzuzeigen, die sich auf ein bestimmtes Ziel beziehen, müssen Sie den Befehl help:describe mit einer Phase ausführen. Wie zum Beispiel für die Compile-Phase:
+
+```cmd
+mvn help:describe -Dcmd=compile
+```
+
+![](../img/JAVA_25.5_3.png)
+
+Wie wir sehen können, werden für einige Phasen keine Ziele definiert. Dies bedeutet, dass dieser Phase standardmäßig kein Ziel zugeordnet ist, Sie können das Ziel jedoch selbst binden.
+
+## Häufig verwendete Plugins
+
+Das Thema Plugins haben wir bereits kurz angesprochen. Lassen Sie uns nun genauer untersuchen, was es ist, wie es in Maven verwendet wird, und die beliebtesten betrachten.
+
+In der vorherigen Einheit haben wir gesagt, dass ein Plugin eine Reihe von Zielen ist. In einem Maven-Plugin ist das Ziel ein Mojo (Main Plain Old Java Object), das eine Java-Klasse sein kann. Mojo stellt alle notwendigen Informationen über das Ziel bereit: den Namen des Ziels, die Phase, in der es ausgeführt wird, und Konfigurationsoptionen. Ein Plugin besteht aus einem oder mehreren Mojos.
+
+Mojo-Beispiel, das einen Bericht generiert:
+
+```java
+public class ReportExampleMojo extends AbstractMojo {
+
+   @Parameter(property = "reportName", required = false, defaultValue = "Report")
+   private String reportName;
+ 
+   @Parameter(property = "targetPath", required = true)
+   private String targetPath;
+ 
+   @Parameter(property = "locales")
+   private String[] locales;
+ 
+   public void execute() throws MojoExecutionException {
+       ...
+   }
+}
+```
+Diesem Plugin können 3 Parameter gegeben werden (@Parameter): reportName (Berichtsname), targetPath (Pfad, wo der Bericht generiert wird), locales (Sprachen, in denen der Bericht generiert wird). Erforderliche Parameter haben das Flag required = true. Für optional können Sie den Standardwert setzen, wie im Beispiel: defaultValue = "Report".
+
+Sie können zusätzliche Parameter für das Plugin im Tag <configuration> in pom.xml festlegen. Die so eingestellten Parameter werden den Feldwerten in Mojo hinzugefügt.
+
+Die oben beschriebene Beispiel-POM-Datei für Mojo würde folgendermaßen aussehen:
+
+```xml
+<project>
+ ...
+ <build>
+   <plugins>
+     <plugin>
+      <groupId>org.example</groupId>
+       <artifactId>maven-reportexample-plugin</artifactId>
+       <version>1.0</version>
+       <configuration>
+         <reportName>my_report</reportName>
+         <targetPath>${basedir}/target/reports</targetPath>
+              <locales>
+                <locale>ru</locale>
+                <locale>en</locale>
+                <locale>de</locale>
+                <locale>fr</locale>
+              </locales>
+       </configuration>
+     </plugin>
+   </plugins>
+ </build>
+ ...
+</project>
+```
+
+Im Allgemeinen gibt es zwei Arten von Plugins in Maven:
+
+Assembly-Plugins. Plug-ins werden während des Projekterstellungsprozesses ausgeführt und müssen innerhalb des <build>-Blocks angegeben werden.
+Plugins melden. Sie werden während des Dokumentationsgenerierungsprozesses durchgeführt und müssen innerhalb des <reporting>-Blocks angegeben werden.
+Plugins werden in der Datei pom.xml innerhalb des Blocks <plugins></plugins> angegeben, wie im obigen Beispiel.
+
+Sie werden auf ähnliche Weise wie Abhängigkeiten deklariert. Erforderliche Informationen für Plugins auch: Gruppen-ID, Artefakt-ID und Version.
+
+Wenn Sie ein Plugin deklarieren, können Sie es an eine bestimmte Phase binden und Ziele angeben.
+
+Zum Beispiel:
+
+```xml
+<plugin>
+   <groupId>org.apache.maven.plugins</groupId>
+   <artifactId>maven-compiler-plugin</artifactId>
+   <version>3.8.0</version>
+   <executions>
+      <execution>
+         <id>default-compile</id>
+         <phase>compile</phase>
+         <goals>
+            <goal>compile</goal>
+         </goals>
+      </execution>
+      <execution>
+         <id>default-testCompile</id>
+         <phase>test-compile</phase>
+         <goals>
+            <goal>testCompile</goal>
+         </goals>
+      </execution>
+   </executions>
+</plugin>
+```
+
+Das maven-compiler-plugin enthält zwei Ziele: „compile“, das an die „compile“-Phase gebunden ist, und „test-compile“, das an die „test-compile“-Phase gebunden ist.
+
+Sie können das Plugin aus dem obigen Beispiel mit der Befehlszeile ausführen:
+```cmd
+mvn compiler:compile 
+rem oder
+mvn compiler:testCompile
+```
+Im Allgemeinen sieht der Plugin-Ausführungsbefehl wie folgt aus:
+```cmd
+mvn groupId:artifactId:version:goal 
+```
+n diesem Fall kann die Version normalerweise weggelassen werden, dann wird die neueste Version des Plugins ausgewählt.
+
+Hinweis: Gemäß der Namenskonvention sollten generierte Plugins ```<yourpluginname>```-maven-plugin heißen. Namen wie maven-```<pluginname>```-plugin beziehen sich nur auf offizielle Maven-Plugins.
+
+Rufen Sie das Ziel „compiler:compile“ mit dem vollständig qualifizierten Plug-in-Namen auf.
+```cmd
+mvn org.apache.maven.plugins:maven-compiler-plugin:3.8.1:compile 
+```
+
+Die Liste der auf dem Computer installierten Maven-Plugins kann im Verzeichnis eingesehen werden
+```${M2_HOME}/repository/org/apache/maven/plugins.```
+
+Und die Liste der Plugins, die standardmäßig mit dem Projekt verbunden sind, mit dem Befehl:
+```Cmd
+mvn help:effective-pom
+```
+Betrachten Sie einige Maven-Plugins
+|Plugin|Beschreibung|
+|---|---|
+|maven-clean-plugin|Entfernt generierte Dateien beim Erstellen des Projekts.|
+|maven-compiler-plugin|Kompiliert Projekt- und Testquelldateien.|
+|maven-surefire-plugin|Führt Tests durch und generiert Berichte über die Ergebnisse ihrer Ausführung.|
+|maven-jar-plugin|Erstellt ein JAR-Archiv für das Projekt.|
+|maven-war-plugin|Erstellt ein WAR-Archiv für das Projekt.|
+|maven-javadoc-plugin|Entwickelt, um eine Dokumentation zum Quellcode des Projekts mit dem Standard-Javadoc-Dienstprogramm zu erstellen.|
+
+[Weitere Plugins](https://maven.apache.org/plugins/index.html#supported-by-the-maven-project)
+
+## Profile verwenden
+
+Maven bietet die Funktionalität zum Erstellen mehrerer Konfigurationssätze, die zum Festlegen oder Überschreiben der standardmäßigen Maven-Build-Werte verwendet werden können. Dadurch können Sie verschiedene Builds erstellen, die jeweils darauf abzielen, einige spezielle Probleme zu lösen, beispielsweise für verschiedene Umgebungen (development  [lit. „Entwicklung“], training  [lit. „Training“, „Testen“], production  [ lit. "Produktion"]).
+
+Diese Funktionalität wird als __Maven-Profil__ bezeichnet.
+
+Es gibt 3 Profiltypen in Maven:
+
+- Projektprofile. Definiert in pom.xml.
+- Benutzerprofil. Definiert in der Datei settings.xml. ```(%USER_HOME%/.m2/settings.xml)```
+- globale Profile. Definiert in der globalen settings.xml-Datei.
+
+Sehen wir uns an, wie Profile in pom.xml erstellt werden. Das Profil wird durch das Tag <profile> im Abschnitt <profiles> definiert. Das Hauptelement des Profils ist die Profilkennung <id>. Sie können mehrere Profile erstellen, indem Sie verschiedene IDs angeben.
+
+```xml
+<profiles>
+    <profile>
+        <id>local</id>
+    </profile>
+    <profile>
+        <id>production</id>
+    </profile>
+</profiles>
+```
+
+Innerhalb jedes Profils können Sie Abhängigkeiten, Plugins, Ressourcen usw. angeben und so das Profil für bestimmte Aufgaben anpassen.
+
+Profilaktivierung
+Um ein Profil verwenden zu können, muss es aktiviert werden. Ein Maven-Build-Profil kann auf folgende Weise als aktiv angegeben werden:
+
+- das Standardprofil ist angegeben;
+- Parameter auf der Kommandozeile;
+- das Vorhandensein/Fehlen/Wert einer Umgebungsvariablen;
+- JDK-Version
+- Version oder Typ des Betriebssystems;
+- das Vorhandensein oder Fehlen einer bestimmten Datei.
+
+Alle diese Verfahren werden der Reihe nach unten besprochen. Um eine Aktivierungsmethode auszuwählen, geben wir das Tag ```<aktivierung>``` direkt im Profil an und geben darin die Aktivierungsmethode an.
+
+Es gibt Profile, die nicht gleichzeitig verbunden werden sollten, da sie miteinander in Konflikt geraten, z. B. Profile für die Testumgebung und für die lokale Umgebung. Es ist, als würde man im selben Raum versuchen, die Wände in einer schönen Farbe zu streichen und gleichzeitig die Tapete zu kleben – eine sinnlose Übung. Nur bei Test- und lokalen Umgebungsprofilen werden sie höchstwahrscheinlich einfach nicht gestartet oder funktionieren nicht richtig.
+
+Es gibt Profile, die gleichzeitig verbunden werden können, da sie auf unterschiedliche Aufgabengruppen ausgerichtet sind. Es ist, als würde man gleichzeitig einen Elektriker und einen Klempner anrufen – beide arbeiten an Heimwerkerarbeiten, aber sie werden keine Konflikte über Arbeitsprobleme haben.
+
+### Standard Profil 
+Im Pom können Sie ein Profil definieren, das standardmäßig aktiv ist, indem Sie das Tag ```<activeByDefault>``` im Abschnitt ```<activation>``` verwenden, das auf __true__ gesetzt sein muss.
+
+```xml
+<profile>
+    <id>integration-tests</id>
+    <activation>
+        <activeByDefault>true</activeByDefault>
+    </activation>
+</profile>
+```
+
+Danach können Sie den Profilparameter während des Builds nicht mehr in der Befehlszeile angeben. Wenn wir aber ein anderes Profil als das Standardprofil aktivieren wollen, muss dieses Profil im Parameter angegeben werden, und dann wird das angegebene Profil anstelle des Standardprofils verwendet. Dazu später mehr.
+
+### Build Parameter
+Sie können ein Profil aktivieren, indem Sie es während des Builds als Parameter angeben:
+```cmd
+mvn package -P dev
+rem -P bedeutet, dass dies ein Profilparameter ist, 
+rem dev ist der Name unseres Profils.
+```
+Sie können mehrere Profile aktivieren. Dazu genügt es, sie durch Kommas getrennt anzugeben:
+```cmd
+mvn package -P integration-tests,test
+```
+
+### Abhängig von der Systemvariable
+Ein Profil kann auch abhängig vom Vorhandensein einer Systemvariablen aktiviert werden. Beispielsweise wird ein Profil aktiv, wenn es eine Systemvariable (die wir im Tag ```<property>``` angeben) mit dem Namen local (die wir im Tag ```<name>``` angeben) gibt:
+
+```xml
+<profile>
+    <id>example</id>
+    <activation>
+        <property>
+            <name>local</name>
+        </property>
+    </activation>
+</profile>
+```
+Ein solches Profil kann durch Ausführen des Befehls aktiviert werden, wobei -D den Namen der Systemvariablen angibt:
+
+```cmd
+mvn package -Dlocal
+```
+Im Gegenteil, Sie können angeben, dass das Profil aktiv wird, wenn die Variable nicht angegeben ist.
+
+```xml
+<property>
+    <name>!local</name>
+</property>
+```
+
+Oder geben Sie den Wert an, den die Variable annehmen soll (im Beispiel haben wir die Umgebungsvariable angegeben, der der Wert local zugewiesen wurde):
+
+```xml
+<property>
+    <name>environment</name>
+    <value>local</value>
+</property>
+```
+Ein solches Profil kann durch Ausführen des folgenden Befehls aktiviert werden:
+
+```Cmd
+mvn package -Denvironment=test
+```
+
+*In diesem Fall ist der Namenstest nur ein Beispiel. Eine solche Umgebung ist jedoch standardmäßig vorhanden, sie wird zum Ausführen von Tests benötigt (wir werden später ausführlich auf Tests eingehen).
+
+Sie können auch einen Wert angeben, den die Variable nicht annehmen darf, damit das Profil aktiv wird:
+
+```xml
+<property>
+    <name>environment</name>
+    <value>!local</value>
+</property>
+```
+
+### Abhängig von der JDK-Version
+Das Profil kann abhängig von der angegebenen JDK-Version aktiv werden.
+```xml
+<profile>
+    <id>active-on-jdk-11</id>
+    <activation>
+        <jdk>11</jdk>
+    </activation>
+</profile>
+```
+
+### Abhängig vom Betriebssystem
+Oder je nach Betriebssystem. Sie können ein Profil erstellen, das nur auf einem bestimmten Betriebssystem aktiv ist.
+```xml
+<profile>
+    <id>active-on-windows-10</id>
+    <activation>
+        <os>
+            <family>Windows</family>
+            <name>windows 7</name>
+            <version>7.0</version>
+        </os>
+    </activation>
+</profile>
+```
+
+### Abhängig vom Vorhandensein/Fehlen der Datei
+Die letzte Option ist die Aktivierung, wenn die Datei im System vorhanden/nicht vorhanden ist. Das folgende Beispiel demonstriert die Aktivierung eines Profils, wenn keine Datei test.xml im Zielverzeichnis vorhanden ist:
+
+```xml
+<activation>
+    <file>
+        <missing>target/test.xml</missing>
+    </file>
+</activation>
+```
+Das Tag ```<exists>``` wird verwendet, um zu aktivieren, wenn die Datei existiert.
+
+### Deaktivierung des Profils
+
+Zum Beispiel durch Ausführen des Befehls:
+```cmd
+mvn compile -P -active-on-jdk-8
+```
+Um zu sehen, welche Profile aktiv sind, können Sie den Befehl verwenden:
+```cmd
+mvn help:active-profiles
+```
 
 # Modul 22 (JDBC)

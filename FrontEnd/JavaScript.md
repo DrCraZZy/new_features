@@ -2365,37 +2365,3 @@ params.forEach((name, value) => {
 
 fetch(`/path${params}`)  // /path?a=2&b=1
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
