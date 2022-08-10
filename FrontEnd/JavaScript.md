@@ -639,3 +639,628 @@ element.removeEventListener(event, handler [, phase]);
   };); // 
 </script>
 ```
+
+# Modul 13 (OOP)
+
+## [SOLID](https://techrocks.ru/2020/08/26/solid-principles-in-plain-russian/)
+- __Single Responsibility Principle ("Grundsatz der Einzelverantwortung", SRP)__
+
+  Das Single-Responsibility-Prinzip besagt, dass eine Klasse eine Sache tun sollte und es dementsprechend nur einen Grund geben sollte, sie zu ändern.
+
+- __Open-Closed Principle ("Das Prinzip der Offen-Geschlossenheit", OCP)__
+
+  Das Open-Closed-Prinzip erfordert, dass Klassen für Erweiterungen offen, aber für Änderungen geschlossen sind. Modifikation bedeutet, den Code bestehender Klassen zu ändern, und Erweiterung bedeutet, neue Funktionalität hinzuzufügen. Aber wie fügen Sie neue Funktionen hinzu, ohne die Klasse zu berühren? Dies geschieht normalerweise mithilfe von Schnittstellen und abstrakten Klassen.
+
+- __Liskov Substitution Principle ("Das Substitutionsprinzip von Barbara Liskov", LSP)__
+
+  Das Substitutionsprinzip von Barbara Liskov besagt, dass Unterklassen ihre Basisklassen ersetzen sollen.
+  Dies bedeutet Folgendes. Wenn wir eine Klasse B haben, die eine Unterklasse von Klasse A ist, sollten wir in der Lage sein, ein Objekt der Klasse B an jede Methode zu übergeben, die ein Objekt der Klasse A erwartet, und diese Methode sollte in diesem Fall keine seltsame Ausgabe erzeugen.
+
+- __Interface Segregation Principle ("Prinzip der Interface-Trennung", ISP)__
+
+  Bei der Trennung geht es darum, Dinge voneinander getrennt zu halten, und bei der Schnittstellentrennung geht es um (Überraschung!) Trennung von Schnittstellen. Dieses Prinzip besagt, dass viele clientorientierte Schnittstellen besser sind als eine Allzweckschnittstelle. Kunden sollten nicht gezwungen werden, Funktionen zu implementieren, die sie nicht benötigen.
+
+- __Dependency Inversion Principle ("Abhängigkeitsinversionsprinzip", DIP)__
+
+  Das Abhängigkeitsinversionsprinzip besagt, dass unsere Klassen eher von Schnittstellen oder abstrakten Klassen als von konkreten Klassen und Funktionen abhängen sollten.
+
+## Prototype Vererbung.
+
+JS verwendet Prototype Vererbung – um die gemeinsamen Eigenschaften der Basisklasse zu erben, hat jedes Objekt eine spezielle Systemeigenschaft [[prototype]], die eine Referenz auf den Prototyp dieses Objekts speichert. Beim Versuch, die Eigenschaft eines Objekts abzurufen, sucht JS die Eigenschaft zuerst im Objekt selbst, dann in seinem Prototyp, dann im Prototyp des Prototyps und so weiter, bis im Prototyp __null__ angegeben ist. Um einen Verweis auf den Prototyp eines Objekts zu erhalten, können Sie __Object.getPrototypeOf__ verwenden, und um den Prototyp eines Objekts festzulegen, können Sie __Object.setPrototypeOf verwenden__.
+
+```js
+//setPrototype
+const newObj = { b: 2 }
+Object.setPrototypeOf(obj, newObj)
+obj.b === newObj.b  // true
+obj.b === 2  // true
+
+//Wenn man bei newObj Änderung vornimmt, dann wir es sich auf obj auswirken.
+const obj2 = {}
+Object.setPrototypeOf(obj2, newObj)
+obj2.b === 2 // true
+ 
+newObj.b = 3
+obj.b === 3  // true
+obj2.b === 3  // true
+```
+
+### Wenn der Prototyp eines Objekts null ist, bedeutet dies, dass es keinen Prototyp hat, und das ist das Ende der Kette.
+
+Alle eingebauten Objekte in JavaScript erben die Eigenschaften von Object über die Prototypkette. Sie können dies mit dem Operator obj instanceof Class überprüfen, der die Prototyp-Kette des linken Arguments (obj) durchläuft und jedes von ihnen auf Gleichheit mit der Prototyp-Eigenschaft des rechten Arguments (Class.prototype) prüft:
+
+```js
+const obj = {}
+const arr = []
+const date = new Date()
+function func() {}
+
+obj instaceof Object  // true
+Object.getPrototypeOf(obj) === Object.prototype  // true
+arr instaceof Object  // arr: Array -> Object -> null    => true
+date instaceof Object  // true
+func instaceof Object  // true
+```
+
+Beim Versuch, ein nicht vorhandenes doesNotExist-Attribut eines obj-Objekts abzurufen, schaut JS in die eigenen Attribute des Objekts, findet dieses Attribut dort nicht und sucht dann nach diesem Attribut entlang der Prototyp-Kette des obj-Objekts, wird es aber nicht finde es dort entweder und gibt undefiniert zurück:
+
+```js
+obj.doesNotExist === undefined  // true
+```
+
+### Um alle für ein bestimmtes Objekt verfügbaren Eigenschaften und Methoden zu durchlaufen, können Sie die Schleife __for ... in__ verwenden.
+
+```js
+for (const prop in obj) {
+  console.log(prop)
+}
+```
+
+### Mit der Funktion Object.hasOwnProperty können Sie herausfinden, ob ein Attribut ein natives Attribut eines Objekts ist oder durch einen Prototyp in JS geerbt wurde.
+
+```js
+obj.hasOwnProperty('a')  // true
+superNewObj.hasOwnProperty('a')  // false
+```
+
+### Sie können auch die Funktion Object.getOwnPropertyNames verwenden, um eine Liste aller objekteigenen Attributnamen zu erhalten
+
+### Mit Hilfe des betrachteten Mechanismus in JS wird der OOP-Vererbungsmechanismus implementiert.
+
+```js
+function createItem(price, remains) {
+  return {
+    price: price,
+    remains: remains,
+    isAvailableForDelivery() {
+      return this.remains > 0  // как работает this будет объяснено чуть позднее
+    }
+  }
+}
+
+const item = createItem(100, 2)
+item.isAvailableForDelivery()  // true
+item.remains  // 2
+item.price  // 100
+item.remains = 0
+item.isAvailableForDelivery()  // false
+
+// set book as item inheritor
+
+function createBookItem(price, remains, author, pages, year) {
+  const baseItem = createItem(price, remains)
+  const book = {
+    author: author,
+    pages: pages,
+    year: year,
+  }
+  Object.setPrototypeOf(book, baseItem) // <---
+  return book
+}
+
+const book = createBookItem(100, 2, 'Пушкин', 123, 1818)
+book.isAvailableForDelivery()  // true
+book.remains  // 2
+book.price  // 100
+book.year  // 1818
+book.author  // 'Пушкин'
+```
+
+## Funktioniert als Objekte. Konstruktorfunktionen
+Ein Aufrufkontext ist ein Objekt, dessen Methode eine Funktion ist.
+```js
+const obj = {
+  method() {
+    this  // тут this === obj при вызове obj.method()
+  }
+}
+
+obj.method()
+
+//this bekommt reference auf obj
+```
+Wenn wir eine Funktion ohne Objekt aufrufen, erhält sie das globale Laufzeitobjekt als Ausführungskontext. In den meisten Browsern ist dies das Window-Objekt, in Node.js das Global-Objekt. 
+
+Auch Funktionen in JavaScript sind Objekte vom Typ Function, haben also den Prototyp Function.prototype.
+
+Welche Eigenschaften sind in diesem Prototyp enthalten und damit für alle Funktionen verfügbar.
+
+|Attribut/Methode|Beschreibung|
+|---|---|
+|name|funktion name|
+|length|Anzahl der Argumente|
+|bind(thisArg, ...other)|Ermöglicht es Ihnen, den Executioncontext, der als erstes Argument übergeben wird, und eine beliebige Anzahl von Argumenten, die von nachfolgenden Argumenten zum Binden übergeben werden, an eine Funktion "anzuhängen". Gibt eine neue Funktion mit festem Kontext und Argumenten zurück. Ergebnis neue Funktion|
+|call(thisArg, ...other)|Ermöglicht den Aufruf einer Funktion mit dem als erstes Argument übergebenen Kontext und einer beliebigen Anzahl weiterer übergebener Argumente.|
+|apply(thisArg, other)|Wie beim Aufruf werden nur Argumente als Array übergeben|
+
+Tipp: Um eine "fremde" Funktion zu verwenden, können Sie ihre Aufrufmethode mit dem gewünschten Kontext aufrufen. So können Sie beispielsweise die Array-Methoden für das HtmlCollection-Objekt verwenden, das von DOM-Suchaufrufen zurückgegeben wird (z. B. document.querySelectorAll).
+
+Besonderheit von Pfeilfunktionen: sie haben kein this. Wenn Sie also this in den Hauptteil einer Pfeilfunktion schreiben, wird es mithilfe eines Abschlusses an der Stelle abgerufen, an der die Pfeilfunktion definiert ist.
+
+```js
+function x() {
+  console.log(this)
+}
+
+x.call(123)  // 123
+
+const x = () => console.log(this)
+
+x.call(123)  // Global/Window
+```
+
+Diese Funktionen, die wir oben geschrieben haben, erstellen neben dem Füllen mit Eigenschaften auch das Objekt selbst. Diese Funktionen sind nicht wirklich Konstruktoren, sondern Fabriken.
+
+Um eine Funktion als Konstruktor zu verwenden, verfügt JS über ein spezielles neues Schlüsselwort, mit dem Sie ein Objekt aus dem im Prototypattribut der Funktion angegebenen Prototyp erstellen und diese Funktion als ihren Konstruktor im Kontext des neu erstellten Objekts aufrufen können. Und um die Vererbung zu implementieren, können Sie die Funktion Object.create verwenden, die ein neues Objekt basierend auf dem übergebenen Prototyp erstellt.
+
+Also können wir den obigen Code mit new und Object.create umschreiben:
+```js
+function Item(price, remains) {  // Имена классов принято писать с большой буквы
+  this.price = price
+  this.remains = remains
+}
+Item.prototype.isAvailableForDelivery = function() {
+  return this.remains > 0
+}
+
+function Book(price, remains, author, pages, year) {
+  Item.call(this, price, remains)  // вызываем конструктор базового класса
+  this.author = author
+  this.pages = pages
+  this.year = year
+}
+Book.prototype = Object.create(Item.prototype)  // теперь прототип объектов класса Book будет объектом класса Item и иметь в качестве прототипа Item.prototype
+
+const item = new Item(100, 2)
+item.isAvailableForDelivery()  // true
+item.remains  // 2
+item.price  // 100
+item.remains = 0
+item.isAvailableForDelivery()  // false
+
+const book = new Book(100, 2, 'Пушкин', 123, 1818)
+book.isAvailableForDelivery()  // true
+book.remains  // 2
+book.price  // 100
+book.year  // 1818
+book.author  // 'Пушкин'
+```
+
+## ES6 классы
+Stimmen Sie zu, es ist nicht sehr praktisch, separate Objektmethoden und separate Eigenschaften im Konstruktor zu schreiben und nach der Definition der Klasse deren Vererbung aufzubauen. Die Schöpfer des ES6-Standards hörten auf die Entwickler und fügten in der sechsten Version syntaktischen Zucker hinzu, um Klassen zu erstellen, die anderen Programmiersprachen ähneln.
+
+Syntaktischer Zucker sind syntaktische Konstrukte in einer Programmiersprache, die es ermöglichen, dasselbe in einer für Menschen besser lesbaren Form zu schreiben.
+
+__class__<br/>
+Um eine Klasse zu definieren, schreiben Sie das Schlüsselwort _class_ gefolgt vom Namen der Klasse (der mit dem new-Operator verwendet wird).
+```js
+class A {
+  // ...
+}
+const a = new A()
+```
+
+__extends__<br/>
+Um eine Vererbungskette aufzubauen, müssen Sie die Elternklasse für diese Klasse (deren Prototyp geerbt wird) mit dem Schlüsselwort _extend_ angeben.
+```js
+class A extends B {
+  // ...
+}
+```
+
+__constructor__<br/>
+Dann müssen Sie in geschweiften Klammern die Attribute und Methoden der Klasse angeben und ihren Konstruktor definieren. Ein Klassenkonstruktor wird durch eine Funktion mit dem speziellen Namen _constructor_ beschrieben.
+```js
+class A {
+  property = 'value'
+
+  constructor() {
+    // ...
+  }
+
+  method() {
+    // ...
+  }
+}
+```
+
+__super__<br/>
+Außerdem müssen wir den Namen der Elternklasse nicht mehr wiederholen, um ihren Konstruktor aufzurufen, die Autoren des Standards haben dafür ein spezielles Schlüsselwort _super_ vorgesehen, mit dem man den Konstruktor oder Methoden der Elternklasse aufrufen kann.
+```js
+class B {
+  method() {
+    // ...
+  }
+}
+
+class A extends B {
+  constructor() {
+    super()
+    // ...
+  }
+
+  method() {
+    super.method()
+    // ...
+  }
+}
+```
+
+Letzter Beispiel mit Klassen realisiert:
+```js
+class Item {  // create class Item
+  constructor(price, remains) {  // create constructor
+    this.price = price
+    this.remains = remains
+  }
+
+  isAvailableForDelivery() {
+    return this.remains > 0
+  }
+}
+
+class Book extends Item {  // inherit class Book of class Item
+  constructor(price, remains, author, pages, year) {
+    super(price, remains)  // call constructor of super class
+    this.author = author
+    this.pages = pages
+    this.year = year
+  }
+}
+
+// rest funktioniert wie in dem Beispiel davor
+const item = new Item(100, 2)
+item.isAvailableForDelivery()  // true
+item.remains  // 2
+item.price  // 100
+item.remains = 0
+item.isAvailableForDelivery()  // false
+
+const book = new Book(100, 2, 'Пушкин', 123, 1818)
+book.isAvailableForDelivery()  // true
+book.remains  // 2
+book.price  // 100
+book.year  // 1818
+book.author  // 'Пушкин'
+```
+
+__static__<br/>
+Wir können auch statische Methoden in der Klassendefinition mit dem Schlüsselwort static definieren. Es sie sind Methoden, die nicht die Erstellung eines Objekts erfordern, sondern zur Klasse gehören.
+```js
+//ohne static
+function Cart() {
+  this.items = []
+}
+Cart.prototype.totalPrice = function () {
+  return this.items.reduce(
+    (previous, current) => previous + current.price * current.number,
+    0,
+  )
+}
+Cart.loadForUser = function (user) {
+  // загрузка корзины из БД или другого хранилища
+}
+Cart.compare = function (cart1, cart2) {
+  return cart1.totalPrice() - cart2.totalPrice()
+}
+
+const ivansCart = Cart.loadForUser(ivan)
+carts.push(ivansCart)
+carts.sort(Cart.compare)
+
+//mit static
+class Cart {
+  items = []
+
+  totalPrice() {
+    return this.items.reduce(
+      (previous, current) => previous + current.price * current.number,
+      0,
+    )
+  }
+
+  static loadForUser(user) {
+    // загрузка корзины из БД или другого хранилища
+  }
+
+  static compare(cart1, cart2) {
+    return cart1.totalPrice() - cart2.totalPrice()
+  }
+}
+
+const ivansCart = Cart.loadForUser(ivan)
+carts.push(ivansCart)
+carts.sort(Cart.compare)
+```
+
+Die Klassensyntax ermöglicht es Ihnen, private Eigenschaften und Methoden zu setzen - das sind Eigenschaften / Methoden, die nur dadurch innerhalb der Klasse verfügbar sind (Implementierung des Kapselungsprinzips).
+
+```js
+function createSmth(x = 0) {
+  let privateProperty = x
+  return {
+    publicMethod() {
+      return privateProperty
+    }
+  }
+}
+
+const smth = createSmth(123)
+smth.publicMethod()  // 123
+```
+
+То теперь достаточно поставить # перед названием приватного атрибута/метода:
+```js
+class Smth {
+  #privateProperty = 0
+
+  constructor(x) {
+    this.#privateProperty = x
+  }
+
+  publicMethod() {
+    return this.#privateProperty
+  }
+}
+
+const smth = new Smth(123)
+smth.publicMethod()  // 123
+```
+
+Beachten Sie! Im Gegensatz zu Funktionen "schweben" Klassendeklarationen nicht auf die gleiche Weise wie Variablen, die über let oder const deklariert werden, nicht "schweben". Das heißt, der Klassenname wird erst nach seiner Deklaration im Code bestimmt.
+
+```js
+const a = new A()  // OK
+function A() {}
+
+class A {}
+const a = new A()  // OK
+
+const a = new A()  // ReferenceError: A is not defined
+class A {}
+```
+
+Es ist schöner und sauberer geworden, finden Sie? Tatsächlich hat sich nichts geändert: JS wird dasselbe tun, obwohl der Code deklarativer und kompakter geworden ist. Leider unterstützen einige ältere Browser den ES6-Standard und diese Klassensyntax nicht. Um diese Syntax auch mit ihnen zu verwenden, müssen Sie Polyfills oder Code-Übersetzer (z. B. Babel) verwenden.
+
+## Implementieren von OOP-Prinzipien in JS
+
+### Abstraktion
+Diesem Prinzip sind wir in allen Beispielen der vorangegangenen Einheiten gefolgt. Wann immer wir dies oder eine Entität in einer separaten Klasse herausgegriffen haben, haben wir eine Software-Abstraktion eines realen Objekts erstellt. Wir haben nur die Eigenschaften von Objekten belassen, die für unsere Aufgabe notwendig waren, und die unwichtigen verworfen. Das ist Abstraktion.
+
+Erinnern Sie sich an das Beispiel mit dem Benutzer: Uns ist egal, welche Haarfarbe er hat oder in welcher Stimmung er sich gerade befindet, dies ist für die Autorisierungsaufgabe nicht notwendig, also abstrahieren wir von dieser und vielen anderen Informationen, die bei nicht benötigt werden der Moment.
+
+```js
+function User(name, login, password, email) {
+  this.name = name
+  this.login = login
+  this.password = password
+  this.email = email
+}
+User.prototype.login = function() {
+  // ...
+}
+User.prototype.logout = function() {
+  // ...
+}
+User.prototype.register = function() {
+  // ...
+}
+User.prototype.changePassword = function() {
+  // ...
+}
+User.prototype.remindPassword = function() {
+  // ...
+}
+
+// mit ES6-классов
+class User {
+  constructor(name, login, password, email) {
+    this.name = name
+    this.login = login
+    this.password = password
+    this.email = email
+  }
+
+  login() {
+    // ...
+  }
+  logout() {
+    // ...
+  }
+  register() {
+    // ...
+  }
+  changePassword() {
+    // ...
+  }
+  remindPassword() {
+    // ...
+  }
+}
+```
+
+### Inkapsulierung
+JavaScript hat keine expliziten Zugriffsmodifikatoren wie viele andere Sprachen, aber es gibt immer noch Möglichkeiten, dieses Verhalten zu implementieren. Wir haben uns bereits angesehen, wie man Methoden oder Eigenschaften privat macht, sowohl in einem funktionalen Stil als auch mit ES6-Klassen. Aber diese Methoden und Eigenschaften werden nicht vererbt. Es gibt in JavaScript keine Möglichkeit, eine geschützte Eigenschaft vererbbar zu machen.
+
+Es gibt eine Konvention für solche Eigenschaften: sie mit einem Unterstrich zu benennen.
+
+```js
+function Car {
+  this._fuel = 0
+  this._mileage = 0
+}
+Car.consumption = 8
+Car.maxFuelLevel = 40
+Car.prototype.refuel = function (litres) {
+  this._fuel += litres
+  if (this._fuel > Car.maxFuelLevel) {
+    this._fuel = Car.maxFuelLevel
+  }
+}
+Car.prototype.drive = function (distance) {
+  const drivedDistance = Math.min(this._fuel / Car.consumption, distance)
+  this._mileage += drivedDistance
+  this._fuel -= drivedDistance * Car.consumption
+}
+
+// то же самое в стиле ES6 классов
+class Car {
+  static maxFuelLevel = 40
+  static consumption = 8
+
+  _fuel = 0
+  _mileage = 0
+
+  refuel(litres) {
+    this._fuel += litres
+    if (this._fuel > Car.maxFuelLevel) {
+      this._fuel = Car.maxFuelLevel
+    }
+  }
+
+  drive(distance) {
+    const drivedDistance = Math.min(this._fuel / Car.consumption, distance)
+    this._mileage += drivedDistance
+    this._fuel -= drivedDistance * Car.consumption
+  }
+}
+```
+
+Aber es gibt ein Problem: Wenn wir zum Beispiel den Code benötigen, der unsere Klasse verwendet, um den Kilometerstand herauszufinden, und wir _mileage in nur Kilometer umbenennen, dann erlauben wir möglicherweise dem Benutzer der Klasse, den Kilometerstand willkürlich zu ändern ( zum Beispiel auf Null drehen). Um dies zu verhindern, können Sie die Variable privat lassen, aber Getter und Setter für Variablen bereitstellen – spezielle Funktionen, die zum Abrufen bzw. Ändern von Daten verwendet werden.
+
+```js
+function Car() {
+  // ...
+  this._mileage = 0
+}
+// ...
+Car.prototype.getMileage = function () {
+  return this._mileage
+}
+
+// то же самое в стиле ES6 классов
+class Car {
+  // ...
+  _mileage = 0
+
+  // ...
+  getMileage() {
+    return this._mileage
+  }
+}
+```
+
+Sie können den gleichen Effekt erzielen, indem Sie integriertes JavaScript verwenden und Funktionen definieren, die aufgerufen werden, wenn versucht wird, auf eine Eigenschaft zuzugreifen oder diese zu ändern. Dazu können wir beim Deklarieren einer ES6-Klasse die Eigenschaftsdeskriptorschlüssel _get_ und _set_ oder die Schlüsselwörter get und set verwenden.
+```js
+function Car() {
+  // ...
+  this._mileage = 0
+}
+// ...
+Object.defineProperty(Car.prototype, 'mileage', {
+  get: function() { return this._mileage },
+  writable: false,  // Ändern der Eigenschaft verbieten
+  enumerable: true,
+  configurable: true
+});
+
+// mit ES6
+class Car {
+  // ...
+  _mileage = 0
+
+  // ...
+  get mileage() {
+    return this._mileage
+  }
+}
+```
+
+## Vererbung
+Dieses Thema wurde bereits in vorangegangenen Einheiten umfassend behandelt. Erinnern wir uns, wie die Prototypvererbung mithilfe des syntaktischen Zuckers implementiert wird, den uns die ES6-Klassen geben:
+```js
+function Fruit(weight) {
+  this.weight = weight
+}
+
+function Apple(weight, color) {
+  Fruit.prototype.call(this, weight)
+  this.color = color
+}
+Apple.prototype = Object.create(Fruit.prototype)
+
+// то же самое в стиле ES6 классов
+class Fruit {
+  constructor(weight) {
+    this.weight = weight
+  }
+}
+
+class Apple extends Fruit {
+  constructor(weight, color) {
+    super(weight)
+    this.color = color
+  }
+}
+```
+
+## Polymorphismus
+Beispiele für Polymorphismus wurden auch in früheren Einheiten behandelt. Erinnern Sie sich, wie Sie dieses Prinzip mithilfe von Prototypen und mithilfe von ES6-Klassen implementieren:
+```js
+function BaseSplitter(pattern) {
+  this._pattern = pattern
+}
+BaseSplitter.prototype.split = function (str) {
+  return str.split(this._pattern)
+}
+
+function RegexpSplitter(pattern) {
+  BaseSplitter.call(this, pattern)
+  this._regexp = new RegExp(this._pattern)
+}
+RegexpSplitter.prototype.split = function (str) {
+  return str.split(this._regexp)
+}
+
+// mit ES6
+class BaseSplitter {
+  constructor(pattern) {
+    this._pattern = pattern
+  }
+
+  split(str) {
+    return str.split(this._pattern)
+  }
+}
+
+class RegexpSplitter {
+  constructor(pattern) {
+    super(pattern)
+    this._regexp = new RegExp(this._pattern)
+  }
+
+  split(str) {
+    return str.split(this._regexp)
+  }
+}
+```
