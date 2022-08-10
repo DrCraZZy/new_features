@@ -892,7 +892,7 @@ Bei einigen Garbage Collectors kann ein Speichermangel nicht nur dann auftreten,
 ## Memory leak. Heapdump
 Ein Speicherleck ist eine Situation, in der sich Objekte auf dem Heap befinden, die nicht mehr verwendet werden, der Garbage Collector sie jedoch nicht entfernen kann, was zu einer Verschwendung von Speicher führt.
 
-Lecks sind ein Problem, da sie Speicherressourcen sperren, was mit der Zeit zu einer Verschlechterung der Performance führt. Und wenn es nicht behoben wird, erschöpft die Anwendung ihre Ressourcen und wird mit einem __java.lang.OutOfMemoryError__-Fehler beendet.
+Lecks sind Probleme, da sie Speicherressourcen sperren, was mit der Zeit zu einer Verschlechterung der Performance führt. Und wenn es nicht behoben wird, erschöpft die Anwendung ihre Ressourcen und wird mit einem __java.lang.OutOfMemoryError__-Fehler beendet.
 
 Es gibt zwei Arten von Heap-basierten Objekten: solche, die aktive Referenzen in der Anwendung haben, und solche, auf die von keiner Variablen des Referenztyps verwiesen wird.
 Der Garbage Collector entfernt regelmäßig Objekte, die keine aktiven Verweise mehr haben, entfernt jedoch niemals Objekte, auf die verwiesen wird.
@@ -909,3 +909,249 @@ Systemloader/Classloader ist __root__ für GC und initialisierte static fields d
 
 Immer wenn men eine neue Verbindung erstellt oder einen Thread öffnet, weist die JVM Speicher für diese Ressourcen zu. Dies können Datenbankverbindungen, eingehende Streams oder Sitzungsobjekte sein. Indem man vergisst, diese Ressourcen zu schließen, kann man Speicher sperren, wodurch sie für den Garbage Collector nicht verfügbar sind. Dies kann selbst dann passieren, wenn eine Ausnahme auftritt, die das Programm daran hindert, den Code auszuführen, der für das Schließen der Ressourcen verantwortlich ist.
 
+# Modul 21 (Maven)
+![](../img/JAVA_25.1_maven.png)
+
+Apache Maven, ein deklaratives Build-Automatisierungssystem, ist weit verbreitet. Auch Maven nutzt das XML-Format, aber pom.xml (die Hauptdatei für Maven) enthält keine einzelnen Befehle, sondern eine Beschreibung des Projekts. Auf den Aufbau der pom-Datei gehen wir später noch genauer ein.
+
+Die Vorteile von Maven gegenüber Ant sind:
+
+- automatisches Abhängigkeitsmanagement;
+- gut strukturierte Projekte;
+- eine einfachere Montagebeschreibung.
+
+Maven lässt sich auch gut in alle wichtigen Entwicklungsumgebungen integrieren. Um im Fall von Ant ein Projekt ohne IDE zu erstellen, müssen Build-Skripte unterstützt werden. Das Erstellen von Maven kann über die Befehlszeile erfolgen.
+
+Die Nachteile dieses Systems sind normalerweise die Lernschwierigkeiten und die Schwierigkeit, Montageprobleme zu diagnostizieren. Zu beachten ist auch, dass es schwierig ist, die richtigen Plugins zu finden und zu konfigurieren.
+
+Die Übersichtstabelle zeigt die wichtigsten Vor- und Nachteile von Maven:
+
+|Vorteile | Nachteile|
+|---|---|
+|Abhängigkeitsmanagement|Lernschwierigkeiten|
+|Build aus der Befehlszeile|Schwierigkeiten beim Diagnostizieren von Problemen|
+|Gute Integration mit vielen IDEs| Schwierigkeiten beim Auffinden von Plugins und Anpassungen|
+|Aussagekräftige Beschreibung||
+|Erweiterung der Funktionalität mit Plugins||
+
+## Anweisungen zur Installation von Maven unter Windows
+1. Laden Sie die Datei bin.zip mit der neuesten Version von der offiziellen Website herunter.
+1. Entpacken Sie den Ordner in ein beliebiges Verzeichnis, in dem Sie Maven haben möchten.
+1. Fügen Sie M2_HOME=your_maven_path zu Ihren Umgebungsvariablen hinzu (genauso wie Sie JAVA_HOME hinzugefügt haben).
+1. Fügen Sie %M2_HOME%\bin zu PATH hinzu, damit Sie Maven-Befehle von überall ausführen können.
+1. Führen Sie den Befehl aus:
+   ```cmd
+   mvn-Version
+   ```
+1. Wenn alles richtig gemacht wurde, wird die Maven-Version angezeigt.
+
+### Maven-Integration mit Intellij Idea
+Als einen der Vorteile von Maven haben wir die gute Integration mit der IDE hervorgehoben. Im Video sehen wir uns an, was so großartig an der Arbeit mit Maven in Intellij Idea ist.
+
+## pom.xml-Struktur. Archetypen
+POM (Project Object Model) ist die Hauptdatei für Maven. Die Datei pom.xml enthält Projektinformationen und Konfigurationsdetails, die Maven zum Erstellen des Projekts benötigt. Die Datei pom.xml muss sich im Projektverzeichnis befinden.
+
+Die folgenden Elemente können in pom.xml eingebunden werden:
+
+- Abhängigkeiten;
+- Plugins;
+- Aufgaben;
+- Profile;
+- Projektversion;
+- weitere Informationen zum Projekt.
+
+Pom-Struktur
+Schauen wir uns noch einmal die Struktur der Pom-Datei an, die Idea in der letzten Einheit für uns erstellt hat (die Werte der einzelnen Elemente sind in der folgenden Tabelle aufgeführt):
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.example</groupId>
+    <artifactId>greeting</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+</project>
+```
+Eine solche Struktur ist die minimal erforderliche Pom-Dateistruktur. Betrachten Sie die Werte der einzelnen Elemente in der Tabelle.
+
+|Element|Beschreibung|
+|---|---|
+|```<Projekt>```| Das Stammelement der Pom-Datei. Wenn Sie es manuell erstellen, müssen Sie hier die grundlegenden XML-Schemaeinstellungen angeben, z. B. das Apache-Schema und die w3.org-Spezifikation. Wenn Sie in IntelliJ IDEA erstellen, werden alle Schemas automatisch angegeben.|
+|```<modelVersion>``` |Gibt die aktuelle POM-Version an. Derzeit wird nur 4.0.0 unterstützt, daher wird immer nur diese Version aufgeführt.|
+|```<groupId>```| Gibt die Gruppen-ID des Projekts an. Beispielsweise ist org.springframework die ID einer Gruppe von Projekten, die sich auf das Spring Framework beziehen.|
+|```<artifactId>```| Gibt den Namen des Projekts an. Zum Beispiel Gruß oder Federkern.|
+|```<Version>```| Gibt die Version des Projekts an. Im Beispiel wird -SNAPSHOT auch zur Projektversion hinzugefügt, was bedeutet, dass die Version nicht endgültig ist, sie befindet sich in der Entwicklung.|
+
+Jede erstellte _Pom_-Datei erbt die Konfiguration, die im sogenannten _Super-POM_ definiert ist, das in Maven definiert ist. Tags, die nicht in der für unser Projekt generierten pom.xml definiert sind, verwenden den Standardwert aus dem _Super-POM_.
+
+Sie können das kombinierte Pom (Werte, die in der pom.xml des Projekts angegeben sind, + nicht angegebene Werte, die aus dem _Super-POM_ stammen) anzeigen, das vom Projekt verwendet wird, Sie können den Befehl verwenden:
+
+```cmd
+mvn help:effective-pom
+```
+Beispiel für pom.xml:
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <properties>
+      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+      <maven.compiler.source>1.8</maven.compiler.source>
+      <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>
+
+    <groupId>org.example</groupId>
+    <artifactId>greeting</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>war</packaging>
+
+    <name>Greeting application</name>  
+    <url>http://example.org</url>  
+    <description>Greeting application</description>  
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.11</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <sourceDirectory>src</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>resources</directory>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+```
+Betrachten wir die zusätzlichen Elemente, die im Beispiel aufgetreten sind.
+
+|Element|Beschreibung|
+|```<packaging>```| Gibt den Dateityp an, der vom Build generiert wird. Mögliche Optionen: JAR, WAR, EAR. Das Tag ist optional. Wenn nicht vorhanden, ist der Standardwert JAR.|
+|```<properties>```| Dieser Block spezifiziert Einstellungen wie die Dateicodierung und die Version des verwendeten Compilers.|
+|```<name>```| Gibt einen beschreibenden Namen für das Projekt an.|
+|```<url>```| Enthält die URL des Projekts.|
+|```<Beschreibung>```| Kurze Beschreibung des Projekts. Die Tags <name>, <url>, <description> werden häufig beim Erstellen von Dokumentationen verwendet.|
+|```<dependencies>```| Enthält eine Liste aller Abhängigkeiten, die im Projekt verwendet werden. Jede Abhängigkeit enthält dieselben Tags wie das Projekt: Gruppen-ID, Artefakt-ID, Version.|
+|```<build>```| Enthält Build-Informationen.|
+|```<sourceDirectory>```| Gibt den Pfad zum Quellcode an. Der Standardwert ist: src/main/java. Denken Sie daran, dass wir im Tutorial beim Erstellen des Maven-Projekts genau eine solche Struktur erstellt haben.|
+|```<resources>```| Gibt Pfade zu Ressourcendateien an. Standardverzeichnis: src/main/resources.|
+|```<outputDirectory>```| Gibt das Verzeichnis an, in dem die kompilierten Dateien gespeichert werden. Standardwert: Ziel/Klassen.|
+|```<finalName>```| Der Name der resultierenden Assemblydatei. Standardwert: artifactId-version.|
+|```<plugins>```| Der Abschnitt definiert die Verwendung von Plugins von Drittanbietern.|
+
+### Archetyp
+Neben den bereits besprochenen Erstellungsmethoden (von Hand und mit der IDE) kann die Datei pom.xml auch mit dem Archetyp erstellt werden.
+
+Ein Archetyp ist eine Art Projektvorlage, die die Struktur und Stubs von Quell- und Konfigurationsdateien enthält. Der Archetyp wird verwendet, um die Projektstruktur zu standardisieren und schnell ein Projekt aus einer bestehenden Vorlage zu erstellen.
+Ein Archetyp ist ein reguläres Maven-Projekt, das eine zusätzliche Datei archetype-metadata.xml enthält, die sich im Ordner META-INF/maven befindet und eine Beschreibung enthält, wie die Projektstruktur aussehen wird.
+
+Beispiel für die Datei archetype-metadata.xml:
+```xml
+<archetype-descriptor
+... name="example-archetype">
+  <fileSets>
+    <fileSet packaged="true">
+        <directory>src/main/java</directory>
+    </fileSet>
+    <fileSet packaged="true">
+        <directory>src/test/java</directory>
+    </fileSet>
+  </fileSets>
+</archetype-descriptor>
+```
+
+Das fileSet gibt die zu erstellende Struktur und die zu kopierenden Dateien an. Das heißt, in unserem Fall wird die Ordnerstruktur src/main/java für das erste fileSet erstellt.
+
+Die Eigenschaft packaged=true gibt an, dass die Dateien dem durch den Paketparameter angegebenen Ordner hinzugefügt werden.
+
+Für die Erstellung der Projektstruktur und der pom.xml gibt es eine Vielzahl vorgefertigter Archetypen. Beispielsweise generiert maven-archetype-webapp eine Projektstruktur für Webanwendungen. Das Ergebnis ist folgende Struktur:
+
+![](..\img\JAVA_25.3_1.png)
+
+Und maven-archetype-simple erstellt die Struktur eines regulären Maven-Projekts:
+
+![](..\img\JAVA_25.3_2.png)
+
+Führen Sie dazu einfach den Befehl aus:
+
+```cmd
+mvn archetype:generate -DarchetypeGroupId=org.apache.maven.archetypes -DarchetypeArtifactId=maven-archetype-plugin -DarchetypeVersion=1.4
+```
+wo
+
+- in -DarchetypeGroupId müssen Sie die groupId des Archetyps angeben,
+- -DarchetypeArtifactId gibt die Artefakt-ID des Archetyps an,
+- in -DarchetypeVersion ist seine Version.
+
+Die _ArtifactId_ der offiziellen Maven-Archetypen finden Sie in der Tabelle. Sie beziehen sich alle auf die ```gruppen-gd org.apache.maven.archetypes```.
+
+Die auf diese Weise erstellte Projektstruktur ähnelt der, __Idea__ in der letzten Einheit für uns erstellt hat, als wir mit __Idea__ ein Maven-Projekt erstellt haben.
+
+Sie können einen Archetyp auch manuell erstellen, indem Sie eine Projektdeskriptordatei archetype-metadata.xml oder aus einem vorgefertigten Projekt erstellen. Um einen Archetyp aus einem Projekt zu erstellen, müssen Sie den folgenden Befehl ausführen:
+
+```cmd
+mvn archetype:create-from-project
+```
+
+Der generierte Archetyp befindet sich in target/generated-sources/archetype.
+
+## Erstellen Sie Ihren eigenen Archetyp.
+
+1. Verwenden Sie dazu den vorgefertigten Archetyp des Archetyps. Führen Sie den Befehl aus, um ein Projekt basierend auf einem Archetyp aus der Theorie zu erstellen, und geben Sie den Archetyp -DarchetypeArtifactId=maven-archetype-archetype an.
+Als Ergebnis erhalten Sie mit der Deskriptordatei die Struktur des fertigen Archetyps.
+
+1. Ändern Sie in archetype-metadata.xml den Namen des generierten Archetyps in Ihren eigenen und ersetzen Sie die generierte Projektstruktur. Fügen Sie zum Beispiel die Ordner src/main/java/db hinzu (für eine hypothetische Datenbankverbindung werden wir keine Verbindung herstellen, erstellen Sie einfach einen Archetyp für Projekte, wo es benötigt wird) und src/main/java/entity (für eine hypothetische Entitätssatz). Die Struktur wird im Tag ```<fileSets>``` angegeben.
+1. Erstellen Sie den erstellten Archetyp und fügen Sie ihn dem lokalen Repository hinzu, indem Sie den folgenden Befehl ausführen:
+```cmd
+mvn sauber installieren
+```
+Stellen Sie sicher, dass Ihr Archetyp in .m2/repository/archetype-catalog.xml erscheint.
+
+Erstellen Sie ein Projekt mit dem soeben erstellten Archetyp. Dazu können Sie den Befehl zum Erstellen eines Projekts aus einem Archetyp aus der Theorie verwenden, indem Sie den Namen Ihres Archetyps angeben.
+
+## Abhängigkeitsmanagement. Eigenschaften
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Modul 22 (JDBC)
