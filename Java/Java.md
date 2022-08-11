@@ -1695,3 +1695,1400 @@ mvn help:active-profiles
 
 ## Взаимодействие с БД из прикладных программ
 В большинстве случаев работы прикладных программ нам требуется _сохранять их данные_. Как мы знаем, лучше всего на данную роль подходят БД. Запись и чтение в них из прикладных программ обычно не видны пользователю, и могут не иметь никакого графического интерфейса.
+
+Интерфейс обычно обеспечивает само прикладное приложение. Как правило, это окно с набором полей для ввода данных и кнопками для управления ими. Также с помощью приложения мы можем выводить данные с нескольких таблиц или баз, и мы можем скрыть некоторые данные, если они вдруг стали неактуальными. В итоге интерфейс представляет данные пользователю в понятной и информативной форме.
+
+У различных языков программирования обычно разные стандарты для взаимодействия с БД.
+
+Например, в Python используется Python DB-API, благодаря которой можно подключаться к различным БД с примерно одинаковыми конструкциями. Скорее это набор правил, которым должны следовать несколько библиотек.
+
+Ниже показана небольшая таблица о соответствии библиотеки и БД:
+
+|База данных|DB-API модуль|
+|---|---|
+|SQLite|sqlite3|
+|PostgreSQL|psycopg2|
+|MySQL|mysql.connector|
+|ODBC|pyodbc|
+
+Интерфейс подключения в Java, называется JDBC (Java Database Connectivity). Предоставляется он самой платформой и, также как и в других языках, не привязан к какой-либо конкретной СУБД.  JDBC реализован в виде **пакета java.sql**, входящего в состав Java SE. Но помимо интерфейса нам также потребуются **драйверы баз данных**.
+
+### Немного о драйверах
+Драйвер для PostgreSQL можно получить через Maven. Это такое место в интернете — репозиторий, в котором хранятся библиотеки.
+
+В принципе, можно создать пустой Maven-проект и сразу сделать вставку в pom.xml, как показано ниже:
+
+**PostgreSQL:**
+```xml
+<dependency>
+    <groupId>org.postgresql</groupId>
+    <artifactId>postgresql</artifactId>
+    <version>42.2.18</version>
+</dependency>
+```
+
+**Oracle:**
+```xml
+<dependency>
+   <groupId>com.oracle</groupId>
+   <artifactId>ojdbc6</artifactId>
+   <version>11.2.0.3</version>
+</dependency>
+```
+
+**MSSQL:**
+```xml
+<dependency>
+    <groupId>com.microsoft.sqlserver</groupId>
+    <artifactId>mssql-jdbc</artifactId>
+    <version>8.4.1.jre14</version>
+</dependency>
+```
+
+**MySQL:**
+```xml
+<dependency>
+   <groupId>mysql</groupId>
+   <artifactId>mysql-connector-java</artifactId>
+   <version>5.1.38</version>
+</dependency>
+```
+
+Для эффективного решения задач, связанных с базами данных, есть достаточно простой паттерн **DAO** (Data Access Object). Сам по себе **DAO** — это абстрактный класс или интерфейс, в котором обычно описывают методы добавления, обновления, удаления и т.д. в базу данных. Основная его задача — **абстрагировать доступ** к различным БД.
+
+Основное его предназначение — уменьшить количество переписываемого кода в случае, когда нам потребуется сменить базу данных или логику приложения. Данный класс не конечный и может дополняться различными методами в зависимости от нужд реализации. Рассмотрим самый простой пример.
+
+Создаём класс — условную «коробку», в которой будем хранить данные:
+```java
+public class Box {
+    private String boxname;
+}
+```
+
+```java
+//Дальше создаем наш интерфейс DAO:
+import java.util.List;
+import java.util.Optional;
+
+public interface Dao<T> {
+    Optional<T> get(long id);
+    List<T> getAll();
+    void save(T t);
+    void update(T t, String[] params);
+    void delete(T t);
+}
+```
+
+```java
+//И теперь реализуем пользовательский интерфейс DAO:
+import java.util.List;
+import java.util.Optional;
+
+public class BoxDao implements Dao<Box>{
+
+    @Override
+    public Optional<Box> get(long id) {
+        return Optional.empty();
+    }
+
+    @Override
+    public List<Box> getAll() {
+        return null;
+    }
+
+    @Override
+    public void save(Box box) {
+    }
+
+    @Override
+    public void update(Box box, String[] params) {
+    }
+
+    @Override
+    public void delete(Box box) {
+    }
+}
+```
+
+Понятно, что в методах save, update и delete мы должны описать взаимодействие с БД. Сделаем это в следующих юнитах .
+
+Ну и пример реализации в основном коде программы:
+```java
+public class Main {
+     private static Dao boxdao;
+     public static void main(String[] args) {
+         boxdao = new BoxDao();
+         boxdao.save(new Box("TestNameBox"));
+    }
+}
+```
+
+Как становится ясно, данный паттерн сильно упрощает жизнь программиста, так как при смене типа БД или подключения в БД код не надо будет переписывать. Но для создания более-менее рабочего приложения мы должны также разобраться, как работают драйвера JDBC, и что это такое.
+
+## Архитектура JDBC
+### Понятие драйвера
+
+Драйвер — это некоторая сущность, благодаря которой реализуются интерфейсы JDBC. Он позволяет получить соединение с БД по специально описанному URL. Загружаются драйверы обычно динамически во время работы нашего приложения. Вызываются автоматически, когда приложению требуется загрузить URL, при этом в URL’e содержится протокол, за который драйвер отвечает.
+
+Создадим такую строку в коде и попробуем подключиться.
+
+Для того чтобы подключиться, нужно знать некоторые данные о своей установленной PostgreSQL:
+
+* где она установлена;
+* имя и пароль пользователя;
+* имя базы данных;
+* порт (необязательно).
+
+Выполняя ранее известные условия, мы знаем:
+
+* место установки localhost;
+* стандартный пользователь БД при первой установке — postgres, пароль тот, что указали при установке (в моём случае это 00000);
+* в качестве базы для подключения используем служебную базу с именем postgres;
+* порт не указываем, так как скорее всего был выбран порт по умолчанию.
+
+Теперь нам надо преобразовать эти данные в строку для подключения:
+
+```java
+private static final String URL = "jdbc:postgresql://localhost/postgres?user=postgres&password=000000";
+```
+
+Целиком код будет выглядеть так:
+
+```java
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+public class Main {
+
+    private static final String URL = "jdbc:postgresql://localhost/postgres?user=postgres&password=000000";
+  
+    private static Connection con;
+
+    public static void main(String[] args) {
+        try {
+            con = DriverManager.getConnection(URL);
+            con.close();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+}
+```
+
+Результатом выполнения будет :
+```
+Process finished with exit code 0
+```
+
+Если зайти в приложение PgAdmin и посмотреть, что происходит с базой после нескольких запусков программы, то можно увидеть, что есть активность.
+
+![](../img/java_23_1.png)
+
+Программа выполнилась без ошибок. Теперь стоит немного разобраться с тем, что мы сделали, что такое **интерфейс Connection** и как он работает.
+
+### Интерфейс Connection
+Интерфейс Connection является элементом JDBC API и необходим нам для взаимодействия с БД. Мы его можем представить как **средство для создания сессий**. Он отвечает за физическое подключение к базе данных.
+
+Улучшим предыдущий пример под PostgreSQL, написав теперь переменную интерфейса нормально, а также перепишем конструкцию *try-catch* как *try-with-resources*:
+
+```java
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+public class Main {
+
+    private static final String URL = "jdbc:postgresql://localhost/postgres?user=postgres&password=0000000";
+
+    private static String conok="Соединение с бд установлено";
+    private static String conerr="Произошла ошибка подключения к бд";
+
+    public static void main(String[] args) {
+        try (Connection connection = DriverManager.getConnection(URL)){
+            System.out.println(String.format("%s",conok));
+        } catch (SQLException e) {
+            System.out.println(String.format("%s",conerr));
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+При удачном подключении к БД появится строка в терминале, показывающая, что всё ок. А при неудачном подключении она покажет, что подключение не прошло и в чем возможная причина. Например, если поменять пароль на несуществующий:
+
+```cmd
+Произошла ошибка подключения к бд
+org.postgresql.util.PSQLException: ВАЖНО: пользователь "postgres" не прошёл проверку подлинности (по паролю) (pgjdbc: autodetected server-encoding to be windows-1251, if the message is not readable, please check database logs and/or host, port, dbname, user, password, pg_hba.conf)
+	at org.postgresql.core.v3.ConnectionFactoryImpl.doAuthentication(ConnectionFactoryImpl.java:613)
+```
+
+Ну или попытаться подключиться к базе, которой нет:
+```cmd
+Произошла ошибка подключения к бд
+org.postgresql.util.PSQLException: ВАЖНО: база данных "testpostgres" не существует (pgjdbc: autodetected server-encoding to be windows-1251, if the message is not readable, please check database logs and/or host, port, dbname, user, password, pg_hba.conf)
+	at org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2553)
+```
+
+### Интерфейс Statement
+После того как мы поняли, как создавать соединение с базой данных, логично было бы узнать, как можно выполнять в ней запросы. Интерфейс **Statement** позволяет делать запросы к БД, которые определены как константы, и не принимают никаких параметров.
+
+Тут следует пояснить, что под константой имеется ввиду заранее определенная строка типа:
+
+```java
+String s = "SELECT * from testtable;";
+```
+
+Перед тем как использовать данный интерфейс для наших запросов к БД, нам нужно его создать. Для этого используем метод сonnection.createStatement(). Посмотрим, как он будет выглядеть в коде нашей программы:
+
+```java
+Statement statement = connection.createStatement();
+```
+
+И теперь, как уже говорили ранее — для того чтобы выполнить запрос, мы должны создать его как строковую константу:
+
+```java
+String sql = "SELECT * FROM test";
+```
+
+Ну и делаем запрос на выполнение:
+
+```java
+statement.execute(sql);
+```
+
+Но это немного некрасивый код, корректно будет сделать так:
+```java
+boolean isExecuted=statement.execute(sql);
+if (isExecuted){
+    System.out.println("SELECT executed");
+}
+```
+
+Теперь при выполнении кода уже увидим следующее:
+
+```cmd
+Соединение с БД установлено корректно
+SELECT executed
+Process finished with exit code 0 
+```
+
+Прежде чем перейти дальше, обратите внимание на один важный момент. После того как мы выполним наш запрос, чтобы данные сохранились в базе, нам нужно использовать метод close().
+
+```java
+statement.close();
+connection.close();
+```
+
+Создадим тестовую БД — testDB, а в ней тестовую таблицу — testTable:
+
+![create test](../img/java_23_2.png)
+
+Добавляем таблицу:
+
+![](../img/java_23_3.png)
+
+Добавляем в неё тестовые данные:
+```sql
+insert into test(id) values (2),(9),(10);
+```
+
+![](../img/java_23_4.png)
+
+У интерфейса Statement для получения результатов существует три метода:
+* boolean execute(String s);
+* int executeUpdate(String s);
+* ResultSet executeQuery(String s).
+
+Первый, *boolean execute(String SQL)*, возвращает логический ответ true, если метод executeQuery может быть выполнен, в результате чего может быть получено значение ResultSet.
+
+Второй, *int executeUpdate(String SQL)*, возвращает число. Это число показывает, на сколько столбцов в таблице повлиял наш запрос. При вызове с SELECT запросом выдаст ошибку:
+
+```cmd
+SQLException : Can not issue SELECT via executeUpdate() or executeLargeUpdate().
+```
+
+Третий, *ResultSet executeQuery(String SQL)*, возвращает объект **ResultSet** и используется для получения множества результатов, обычно с SELECT запросом.
+
+Пример кода:
+```java
+ResultSet resultSet = statement.executeQuery(sql);
+System.out.println("ID");
+System.out.println("||------------||");
+while (resultSet.next()){
+   System.out.println(resultSet.getInt("ID"));
+}
+System.out.println("||------------||");
+
+// Select executed
+// ID
+// ||------------||
+// 2
+// 9
+// 10
+// ||------------||
+// Process finished with exit code 0
+```
+
+Кстати, также как для метода execute(), перед выходом нужно использовать метод close():
+
+```java
+statement.close();
+resultSet.close();
+connection.close();
+```
+
+### Интерфейсы PreparedStatement и CallableStatement
+В случае, когда нам нужно передать в выражение какие-нибудь значения, и также требуется несколько раз вызывать один и тот же запрос, мы можем использовать метод PreparedStatement. Рассмотрим небольшой пример:
+
+```java
+int count = 2;
+String SQL = "Select * from test WHERE id = ?;";
+try (PreparedStatement preparedStatement = connection.prepareStatement(SQL)); {
+    preparedStatement.setInt(1, count);
+    ResultSet resultSet = preparedStatement.executeQuery();
+
+    while (resultSet.next()) {
+        System.out.println(resultSet.getInt("ID"));
+    }
+}
+```
+
+Знак вопроса **?** называется **маркером** и способен получать значение. Стоит заметить, что нумерация начинается с единицы, а не с нуля, как в обычных массивах.
+
+Ещё один небольшой пример на добавление данных в таблицу (*таблицы не существует в PostgreSQL и пример скорее для того, чтобы посмотреть, как можно использовать маркеры*):
+
+```java
+int ourint = 3;
+String ourname = "testname";
+
+String sql = "Insert into test (id, name) Values (?, ?)";
+PreparedStatement preparedStatement = connection.prepareStatement(sql);
+preparedStatement.setInt(1, ourint);
+preparedStatement.setSrting(2, ourname);
+int rows = preparedStatement.executeUpdate();
+System.out.println(rows + "Строк добавлено");
+```
+
+**PreparedStatement**, так же как и **Statement**, обладает методами **execute, executeUpdate, executeQuery**. И так же перед завершением работы с интерфейсом или БД нужно вызвать метод его закрытия **preparedStatement.close();**.
+
+Интерфейс CallableStatement позволяет нашему приложению вызвать хранимую на сервере DB процедуру. Так же как и в PreparedStatement, с помощью маркеров мы можем определить операторы, но есть и отличие — мы можем использовать не только порядковое местоположение, но и указание по имени. Звучит, наверное, сложновато, но на примере сейчас станет понятно.
+
+```java
+String SQL= "{call ourpostgresqlProc(?,?,?)}"; 
+// Создаем подключение
+try(CallableStatement callableStatement = connection.prepareCall(SQL)){
+// Добавляем три значения
+   callableStatement.setInt(1, 123);
+   callableStatement.setString(2, "name");
+   callableStatement.setString(3, "surname");
+// вызываем функцию, которая лежит у нас в базе
+   callableStatement.executeUpdate();
+}
+```
+
+Ну или в случае, когда мы знаем, как в процедуре называются наши переменные, мы можем обратиться к ним по имени:
+```java
+String SQL= "{call ourProc(?,?,?)}"; 
+try (CallableStatement callableStatement = connection.prepareCall(SQL)){
+   callableStatement.setInt("ID", 123);
+   callableStatement.setString("NAME", "Ivan");
+   callableStatement.setString("SURNAME", "Ivanov");
+   callableStatement.executeUpdate();
+   callableStatement.close();
+}
+```
+
+В пакете java sql мы используем методы, часть из которых требует закрытия **close()**, а часть — нет.
+
+|Методы|Описание|Требуется закрытие?|
+|---|---|---|
+|DriverManager|Подключение драйвера|–|
+|Connection|Создание сессии|+|
+|Statement|Для вызова статических запросов|+|
+|PreparedStatement|Для вызова запросов с параметрами|+|
+|CallableStatement|Для вызова функций|+|
+|ResultSet|Множество ответов после выполнения запроса|–|
+
+Стоит упомянуть, что конструкция *try-with-resources* имеет приоритет перед методом *close*.
+
+### Практикум
+В качестве практики мы создадим базу данных и попробуем к ней подключиться. После этого напишем небольшой код программы.
+
+Но для начала надо определить, как мы скачиваем JDBC драйвер:
+
+либо через Maven:
+```xml
+<dependencies>
+    <dependency>
+        <groupId>org.postgresql</groupId>
+        <artifactId>postgresql</artifactId>
+        <version>42.2.18</version>
+    </dependency>
+</dependencies>
+```
+либо скачиваем [тут](https://jdbc.postgresql.org/download/postgresql-42.2.18.jar):
+
+![](../img/java_23_5.png)
+
+Создаём в нашем рабочем проекте директорию lib и перекладываем туда JAR-файл драйвера из архива. В директории нажимаем правой клавишей мыши и выбираем пункт Add as Library...
+
+Итоговый код выглядит так в обоих случаях:
+
+```java
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+public class Main {
+
+   private static final String URL = "jdbc:postgresql://localhost/testDB?user=postgres&password=000000";
+   private static String conok="Соединение с бд установлено";
+   private static String conerr="Произошла ошибка подключения к бд";
+
+   public static void main(String[] args) {
+       try (Connection connection = DriverManager.getConnection(URL)){
+           System.out.println(String.format("%s",conok));
+       } catch (SQLException e) {
+           System.out.println(String.format("%s",conerr));
+           e.printStackTrace();
+       }
+   }
+}
+```
+При попытке запустить получаем:
+
+```cmd
+Соединение с бд установлено
+Process finished with exit code 0
+```
+
+## Выполнение запросов средствами JDBC
+Давайте попробуем немного углубиться в интерфейс **PreparedStatement**. Мы уже знаем, что маркер **?** позволяет передавать различные переменные в запрос.
+
+На примере мы рассмотрели методы **setInt** и **setString**, но это не все методы, также существуют и другие:
+
+* setBigDecimal — похож на класс float, но имеет более гибкую настройку дробной части и используется для работы с финансами.
+* setBoolean;
+* setDate — используется для передачи даты, имеет примерно такую конструкцию: setDate(2, new java.sql.Date(System.currentTimeMillis()));
+* setDouble;
+* setFloat;
+* setLong;
+* setNull — устанавливает null значение для необходимой нам ячейки, так как если попробовать передать через setInt(1,j), притом ранее мы определим j=null, то возникнет ошибка: s.setNull(10, java.sql.Types.INTEGER);
+* setTime — используется как и date, но для передачи времени.
+
+Так как PreparedStatement наследует Statement, он тоже имеет 3 метода для выполнения запроса:
+
+* **boolean execute()**, можно выполнить на любом запросе и он вернёт результат, выполнится ли запрос.
+* **ResultSet executeQuery()** выполняет **select** запрос и возвращает искомое множество в виде **resultset** переменной.
+* **int executeUpdate()** создан для того, чтобы выполнять **create**, **insert**,**update** и **delete** запросы. Возвращает количество измененных строк.
+
+Стоит сказать, что устанавливать значения параметров не в момент составления запроса, а в момент его выполнения, очень удобно.
+
+```
+Интересно знать, что количество маркеров в одном запросе не бесконечно и имеет ограничение в две тысячи.
+```
+```cmd
+Caused by: java.sql.SQLException: Prepared or callable statement has more than 2000 parameter markers.
+       at net.sourceforge.jtds.jdbc.SQLParser.parse(SQLParser.java:1139)
+       at net.sourceforge.jtds.jdbc.SQLParser.parse(SQLParser.java:156)
+       at net.sourceforge.jtds.jdbc.JtdsPreparedStatement.<init>(JtdsPreparedStatement.java:107)
+Caused by: java.sql.SQLException: Prepared or callable statement has more than 2000 parameter markers.
+```
+
+А теперь немного о том, почему стоит использовать **PreparedStatement** вместо **Statement**.
+
+Метод Statement складывает строки значений и строки запроса. А вот **PreparedStatement** имеет по сути шаблон запроса, и данные в него вставляются с учётом кавычек. Данный метод позволяет защититься от SQL инъекций.
+
+Рассмотрим на простом примере. Есть у нас такая таблица:
+
+```
++-----------+----+--------+
+| user      | id |password|
++-----------+----+--------+
+| admin     |  1 |  admin |
+| user      |  2 |  pass  |
+| guest     |  3 |  guest |
++-----------+----+--------+
+```
+
+В таблице 3 столбца: имя пользователя, его id и его пароль. Сделаем запрос пользователя в программе.
+
+Значения user.name и user.pass определяем заранее и передаем в нашу программу через консоль:
+```
+enter user : admin
+enter password : admin
+```
+
+```java
+String query = "SELECT user, id, password FROM users WHERE user='" + user.name + "' AND password = '" + user.pass + "'";
+System.out.println(query);
+ResultSet resultSet = statement.executeQuery(query);
+
+while (resultSet.next()) {
+    System.out.println("User: id=" + resultSet.getInt("id") +
+        "name=" + resultSet.getString("user") +
+        "password=" + resultSet.getString("password"));
+
+}
+```
+Ответ программы будет таким:
+```java
+User: id=1 name=admin pass=admin
+```
+
+Итоговый запрос в базу данных будет выглядеть следующим образом:
+```sql
+select user, id, password 
+from users 
+where user = 'admin' and password ='admin';
+```
+
+Если комбинация логин и пароль не совпадают с теми, что указаны, то и данные о пользователе мы не получим.
+
+Теперь попробуем немного изменить имя и пароль.
+```
+enter user : admin
+enter password : nevermind' or '1' = '1
+```
+
+Пробуем запустить программу. Что мы видим в качестве результата?
+```java
+User: id=1 name=admin password=admin
+User: id=2 name=user password=user
+User: id=3 name=guest password=guest
+```
+
+Несмотря на неверный пароль, запрос выдал результат. Притом выдал вообще все данные по пользователям с паролями. Стоит более детально разобраться в логике нашего запроса, который мы передали на сервер:
+
+```sql
+select user, id, password 
+from users 
+where user = 'admin' and password = 'nevermind' or '1' = '1';
+```
+
+Логика итогового запроса подсказывает, что нам нужно выбрать из таблицы users строки, у которых значение поля user равно admin, значение поля password равно nevermind, или если один равно одному. Очевидно, что при переборе всех строк и сравнении значений с условиями, логин и пароль могут не совпадать, а вот один всегда равно одному для каждой строки, поэтому в результирующей выборке будут содержаться все строки таблицы users.
+
+Давайте попробуем теперь заменить в коде метод Statement на PreparedStatement. Код при этом меняется не сильно:
+
+```java
+String query = "SELECT user, id, password FROM users WHERE user=? AND password=?";
+try(PreparedStatement statement = connect.prepareStatement(query)){
+    statement.setString(1, user.name);
+    statement.setString(2, user.pass);
+    System.out.println(statement);
+    ResultSet resultSet = statement.executeQuery();
+}
+```
+
+А вот результат отличается более чем. Понятно, что при правильном логине и пароле вернутся правильные значения. Давайте лучше рассмотрим пример SQL-инъекции. Передаём в консоли:
+
+```
+enter user : admin
+enter password : nevermind' or '1' = '1
+```
+
+И ответа в консоль не приходит, так как логин и пароль не совпадают. Ну и чтобы понять, что произошло, следует посмотреть на итоговый запрос к базе данных:
+
+```sql
+SELECT user, id, pass 
+FROM users 
+WHERE user=admin
+AND password='nevermind\' or\'1\'=\'1';
+```
+
+То есть метод setString экранировал кавычки, и пользователя с паролем nevermind\' or\'1\'=\'1 действительно не оказалось. Как подытог можно сказать, что лучше использовать метод PreparedStatement вместо Statement, и крайне внимательно относиться к данным в Statement.
+
+Инициализация метода PreparedStatement крайне простая. Мы уже видели в примерах выше, как это выглядело. Вот минимальная конструкция:
+
+```java
+try (Connection connection = DriverManager.getConnection(url, username, password)) {
+    String SQL = "Select * from test;";
+    try (
+        PreparedStatement preparedStatement = connection.prepareStatement(SQL)
+    ) {}
+}
+```
+
+Также можно после выполнения действий переинициализировать интерфейс, вначале закрыв его методом close(), а потом заново создав через connection.prepareStatement(SQL), но до выполнения метода connection.close().
+
+Инициализация параметров (setInt(1,1), например) также была в нескольких примерах выше. Выполняется всегда после connection.prepareStatement(SQL) и перед preparedStatement.executeQuery(), ну или аналогичных методов запуска execute(), executeUpdate().
+
+Интерфейс ResultSet представляет собой итоговый набор данных. Доступ к нему осуществляется построчно. Доступ к данным в нём происходит благодаря набору get методов, а переход к следующей строке происходит через метод next().
+
+**Полученный набор ResultSet можно не закрывать методом close(), это делается родительским элементом preparedStatement, или если начинает использоваться повторно.*
+
+Метод wasNull() возвращает true, если в последнем считанном столбце было SQL NULL значение. Этот момент следует объяснить более детально. Считывание происходит в момент вызова get-метода. Например, есть условная БД:
+
+```sql
+select * from test;
++------+
+| ID   |
++------+
+|    2 |
+|    9 |
+|   10 |
+| NULL |
+|    0 |
++------+
+5 rows in set (0.00 sec)
+```
+
+Перебор классический построчный while (resultSet1.next()){}. Так вот, допустим, стоит такая задача — вывести в консоль результаты БД, а так как resultSet1.getInt("ID"), если наткнется на null, значение станет равным 0 и поменяет флаг в wasNull() на true.
+
+Поэтому логично было в таком случае не сразу выводить System.out.println(resultSet1.getInt("ID"));, а с каким то промежуточным шагом, как показано ниже:
+
+```java
+while (resultSet1.next()){
+   int i = resultSet1.getInt("ID");
+   if (resultSet1.wasNull()){
+      System.out.println("NULL");
+   } else {
+      System.out.println(i);
+   }
+}
+```
+
+Кстати, в различные get-методы возвращают различные null-значения:
+
+* fasle в методе getBoolean;
+* 0 в методах getByte, getShort, getInt, getLong, getFloat, и getDouble;
+* null — во всех остальных случаях getString, getBigDecimal, getBytes, getDate, getTime, getTimestamp, getAsciiStream, getUnicodeStream, getBinaryStream, getObject.
+
+Также помимо уже известного метода навигации next() существует ещё ряд методов:
+
+|Метод|	Описание|
+|---|---|
+|beforeFirst()|	Перемещает указатель на место перед первым рядом.|
+|afterLast()|	Перемещает указатель на место после крайнего ряда.|
+|first()|	Перемещает указатель на первый ряд.|
+|last()|	Перемещает указатель на крайний ряд.|
+|previous()|	Перемещает указатель на предыдущий ряд. Возвращает false, если предыдущий ряд находится за пределами множества результатов.|
+|next()|	Перемещает указатель на следующий ряд. Возвращает false, если следующий ряд находится за пределами множества результатов.|
+|absolute (int| row)	Перемещает указатель на указанный ряд.|
+|relative (int| row)	Перемещает указатель на указанное количество рядов от текущего.|
+|getRow()|	Возвращает номер ряда, на который в данный момент указывает курсор.|
+|moveToInsertRow()|	Перемещает указатель на ряд в полученном множестве, который может быть использован для того, чтобы добавить новую запись в БД. Текущее |положение указателя запоминается.
+|moveToCurrentRow()|	Возвращает указатель обратно на текущий ряд в случае, если указатель ссылается на ряд, в который в данный момент добавляются данные.|
+
+Когда мы немного разобрались с тем, что и как перемещается по БД средствами JDBC, самое время понять, как правильно формировать список всех сущностей БД.
+
+Тут тоже ничего сложного нет. Так как считывание результатов происходит построчно, то каждая новая сущность — это строка, а каждый столбец в этой строке — это атрибут сущности.
+
+В плане кода это тоже будет выглядеть просто. Создаем перед началом работы лист объектов. ```List<LoadModel> data```, где LoadModel выглядит так:
+
+```java
+public class LoadModel {
+    int i;
+}
+```
+
+Итоговый код выглядит так:
+```java
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class Main
+{
+    private  final static String  HOST     = "localhost";  // сервер базы данных
+    private  final static String  DATABASENAME = "testDB"; // имя базы
+    private  final static String  USERNAME = "postgres";   // учетная запись пользователя
+    private  final static String  PASSWORD = "000000";     // пароль
+    public  static void main(String[] args)
+    {
+        List<LoadModel> data = new ArrayList<>();
+        String url="jdbc:postgresql://"+HOST+"/"+DATABASENAME+"?user="+USERNAME+"&password="+PASSWORD;
+        try (Connection connection = DriverManager.getConnection(url, USERNAME, PASSWORD)) {
+            if (connection == null)
+                System.err.println("Нет соединения с БД!");
+            else {
+                System.out.println("Соединение с БД установлено корректно");
+                String SQL = "Select * from test;";
+                //Запрос на получение всех данных
+                try (PreparedStatement preparedStatement = connection.prepareStatement(SQL)) {
+                    try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                        while (resultSet.next()) {
+                            int i = resultSet.getInt("ID");
+                            if (resultSet.wasNull()) {
+                                System.out.println("NULL");
+                            } else {
+                                System.out.println(i);
+                            }
+                            //Добавляем каждый полученный элемент в наш лист
+                            LoadModel loadModel = new LoadModel();
+                            loadModel.i = i;
+                            data.add(loadModel);
+                        }
+                    }
+                }
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+}
+```
+
+### Практикум
+Создадим простой метод для взаимодействия с БД: 
+
+```java
+public static boolean checkvalue(int checkedvalue) {
+    String SQL = "Select * from test where ID=?;";
+    try (PreparedStatement statement = connection.prepareStatement(SQL)) {
+        statement.setInt(1, checkedvalue);
+        ResultSet resultSet = statement.executeQuery();
+        while (resultSet.next()) {
+            return true;
+        }
+    } catch (SQLException throwables) {
+        throwables.printStackTrace();
+        return false;
+    }
+    return false;
+}
+```
+
+Данный запрос выводит все строки, где есть искомое число с клавиатуры. Весь код будет выглядеть так:
+```java
+package main.java;
+
+import java.sql.*;
+import java.util.Scanner;
+
+public class Main {
+    private  final static String  HOST     = "localhost"  ; // сервер базы данных
+    private  final static String  DATABASENAME = "testDB"  ;// имя базы
+    private  final static String  USERNAME = "postgres"; // учетная запись пользователя
+    private  final static String  PASSWORD = "000000"; // пароль пользователя
+    static Connection connection;
+
+    public static void main(String[] args){
+
+        //Строка для соединения с бд
+        String url="jdbc:postgresql://"+HOST+"/"+DATABASENAME+"?user="+USERNAME+"&password="+PASSWORD;
+        try {
+            connection = DriverManager.getConnection(url, USERNAME, PASSWORD);
+             if (connection == null)
+                System.err.println("Нет соединения с БД!");
+             else {
+                 System.out.println("Соединение с БД установлено корректно");
+                 if(checkvalue(new Scanner(System.in).nextInt())){
+                     System.out.println("Число есть в таблице");
+                 }else{
+                     System.out.println("Число отсутствует в таблице");
+                 }
+             }
+
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    public static boolean checkvalue(int checkedvalue){
+        String SQL = "Select * from test where ID=?;";
+            try(PreparedStatement statement = connection.prepareStatement(SQL)){
+            statement.setInt(1, checkedvalue);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                return true;
+            }
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+                return false;
+            }
+        return false;
+    }
+}
+```
+
+```
+Соединение с БД установлено корректно
+11
+Число отсутствует в таблице
+
+Process finished with exit code 0
+
+Соединение с БД установлено корректно
+10
+Число есть в таблице
+
+Process finished with exit code 0
+```
+
+Всё корректно, наш метод работает.
+
+
+## Изменение данных средствами JDBC
+### Вставка и обновление данных
+
+Вставка в БД происходит посредством использования insert запросов. Хм. Ранее мы рассматривали момент вставки через prepareStatement. Рассмотрим теперь случай, когда нам нужно изменить данные в нашей таблице.
+
+Первый случай изменения данных — это изменение структуры таблицы. Имеем всю ту же таблицу. Добавим в неё ещё один столбец:
+```java
+import java.sql.*;
+public class Main 
+{
+        private final static String HOST = "localhost"; // сервер базы данных
+             private final static String DATABASENAME = "testDB"; // имя базы
+             private final static String USERNAME = "postgres"; // учетная запись пользователя
+             private final static String PASSWORD = "000000"; // пароль
+             public static void main(String[] args) 
+             {
+                String url = "jdbc:postgresql://" + HOST + "/" + DATABASENAME + "?user=" + USERNAME + "&password=" + PASSWORD;
+                try (Connection connection = DriverManager.getConnection(url, USERNAME, PASSWORD)) {
+                        if (connection == null)
+                                System.err.println("Нет соединения с БД!");
+                        else {
+                                System.out.println("Соединение с БД установлено.");
+                                String SQL = "ALTER TABLE test ADD name varchar(255);"; // Добавление столбца name
+                                try (PreparedStatement preparedStatement = connection.prepareStatement(SQL)) 
+                                {
+                                        preparedStatement.executeUpdate();
+                                }
+                        }
+                } catch (SQLException throwables) {
+                        throwables.printStackTrace();
+                }
+        }
+}
+```
+
+Сам запрос:
+```sql
+ALTER TABLE test ADD COLUMN name varchar(255);
+```
+
+В итоге в таблице видим:
+
+![](../img/java_23_6.png)
+
+Изменим запрос так, чтобы добавить имя пользователя под ID = 9;.
+Весь код будет таким же, кроме строки SQL-запроса:
+
+```java
+String SQL = "UPDATE test set name='Nick' where ID=9;";
+```
+
+![](../img/java_23_7.png)
+
+### Управление транзакцией средствами интерфейса Connection
+Когда мы работаем с JDBC в обычном режиме, все SQL-запросы будут выполнены, а результаты выполнения сохранены. Такой режим работы называется **auto-commit**.
+
+Если наше приложение небольшое, то это очень удобная модель. Но если нам нужно увеличить производительность, или требуется использовать бизнес-логику, то такой режим необходимо отключить, **для того чтобы обрабатывать запросы поблочно**. Ну, и по правилам транзакции, если один запрос из блока не пройдёт, то отменяется весь блок.
+
+Доступ к управлению транзакциями JDBC в коде можно получить с помощью команды:
+
+```java
+connection.setAutoCommit(false); 
+```
+
+Теперь после использования ряда SQL-запросов, чтобы наши данные сохранились, надо использовать метод commit():
+
+```java
+connection.commit();
+```
+
+Если мы обнаружим, что какой-то из запросов не прошел (нам вернулась ошибка), то нужно откатить транзакцию методом rollback():
+
+```java
+connection.rollback();
+```
+
+Пример ошибки:
+```java
+package main.java;
+
+import java.sql.*;
+
+public class Main {
+   private  final static String  HOST     = "localhost"  ; // сервер базы данных
+    private  final static String  DATABASENAME = "testDB"  ;// имя базы
+    private  final static String  USERNAME = "postgres"; // учетная запись пользователя
+    private  final static String  PASSWORD = "000000"; // пароль
+    static Connection connection;
+
+    public static void main(String[] args) throws SQLException {
+
+        //Строка для соединения с бд
+        String url="jdbc:postgresql://"+HOST+"/"+DATABASENAME+"?user="+USERNAME+"&password="+PASSWORD;
+        try {
+            connection = DriverManager.getConnection ( url, USERNAME, PASSWORD);
+            connection.setAutoCommit(false);
+            if (connection == null) {
+                System.err.println("Нет соединения с БД!");
+            }
+            else {
+                System.out.println("Соединение с БД установлено корректно");
+            }
+
+            String SQL = "ALTER TABLE test ADD user varchar(255);";
+            //Запрос на получение всех данных
+            try (PreparedStatement preparedStatement = connection.prepareStatement(SQL)) {
+                preparedStatement.executeUpdate();
+                connection.commit();
+                System.out.println("Транзакция прошла");
+            }
+        } catch (ClassNotFoundException | SQLException e) {
+            connection.rollback();
+            System.err.println("Транзакция не прошла");
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+Можем увидеть ошибку в терминале.
+```cmd
+Соединение с БД установлено корректно
+Транзакция не прошла
+java.sql.SQLSyntaxErrorException: Duplicate column name 'user'
+```
+Ошибка говорит о том, что нельзя добавить столбец с названием user, так как уже такой есть.
+
+Если мы используем JDBC 3.0 и выше, мы можем использовать сэйвпоинты (savepoint) и откатываться до них, а не целиком откатывать всю транзакцию.
+
+Есть два метода для управления ими:
+
+* Savepoint savePoint = connection.setSavepoint("MysavePoint"); — устанавливает точку сохранения.
+* releaseSavepoint(Savepoint savePoint); — удаляет точку сохранения.
+
+Для того чтобы откатить транзакцию до точки сохранения, можно использовать такую конструкцию:
+
+```java
+connection.rollback(savePoint);
+```
+
+### Batch processing, метод addBatch
+**Batch processing**, а именно пакетная обработка, позволяет значительно сократить нагрузку на БД, накапливая SQL и отправляя их в БД одной пачкой (пакетом).
+
+Чтобы включить такую обработку, необходимо использовать метод *DatabaseMetaData.supportBatchUpdates()*. Данный метод возвращает *true*, если наш JDBC драйвер способен так делать
+
+Интерфейсы (*Statement*, *PrepparedStatement* и *CallableStatement*), через которые мы создавали запросы, имеют метод *addBatch()*, который добавляет каждый SQL-запрос в пакет.
+
+После добавления мы используем метод *executeBatch()*, который выполняет все наши запросы. После использования метод возвращает массив с целыми числами, где каждое число сопоставляется с каждым нашим запросом и является показателем изменений.
+
+Также мы можем удалять запросы из пакета методом *clearBatch()*. Стоит учитывать, что отдельные запросы из пакета мы удалить не можем. Всё или ничего.
+
+Есть простой алгоритм создания пакета:
+
+1. Выключить функцию **auto-commit** ```connection.setAutoCommit(false);```.
+1. Создать *PreparedStatement*.
+1. С помощью метода *addBatch()* добавить все наши запросы.
+1. Запустить выполнение запросов методом *executeBatch()*.
+1. Сохранить все изменения с помощью метода **connection.commit();**.
+
+Небольшой пример кода.
+
+Есть исходная таблица:
+```sql
++------+------+
+| ID   | user |
++------+------+
+|    2 | NULL |
+|    9 | Nick |
+|   10 | NULL |
+| NULL | NULL |
+|    0 | NULL |
+|   15 | NULL |
++------+------+
+6 rows in set (0.00 sec)
+```
+
+Код целиком:
+```java
+package main.java;
+import java.sql.*;
+public class Main {
+    private final static String HOST = "localhost"; // сервер базы данных
+    private final static String DATABASENAME = "testDB"; // имя базы
+    private final static String USERNAME = "postgres"; // учетная запись пользователя
+    private final static String PASSWORD = "000000"; // пароль
+    static Connection connection;
+    public static void main(String[] args) throws SQLException {
+        //Строка для соединения с бд
+        String url = "jdbc:postgresql://" + HOST + "/" + DATABASENAME + "?user=" + USERNAME + "&password=" + PASSWORD;
+        connection = DriverManager.getConnection(url, USERNAME, PASSWORD);
+        try {
+            connection.setAutoCommit(false); //2
+            if (connection == null)
+                System.err.println("Нет соединения с БД!");
+            else {
+                System.out.println("Соединение с БД установлено корректно");
+            }
+            String SQL = "Insert into test(ID,user) VALUES(?,?);";
+            //Запрос на получение всех данных
+            try (PreparedStatement preparedStatement = connection.prepareStatement(SQL)) { //1
+                //Часть кода, в котором мы добавляем несколько запросов для одной отправки данных
+                preparedStatement.setInt(1, 10);
+                preparedStatement.setString(2, "Olaf");
+                preparedStatement.addBatch();   //3
+
+                preparedStatement.setInt(1, 11);
+                preparedStatement.setString(2, "Erik");
+                preparedStatement.addBatch();   //3
+
+                preparedStatement.setInt(1, 12);
+                preparedStatement.setString(2, "Baleog");
+                preparedStatement.addBatch();   //3
+
+                int[] count = preparedStatement.executeBatch(); //4
+                connection.commit();    //5
+                System.out.println("Данные отправлены");
+            }
+        } catch (ClassNotFoundException | SQLException e) {
+            connection.rollback();
+            System.err.println("Данные не добавлены");
+            e.printStackTrace();
+        }
+    }
+    public static boolean checkvalue(int checkedvalue) {
+        String SQL = "Select * from test where ID=?;";
+        try (PreparedStatement statement = connection.prepareStatement(SQL)) {
+            statement.setInt(1, checkedvalue);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                return true;
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return false;
+        }
+        return false;
+    }
+    public static boolean insertvalue(int insertedvalue) {
+        String SQL = "insert  test(id) values(?)";
+        try (PreparedStatement statement = connection.prepareStatement(SQL)) {
+            statement.setInt(1, insertedvalue);
+            int i = statement.executeUpdate();
+            if (i >= 1) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return false;
+        }
+    }
+}
+```
+
+Результат:
+```cmd
+Соединение с БД установлено корректно
+Данные отправлены
+
+Process finished with exit code 0
+```
+
+```sql
+select * from test;
++------+--------+
+| ID   | user   |
++------+--------+
+|    2 | NULL   |
+|    9 | Nick   |
+|   10 | NULL   |
+| NULL | NULL   |
+|    0 | NULL   |
+|   15 | NULL   |
+|   10 | Olaf   |
+|   11 | Erik   |
+|   12 | Baleog |
++------+--------+
+9 rows in set (0.00 sec)
+```
+
+## Эволюционное изменение БД
+Основной задачей баз данных является **хранение данных реального мира**. Обычно разработчик старается максимально упорядочить информацию по каким-либо признакам для более удобного поиска. И чтобы поиск был быстрым или, например, можно было производить поиск по нескольким параметрам, БД должна быть очень хорошо *структурирована*.
+
+При интенсивном использовании БД и попутной разработке программы возникает момент, когда какие-либо данные в БД нам уже не нужны, а какие-то наоборот нужно добавить и начать использовать. В ходе этого процесса старые версии приложения могут перестать корректно работать. Возникает вопрос **централизованного управления версией**, и эту проблему версий БД нужно как-то решать.
+
+В принципе, изменение базы данных и является её эволюцией. Есть четыре пункта, отвечающие за ее изменение:
+
+* изменение данных;
+* изменение схемы;
+* изменение версии программы взаимодействия;
+* трансформация модели представления.
+
+Есть такая библиотека — **Flyway**, она нужна для управления миграцией и эволюцией баз данных. Она полностью решает проблему версий любой БД.
+
+Чтобы воспользоваться этой библиотекой, вам нужно создать новый проект под Maven и добавить строчки зависимости в pom.xml файл (файл загрузок всего проекта):
+
+```xml
+<dependency>
+    <groupId>com.googlecode.flyway</groupId>
+    <artifactId>flyway-core</artifactId>
+    <version>1.5</version>
+</dependency>
+```
+
+```xml
+<plugin>
+   <groupId>org.flywaydb</groupId>
+   <artifactId>flyway-maven-plugin</artifactId>
+   <version>6.5.5</version>
+   <configuration>
+      <url>jdbc:postgresql://localhost/flywaytest?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=UTF-8&amp;connectionCollation=utf8_general_ci&amp;characterSetResults=UTF-8</url>
+      <user>root</user>
+      <password>root</password>
+   </configuration>
+</plugin>
+```
+
+Далее для поддержания версионности (чтобы библиотека начала работать с нашей базой данных) необходимо запустить строку с консоли:
+
+```cmd
+mvn flyway:baseline -Dflyway.baselineVersion=1 -Dflyway.baselineDescription="Base version"
+```
+
+В консоли происходит примерно следующее:
+![](../img/JAVA_23.5_1.png)
+
+А в базе данных появилась ещё таблица, отвечающая за контроль версий:
+
+```sql
+use test;
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+show tables;
++----------------+
+| Tables_in_test |
++----------------+
+| schema_version |
+| test           |
++----------------+
+2 rows in set (0.00 sec)
+```
+
+```sql
+select * from schema_version;
++---------+--------------+------+--------------+----------+--------------+---------------------+----------------+---------+-----------------+
+| version | description  | type | script       | checksum | installed_by | installed_on        | execution_time | state   | current_version |
++---------+--------------+------+--------------+----------+--------------+---------------------+----------------+---------+-----------------+
+| 1       | Base version | INIT | Base version |     NULL | root         | 2020-08-27 11:53:08 |              0 | SUCCESS |               1 |
++---------+--------------+------+--------------+----------+--------------+---------------------+----------------+---------+-----------------+
+1 row in set (0.00 sec)
+```
+
+Внутри содержатся данные (действия, которые происходили с базой, как-то её изменяя) о версии.
+
+Создадим теперь файл, содержащий данные о схеме таблицы, сама таблица будет создана автоматически. Путь по умолчанию, в котором должны лежать наши скрипты /src/main/resources/db/migration/.
+
+Создадим файл V0_0_00__create_table.sql. Важный момент: начало имени файла V и двойной нижний слэш обязательны, без них Flyway игнорирует файлы.
+
+```sql
+CREATE TABLE IF NOT EXISTS second_test_table (
+  id INT NOT NULL, 
+  name varchar(50) NOT NULL, 
+  surname varchar(50) NOT NULL, 
+  PRIMARY KEY (id)
+);
+```
+
+Создадим файл V0_0_00__create_table.sql для заполнения таблицы.
+```sql
+INSERT INTO second_test_table (id, name, surname) 
+VALUES (1, 'Tester', 'Testerov');
+```
+
+Теперь нам необходимо перейти в раздел плагина для Maven и запустить миграцию:
+
+* для начала очистим всё;
+* используем flyway:clean;
+* а потом flyway:migrate.
+
+![](../img/JAVA_23.5_2.png)
+
+После запуска видим сообщения в терминале:
+```cmd
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----------------------< org.example:FlywayTest >-----------------------
+[INFO] Building FlywayTest 1.0-SNAPSHOT
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- flyway-maven-plugin:6.5.5:migrate (default-cli) @ FlywayTest ---
+[INFO] Flyway Community Edition 6.5.5 by Redgate
+[INFO] Database: jdbc:postgresql://localhost:3306/flywaytest
+[INFO] Successfully validated 2 migrations (execution time 00:00.021s)
+[INFO] Creating Schema History table `flywaytest`.`flyway_schema_history` ...
+[INFO] Current version of schema `flywaytest`: << Empty Schema >>
+[INFO] Migrating schema `flywaytest` to version 0.0.00 - create table
+[INFO] Migrating schema `flywaytest` to version 0.0.01 - insert data
+[INFO] Successfully applied 2 migrations to schema `flywaytest` (execution time 00:00.082s)
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  1.014 s
+[INFO] Finished at: 2020-09-16T14:41:02+03:00
+[INFO] ------------------------------------------------------------------------
+```
+
+Переходим в нашу базу и смотрим, что там появилось:
+```sql
+select * from second_test_table;
++----+--------+----------+
+| id | name   | surname  |
++----+--------+----------+
+|  1 | Tester | Testerov |
++----+--------+----------+
+1 row in set (0.00 sec)
+```
+
+В итоге мы создали базу версии 0.0.01. Стоит отметить, что вначале выполняется файл с именем V0_0_00, а потом уже V0_0_01.
+
+## Прочие средства взаимодействия с БД
+### ORM
+**ORM** (*Object-Relational Mapping*) — это технология, благодаря которой можно провести связь между базой данных и объектно-ориентированным языком программирования. В итоге получается виртуальная объектная база данных. Со стороны программиста логично, что база данных должна хранить данные, если данные — это объект, то она должна хранить объекты «без лишних заморочек». Также ORM позволяет избежать написания большого куска однообразного кода. В принципе, у такого подхода можно найти свои плюсы и минусы.
+
+**Плюсы**:
+
+* Наличие схемы базы данных в коде программы (ну или другом месте, например, в конфигурационных файлах), благодаря чему она хранится в одном месте и её удобно редактировать.
+* Возможно управлять моделями ООП, а не элементами базы данных.
+* Наличие автоматических SQL-запросов
+* Код, созданный через ORM, написан достаточно оптимально
+* Разработка идёт на порядок быстрее.
+
+**Минусы**:
+
+* Достаточно большая нагрузка на программиста, которому помимо ООП и БД нужно знать промежуточный уровень ORM.
+* Ошибки, которые крайне трудно исправить, если они допущены в самой ORM.
+* ORM рассчитаны на большие системы и использование их в небольших проектах зачастую замедляет работу программ.
+
+### Spring JDBC Template
+Главная задача Spring JDBC Template — это упростить логику. В Spring имеется стандартный класс JDBCTemplate для работы. Пример такого упрощения с использованием JDBC Template можно увидеть ниже:
+
+```java
+@Configuration
+@ComponentScan("com.test.jdbc")
+public class SpringJdbcConfig {
+    @Bean
+    public DataSource postgresqlDataSource() {
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setUrl("jdbc:postgresql://localhost:3306/test");
+        dataSource.setUsername("root");
+        dataSource.setPassword("root");
+        return dataSource;
+    }
+}
+```
+
+Без Spring JDBC данная конструкция выглядела бы так:
+```java
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class Main
+{
+       public  static void main(String[] args)
+    {
+        List<LoadModel> data = new ArrayList<>();
+        String url  = "jdbc:postgresql://localhost/test";
+        try ( Connection connection = DriverManager.getConnection(url, "root", "root")) {
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+}
+```
+
+Данный компонент для подключения к нашей БД написан с использованием Spring JDBC:
+
+```java
+int result = jdbcTemplate.queryForObject("select count(*) from test", Integer.class);
+```
+
+Достаточно простой запрос вернёт количество строк в нашей таблице:
+```java
+public int addID(int id) {
+    return jdbcTemplate.update("insert into test values (?)", id);
+}
+```
+
+На примере видно, как Spring JDBC позволяет выполнить запрос всего в «три» строчки.
+
+Ещё один простой запрос на добавление данных в таблицу. Знаки ? работают так же маркерами, как и в PrepareStatement.
+
+JdbcTemplate обладает удобными средствами маппирования. И, так же как JDBC, может создавать пакеты SQL- запросов. Более подробная информация по тому, как это можно сделать [тут](https://www.baeldung.com/spring-jdbc-jdbctemplate).
+
+### Hibernate
+Также достаточно популярный фреймворк для решения задач ORM. И, как большинство ORM, предоставляет всё те же возможности. Удобный маппинг результатов, быстрая разработка. Hibernate позволяет создавать CRUD (Create,Read,Update,Delete) приложения.
+
+Hibernate обеспечивает отображение классов Java в таблицы баз данных. Кроме того, он предоставляет средства запроса и поиска данных. Это может значительно сократить время разработки, которое в противном случае тратится на ручную обработку данных в SQL и JDBC. Использование Hibernate состоит из двух частей: сохранение объектов в базу и чтение объектов из базы.
+
+Официальная документация [тут](https://hibernate.org/orm/documentation/5.4/).
+
+### Spring Data
+**Spring Data JPA** упрощает разработку JPA-приложений.
+
+Реализует слой доступа к данным, который может быть достаточно громоздким. Spring Data JPA призван улучшить реализацию доступа к данным. Как разработчик вы пишете интерфейс репозитория, а также свои собственные методы для поиска, а Spring их автоматически реализует.
+
+Пример документации [тут](https://spring-projects.ru/guides/accessing-data-jpa/).
+
+
+# Модуль 23. Обзор NoSQL
+## NoSQL как подход к разработке систем хранения данных
+
+Из предыдущих занятий мы узнали, что существует два основных подхода к базам данных: реляционные и нереляционные, **SQL** и **NoSQL**. Различия между ними заключаются в том, как они спроектированы, какие типы данных поддерживают, как хранят информацию.
+
+Мы уже знаем что реляционные БД хранят данные, которые представляют объекты реального мира, например, имена и фамилии, банковские счета, перечень продуктов на складе. *Это обычно данные, собранные в виде таблиц*.
+
+А нереляционные БД устроены по другому. Например, в документоориентированных БД информация хранится в виде JSON-моделей. Тут идёт речь о том, что *у одного объекта произвольный набор атрибутов*.
+
+Внутреннее устройство различных систем управления базами данных влияет на особенности работы с ними. Например, нереляционные базы лучше поддаются масштабированию. Ключевым фактором развития нереляционных БД стал планомерный рост объема баз данных, в связи с этим появилась проблема быстрого доступа к ним. И на фоне этого появилась концепция новой модели БД, которая будет больше нацелена на **скорость доступа и масштабируемость**.
+
+В реляционных базах данных разработчики сосредоточились на выполнении по принципам модели **ACID** (**Atomicity** — атомарность, **Consistency** — согласованность, **Isolation** — изолированность, **Durability** — стойкость).
+
+Модель базы данных NoSQL не использует высокоструктурированную модель (подобную той, что используется в реляционных базах данных), а использует *гибкий подход* ключ/хранилище значений. Этот неструктурированный подход к данным требует альтернативы модели ACID: модель BASE. Модель **BASE** не расшифровывается, так как термин был противопоставлен классической системе ACID. С английского ACID — кислота, BASE — щелочь.
+
+**Существует четыре основных принципа модели ACID**
+
+* Атомарность транзакций гарантирует, что каждая транзакция базы данных является единым блоком. Если какой-либо шаг в транзакции не выходит, вся транзакция откатывается.
+* Реляционные базы данных также обеспечивают согласованность каждой транзакции с логикой БД. Если элемент транзакции нарушит целостность базы данных, вся транзакция завершится неудачно.
+* БД обеспечивает изолированность транзакций, которые выполняются одновременно (на самом деле такие транзакции происходят по очереди). Ни одна транзакция не видит то, что делает другая транзакция.
+* Долговечность гарантирует, что после выполнении транзакции в БД, результаты постоянно сохраняются с помощью резервных копий и журналов транзакций. В случае сбоя они используются для восстановления данных через зафиксированные транзакций.
+
+**BASE состоит из трёх принципов:**
+
+* **Базовая доступность**. Подход к базе данных NoSQL фокусируется на доступности данных даже при наличии множества сбоев. Это достигается путем использования распределенного подхода к управлению базами данных: вместо того, чтобы поддерживать одно большое хранилище данных и сосредоточиться на отказоустойчивости этого хранилища, базы данных NoSQL распределяют данные по многим системам хранения с высокой степенью репликации (копирования сегментов или целых кластеров данных). В маловероятном случае, если сбой нарушает доступ к сегменту данных, это необязательно приводит к полному отключению базы данных, потому что данные из этого сегмента дублируются в её других сегментах.
+* **Мягкое состояние**. Концепция звучит так: «Согласованность данных является проблемой разработчика и не должна обрабатываться базой данных».
+* **Возможная последовательность**. Этот принцип означает, что в какой-то момент в будущем предполагается, что данные конвертировались бы в согласованное состояние. Однако никаких гарантий относительно того, когда это произойдет, не даётся. Это полная противоположность требования немедленной согласованности ACID, которое запрещает выполнение транзакции до тех пор, пока предыдущая транзакция не будет завершена и база данных не приблизится к согласованному состоянию.
+
+Модель BASE подходит не для каждой ситуации, но она, безусловно, является гибкой альтернативой модели ACID для баз данных, которые не требуют строгого соблюдения табличной формы представления данных.
+
+Мы уже знаем что существует четыре основных типа систем: «ключ — значение» (англ. key-value store), документоориентированные (document store), «семейство столбцов» (column-family store), графовые
+
+Но в этом модуле мы разберем более детально, как работают следующие хранилища:
+* **Redis** (от англ. remote dictionary server) — система управления базами данных, работающая с данными ключ-значение (key-value). Используется как для баз данных, так и для реализации кэшей.
+* **MongoDB** — документоориентированная система управления базами данных, не требующая описания схемы таблиц. Использует JSON-подобные документы и схему базы данных.
+* **Hazelcast** — система управления базами данных, которая управляет данными в оперативной памяти.
+
+## Redis
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
