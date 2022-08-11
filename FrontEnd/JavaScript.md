@@ -44,6 +44,8 @@ let result = arr.map(function(item, index, array) {
 });
 ```
 
+<div style="page-break-after: always"></div>
+
 _.reduce(cb) или reduceRight(cb)_ - akkumuliert die Elemente des Arrays
 
 ```javascript
@@ -72,6 +74,7 @@ arr.forEach(function(item, index, array) {
   ...
 });
 ```
+<div style="page-break-after: always"></div>
 
 ## Map
 ```javascript
@@ -97,6 +100,7 @@ for (let elem of fruits) { // gibt Schlüssel Wert nach einander
    console.log(elem); // apple, green, strawberry, red, blueberry, blue
 }
 ```
+<div style="page-break-after: always"></div>
 
 # Modul 11 (Funktionen und Objekte)
 
@@ -127,6 +131,8 @@ Deklaration der Funktionen (Priorität)
 Die Funktionsparameter ist eine Liste von Bezeichnern, die zum Zeitpunkt der Deklaration angegeben werden, dh im folgenden Beispiel sind die Parameter a und b. Parameter werden durch Kommas getrennt aufgelistet. Wenn eine Funktion aufgerufen wird, wird ihr eine Liste von Werten übergeben, die als Argumente der Funktion bezeichnet werden.
 
 Das __arguments__ Pseudo-Array kann auch verwendet werden, um auf Argumente zuzugreifen. Es enthält eine nummerierte Liste von Argumenten: arguments[0], arguments[1] usw. sowie eine _length_-Eigenschaft. In der Praxis wird es verwendet, wenn mehr Argumente als Parameter angegeben werden. Es ist wichtig, sich daran zu erinnern, dass, wenn ein Parameter angegeben ist, aber kein Argument an die Funktion übergeben wird, diese standardmäßig auf __undefined__ gesetzt wird.
+
+<div style="page-break-after: always"></div>
 
 ### Funktion und Prozedur
 Sowohl eine Prozedur als auch eine Funktion sind eine Reihe von Anweisungen, die in einer bestimmten Reihenfolge ausgeführt werden können. Der Unterschied besteht darin, dass eine Funktion immer einen Wert zurückgeben muss (eine strengere Definition erfordert auch, dass die Funktion immer eine Eingabe hat). Der Standardrückgabewert ist __undefined__.
@@ -159,6 +165,8 @@ const func = function () {
   // ...
 })();
 ```
+
+<div style="page-break-after: always"></div>
 
 __Wofür werden IIFE benutzt?__
 1. Erstellen eines lokalen Geltungsbereichs (_scope_)
@@ -193,12 +201,13 @@ __Wofür werden IIFE benutzt?__
 
     // Nach dem counter = 1 außerhalb der Funktion gesetzt wurde, hat es keine Einfluß auf der count() genommen, weil die Funktion und global verschiedene scopes haben.
     ```
-
 2. Lösen der Konflikten der Variablen aus Bibliotheken
     Der zweite Anwendungsfall für IIFE besteht darin, Konflikte zwischen Variablen aus Bibliotheken zu lösen. Beispielsweise exportieren sowohl jQuery als auch Cash die $-Variable in den globalen Gültigkeitsbereich, sodass nicht klar ist, auf welche Bibliothek Sie sich im Skript beziehen. Dies lässt sich leicht beheben, wenn Sie IIFE mit Parametern als Wrapper verwenden:
+
+    <div style="page-break-after: always"></div>
+
     ```javascript
-    (function ($) {
-      // nutzen $ und wissen, dass es jQuery ist.
+    (function ($) { // nutzen $ und wissen, dass es jQuery ist.
     })(jQuery);
     ```
 
@@ -331,6 +340,8 @@ Aufrufe der Properties
 
 Mit der Klammernotation können Sie auch auf eine Eigenschaft verweisen, deren Name in einer Variablen gespeichert ist. Dies wird als berechnete Eigenschaft bezeichnet.
 
+<div style="page-break-after: always"></div>
+
 ```javascript
 const lang = prompt("Geben Sie den Namen der Programmiersprache ein", "javascript");
 const collection = {
@@ -343,15 +354,10 @@ __Arbeiten mit dem Objekten__
 ```javascript
 // Objekt erstellen
 const obj = {a: 1};
-
 obj.a; // 1 – Wert erhalten
-
 obj.a = 9; // neuen Wert zuweisen
-
 console.log(obj.a); // 9
-
 obj.b = 100; // neue Propertie b hinzufügen mit dem Wert 100
-
 // obj['b'] = 100; new Propertie in bracket notation
 
 // löschen der Propertie
@@ -360,7 +366,6 @@ delete obj1.a;
 console.log(obj1) // {}
 
 // Vergleich der Objekte wird nach der Referenz gemacht
-
 // existiert Propertie in Object
 const obj = {a: 1, c: undefined}; 
 console.log('a'  in obj);
@@ -374,7 +379,6 @@ for (let key in obj) {
     // zeigt alle Properties/keys
     console.log(key);
 }
-
 // a
 // b
 
@@ -382,10 +386,11 @@ for (let key in obj) {
     // zeigt alle Werte
     console.log(obj[key]);
 }
-
 // 1
 // 2
 ```
+
+<div style="page-break-after: always"></div>
 
 # Modul 12 (DOM)
 JavaScript wurde ursprünglich für Webbrowser entwickelt. Aber seitdem hat es sich erheblich weiterentwickelt und sich zu einer plattformübergreifenden Programmiersprache zur Lösung einer Vielzahl von Problemen entwickelt.
@@ -513,14 +518,16 @@ Event ist Signal vom Browser, dass etwas passiert ist. (Beispiele für Events: m
 
 Wenn wir auf ein Ereignis reagieren müssen, weisen wir einen __Handler__ zu. Das heißt, wir stellen eine Funktion ein, die funktioniert, sobald das Ereignis eingetreten ist. Dank Handler ist es möglich, dass JavaScript auf Benutzeraktionen reagieren kann.
 
+<div style="page-break-after: always"></div>
+
 ### Variante 1
 Benutzen eines Attributes eines Elements.
-```javascript
+```html
 // Attribut onclick, hierbei wir ausgeführt das was in "..." steht.
 // Also muss Funktion mit () 
 <button onclick="alert('Clicked!')">Press</button>
 
-oder 
+// oder 
 
 <script>
   function clickMe() {
@@ -545,24 +552,23 @@ Den Handler entfernen, indem man _elem.onclick = null_ zuweisen.
 Vorteil bei der Benutzung __addEventListener__ ist die Möglichkeit einem Element mehrere Handler zuzuweisen.
 
 _element.addEventListener(event, handler [, phase]);_
--event — Name des Events, für den der Handler ausgeführt wird
--handler — code, Handler-Funktion, die gestartet wird
--phase — Phase (normalerweise nicht verwendet, Standard = false)
--phase true — das Ereignis wird auf dem Weg nach unten abgefangen
--phase false — das Ereignis wird auf dem Weg nach oben abgefangen
+- event — Name des Events, für den der Handler ausgeführt wird
+- handler — code, Handler-Funktion, die gestartet wird
+- phase — Phase (normalerweise nicht verwendet, Standard = false)
+- phase true — das Ereignis wird auf dem Weg nach unten abgefangen
+- phase false — das Ereignis wird auf dem Weg nach oben abgefangen
 
-```javascript 
+<div style="page-break-after: always"></div>
+
+```html
 <button id="btn">Press</button>
-
 <script>
   function click1() {
     alert('Click1');
   };
-
   function click2() {
     alert('Click2');
   }
-
   btn.onclick = () => alert("The native handler");
   btn.addEventListener("click", click1); // Click1
   btn.addEventListener("click", click2); // Click2
@@ -599,6 +605,9 @@ Was bedeutet das? Ereignisse können aufgrund der Benutzer- oder Browserinterakt
 Wichtig!!! Fast alle Events sind _bubbling_ bis auf einige Ausnahmen wie focus
 ```
 Meistens bubbling of Events ist störend. Deshalb existieren Methoden und diese zu unterbinden.
+
+<div style="page-break-after: always"></div>
+
 |Funktion|Explanation|
 |---|---|
 |event.stopPropagation()|stoppt das Bubbling des Events|
@@ -614,8 +623,8 @@ element.removeEventListener(event, handler [, phase]);
 - handler - Handler-Funktion, wobei es die selbe Referenz sein soll
 - phase - ist meistens Default-Wert _false_
 
-```js
-// Richtig
+```html
+ <!-- Richtig -->
 <button onclick="click()" id="btn">Press</button>
 
 <script>
@@ -624,10 +633,10 @@ element.removeEventListener(event, handler [, phase]);
   };
 
   btn.addEventListener("click", click1); // Click1
-  btn.removeEventListener("click", click1); // 
+  btn.removeEventListener("click", click1); 
 </script>
 
-// False
+<!-- False -->
 <button onclick="click()" id="btn">Press</button>
 
 <script>
@@ -639,6 +648,8 @@ element.removeEventListener(event, handler [, phase]);
   };); // 
 </script>
 ```
+
+<div style="page-break-after: always"></div>
 
 # Modul 13 (OOP)
 
@@ -667,6 +678,8 @@ element.removeEventListener(event, handler [, phase]);
 ## Prototype Vererbung.
 
 JS verwendet Prototype Vererbung – um die gemeinsamen Eigenschaften der Basisklasse zu erben, hat jedes Objekt eine spezielle Systemeigenschaft [[prototype]], die eine Referenz auf den Prototyp dieses Objekts speichert. Beim Versuch, die Eigenschaft eines Objekts abzurufen, sucht JS die Eigenschaft zuerst im Objekt selbst, dann in seinem Prototyp, dann im Prototyp des Prototyps und so weiter, bis im Prototyp __null__ angegeben ist. Um einen Verweis auf den Prototyp eines Objekts zu erhalten, können Sie __Object.getPrototypeOf__ verwenden, und um den Prototyp eines Objekts festzulegen, können Sie __Object.setPrototypeOf verwenden__.
+
+<div style="page-break-after: always"></div>
 
 ```js
 //setPrototype
@@ -707,6 +720,8 @@ Beim Versuch, ein nicht vorhandenes doesNotExist-Attribut eines obj-Objekts abzu
 ```js
 obj.doesNotExist === undefined  // true
 ```
+
+<div style="page-break-after: always"></div>
 
 ### Um alle für ein bestimmtes Objekt verfügbaren Eigenschaften und Methoden zu durchlaufen, können Sie die Schleife __for ... in__ verwenden.
 
@@ -771,12 +786,10 @@ Ein Aufrufkontext ist ein Objekt, dessen Methode eine Funktion ist.
 ```js
 const obj = {
   method() {
-    this  // тут this === obj при вызове obj.method()
+    this  // hier this === obj beim Aufruf der obj.method() - Methode
   }
 }
-
 obj.method()
-
 //this bekommt reference auf obj
 ```
 Wenn wir eine Funktion ohne Objekt aufrufen, erhält sie das globale Laufzeitobjekt als Ausführungskontext. In den meisten Browsern ist dies das Window-Objekt, in Node.js das Global-Objekt. 
@@ -787,7 +800,7 @@ Welche Eigenschaften sind in diesem Prototyp enthalten und damit für alle Funkt
 
 |Attribut/Methode|Beschreibung|
 |---|---|
-|name|funktion name|
+|name|function name|
 |length|Anzahl der Argumente|
 |bind(thisArg, ...other)|Ermöglicht es Ihnen, den Executioncontext, der als erstes Argument übergeben wird, und eine beliebige Anzahl von Argumenten, die von nachfolgenden Argumenten zum Binden übergeben werden, an eine Funktion "anzuhängen". Gibt eine neue Funktion mit festem Kontext und Argumenten zurück. Ergebnis neue Funktion|
 |call(thisArg, ...other)|Ermöglicht den Aufruf einer Funktion mit dem als erstes Argument übergebenen Kontext und einer beliebigen Anzahl weiterer übergebener Argumente.|
@@ -846,7 +859,7 @@ book.year  // 1818
 book.author  // 'Пушкин'
 ```
 
-## ES6 классы
+## ES6 class
 Stimmen Sie zu, es ist nicht sehr praktisch, separate Objektmethoden und separate Eigenschaften im Konstruktor zu schreiben und nach der Definition der Klasse deren Vererbung aufzubauen. Die Schöpfer des ES6-Standards hörten auf die Entwickler und fügten in der sechsten Version syntaktischen Zucker hinzu, um Klassen zu erstellen, die anderen Programmiersprachen ähneln.
 
 Syntaktischer Zucker sind syntaktische Konstrukte in einer Programmiersprache, die es ermöglichen, dasselbe in einer für Menschen besser lesbaren Form zu schreiben.
@@ -872,15 +885,9 @@ __constructor__<br/>
 Dann müssen Sie in geschweiften Klammern die Attribute und Methoden der Klasse angeben und ihren Konstruktor definieren. Ein Klassenkonstruktor wird durch eine Funktion mit dem speziellen Namen _constructor_ beschrieben.
 ```js
 class A {
-  property = 'value'
-
-  constructor() {
-    // ...
-  }
-
-  method() {
-    // ...
-  }
+  property = 'value';  
+  constructor() { ... }
+  method() { ... }
 }
 ```
 
@@ -1009,7 +1016,7 @@ const smth = createSmth(123)
 smth.publicMethod()  // 123
 ```
 
-То теперь достаточно поставить # перед названием приватного атрибута/метода:
+Jetzt ist es ausreichend # vor dem privaten Attribut zu schreiben:
 ```js
 class Smth {
   #privateProperty = 0
@@ -1028,6 +1035,8 @@ smth.publicMethod()  // 123
 ```
 
 Beachten Sie! Im Gegensatz zu Funktionen "schweben" Klassendeklarationen nicht auf die gleiche Weise wie Variablen, die über let oder const deklariert werden, nicht "schweben". Das heißt, der Klassenname wird erst nach seiner Deklaration im Code bestimmt.
+
+<div style="page-break-after: always"></div>
 
 ```js
 const a = new A()  // OK
@@ -1153,17 +1162,15 @@ function Car() {
   // ...
   this._mileage = 0
 }
-// ...
 Car.prototype.getMileage = function () {
   return this._mileage
 }
 
-// то же самое в стиле ES6 классов
+// ES6
 class Car {
   // ...
   _mileage = 0
 
-  // ...
   getMileage() {
     return this._mileage
   }
@@ -1334,11 +1341,9 @@ Die weitere Arbeit mit der resultierenden DOM-Darstellung erfolgt unter Verwendu
 
 ```js
 /* 1. Daten vorbereiten */
-
 // create DOMParser Objekt
 const parser = new DOMParser();
 // console.log('parser', parser);
-
 // XML zum Parsen
 const xmlString = `
   <book category="CHILDREN">
@@ -1351,7 +1356,6 @@ const xmlString = `
 // console.log('xmlString', xmlString);
 
 /* 2. Get Data */
-
 // Parsing XML
 const xmlDOM = parser.parseFromString(xmlString, "text/xml");
 
@@ -1454,6 +1458,8 @@ const result = {
 console.log('result', result);
 ```
 
+<div style="page-break-after: always"></div>
+
 ## XHR
 ### ABFRAGE-TOOLS IN JS
 Es gibt zwei Haupttools zum Implementieren von Anfragen aus JavaScript-Code: XHR (XMLHttpRequest) und das modernere Fetch.
@@ -1467,7 +1473,7 @@ Es gibt andere Tools, die von Bibliotheken Dritter bereitgestellt werden, zum Be
 Aber sie alle implementieren Wrapper-Funktionen über die nativen Implementierungen von XHR und Fetch und bieten eine bequemere Funktionalität für die Arbeit mit Anfragen.
 
 ### XHR vs Fetch
-- XHR funktioniert auf Callback-Basis. Fetch funktioniert auf Versprechensbasis (wird weiter untersucht).
+- XHR funktioniert auf Callback-Basis. Fetch funktioniert auf Promisesbasis (wird weiter untersucht).
 - Eine XHR-Anfrage kann synchron (wie normaler Code) oder asynchron (dazu später mehr) sein. Fetch implementiert nur asynchronen Code.
 
 |||
@@ -1493,8 +1499,8 @@ xhr.onerror = function() {
 xhr.open("get", "https://picsum.photos/v2/list", true);
 xhr.send();
 ```
-### Mehr über offen
-Die offene Methode benötigt drei Hauptparameter:
+### Mehr über open
+Die open Methode benötigt drei Hauptparameter:
 
 1. HTTP-Anforderungsmethode. Es gibt viele Methoden, aber die wichtigsten sind GET und POST. Der Unterschied besteht in einigen Headern und dem Prinzip der Datenübertragung. Bei einem GET-Request werden die Daten im Query-String übergeben. Bei einer POST-Anforderung werden die Daten im Hauptteil der Anforderung übergeben. Nähere Informationen finden Sie in der Dokumentation zum HTTP-Protokoll von MDN.
 
@@ -1505,8 +1511,7 @@ Wichtig! Verwenden Sie in realen Projekten nur asynchrone Anfragen. Wenn Sie ein
 
 ### Anfordern und Verarbeiten von JSON-Daten von einem Remote-Server
 ```js
-// create XMLHttpRequest object
-let xhr = new XMLHttpRequest();
+let xhr = new XMLHttpRequest(); // create XMLHttpRequest object
 // init request
 xhr.open('GET', 'https://picsum.photos/v2/list/?limit=5');
 
@@ -1537,8 +1542,7 @@ xhr.onerror = function() {
   console.log('Ошибка! Статус ответа: ', xhr.status);
 };
 
-// Sending a request
-xhr.send();
+xhr.send(); // Sending a request
 ```
 Ein Beispiel für das Arbeiten mit XHR, das in eine Funktion eingeschlossen ist, und das Anzeigen des Ergebnisses
 ```js
@@ -1784,8 +1788,8 @@ console.log('1. myKey', myKey);
 sessionStorage.setItem('myKey', 'myValue');
 
 // Get data by key myKey in localStorage
-/myKey = sessionStorage.getItem('myKey');
-/console.log('2. myKey', myKey);
+myKey = sessionStorage.getItem('myKey');
+console.log('2. myKey', myKey);
 ```
 
 ### Abrufen von Daten von der API und Schreiben in localStorage
@@ -1893,11 +1897,11 @@ Promise
 
 Neben Event-Handling und individuellen „Hacks“ der Code-Optimierung mit setTimeout werden alle anderen Arbeiten mit asynchronem Code in modernen Anwendungen durch Promises umgesetzt. Dies liegt daran, dass „Promises“ moderner und bequemer zu verwenden sind und einige der Nachteile nicht aufweisen, die asynchronem Callback-Code innewohnen (z. B. Callback-Hölle).
 
-Promise (versprechen)
+Promise (Versprechen)
 Promise ist ein Mechanismus, mit dem Sie asynchronen Code implementieren können. Es kann für eine verzögerte Auswertung verwendet werden, um den Hauptfluss des Programms nicht zu blockieren.
 Um ein Promise zu erstellen, wird die Promise-Konstruktorklasse verwendet, die eine Rückruffunktion mit zwei Eingabeparametern akzeptiert: auflösen und zurückweisen.
 
-Ein Beispiel für das Erstellen eines Versprechens
+Ein Beispiel für das Erstellen eines Promises
 ```js
 const flag = true;
 
@@ -1909,9 +1913,9 @@ const myPromise = new Promise((resolve, reject) => {
   }
 });
 ```
-Wir haben ein neues Versprechen namens myPromise erstellt, aber es wurde noch nicht erfüllt. Die Auflösungsfunktion wird verwendet, um den Erfolg eines Versprechens zu signalisieren. Die Ablehnungsfunktion wird bei einem Fehler verwendet und löst einen Fehler (Ausnahme) aus.
+Wir haben ein neues Promise namens myPromise erstellt, aber es wurde noch nicht erfüllt. Die Auflösungsfunktion wird verwendet, um den Erfolg eines Promises zu signalisieren. Die Ablehnungsfunktion wird bei einem Fehler verwendet und löst einen Fehler (Ausnahme) aus.
 
-__Wichtig! Sobald Ihr Versprechen erfüllt ist (ob erfolgreich oder nicht), geht es in den Status „Erfüllt“ über und kann nicht mehr erfüllt werden.__
+__Wichtig! Sobald Ihr Promise erfüllt ist (ob erfolgreich oder nicht), geht es in den Status „Erfüllt“ über und kann nicht mehr erfüllt werden.__
 
 ```js
 const myPromise = new Promise((resolve, reject) => {
@@ -1920,12 +1924,12 @@ const myPromise = new Promise((resolve, reject) => {
 }); 
 // promise wird immer gelingen. Die Ausführung von "reject" führt zu keinem Ergebnis
 ```
-Es gibt mehrere Methoden, um mit den Ergebnissen eines Versprechens umzugehen:
-- then - wird verwendet, um den Erfolg eines Versprechens zu behandeln;
-- catch - wird verwendet, um das Scheitern eines Versprechens zu behandeln.
+Es gibt mehrere Methoden, um mit den Ergebnissen eines Promises umzugehen:
+- then - wird verwendet, um den Erfolg eines Promises zu behandeln;
+- catch - wird verwendet, um das Scheitern eines Promises zu behandeln.
 - finally - wird immer ausgeführt 
 
-__Wichtig! Es ist eine gute Praxis, Versprechen immer einzubeziehen und einzulösen. Mit der Methode catch können Sie Fehler bei der Ausführung von Promises behandeln, selbst wenn Sie sie nicht erwarten. Fehler können dazu führen, dass Ihr Code nicht mehr ausgeführt wird.__
+__Wichtig! Es ist eine gute Praxis, Promise einzubeziehen und einzulösen. Mit der Methode catch können Sie Fehler bei der Ausführung von Promises behandeln, selbst wenn Sie sie nicht erwarten. Fehler können dazu führen, dass Ihr Code nicht mehr ausgeführt wird.__
 
 ```js
 // Das Flag zum Auflösen oder Ablehnen von Anrufen. geschaltet werden kann
@@ -2040,7 +2044,7 @@ asynchrone Funktion f1() {
 
 In diesem Beispiel deklarieren wir eine Funktion als asynchron, indem wir ihr das Schlüsselwort async voranstellen. Jetzt ist die Funktion asynchron und gibt ein Promise zurück.
 
-Async/await ist ein „Syntax-Zucker“, ein bequemerer und verständlicherer Mechanismus für den Umgang mit Promises in JavaScript. Es ergänzt die Versprechensarbeit, ersetzt sie aber nicht.
+Async/await ist ein „Syntax-Zucker“, ein bequemerer und verständlicherer Mechanismus für den Umgang mit Promises in JavaScript. Es ergänzt die Promisearbeit, ersetzt sie aber nicht.
 
 Innerhalb der Funktion f1 wird die Funktion f2 aufgerufen. f2 ist auch eine asynchrone Funktion, daher müssen Sie auf das Ergebnis ihrer Ausführung warten. Dazu wird vor dem Aufruf einer asynchronen Funktion das Schlüsselwort await platziert, das besagt, dass wir eine asynchrone Funktion vor uns haben, wir führen sie aus und warten auf ihr Ergebnis. Nach Erhalt des Ergebnisses wird die Rückgabe ausgeführt.
 
@@ -2080,6 +2084,8 @@ Kommunikationsprotokolle sind eine Reihe von Konventionen für Kommunikationsfor
 
 Es gibt viele Protokolle und sie sind nach Ebenen unterteilt. Wir betrachten das HTTP-Protokoll und seine Derivate.
 
+<div style="page-break-after: always"></div>
+
 Beispiel für eine HTTP-Anfrage:
 ```
 GET /wiki/HTTP/1.1-Seite
@@ -2094,7 +2100,7 @@ Neben dem Hauptprotokoll HTTP gibt es seine erweiterte Version - HTTPS.
 HTTPS - HTTP-Protokoll + Datenverschlüsselung. Dies vermeidet die Möglichkeit, nützliche Informationen aus den übertragenen Daten zu gewinnen, wenn sie abgefangen werden.
 
 ### Fetch als Ersatz für XHR mit Verspreche
-Fetch ermöglicht es Ihnen, HTTP-Anforderungen zu stellen und sie als Versprechen zu verarbeiten.
+Fetch ermöglicht es Ihnen, HTTP-Anforderungen zu stellen und sie als Promise zu verarbeiten.
 
 ```js
 fetch('https://picsum.photos/v2/list/?limit=5')
@@ -2167,6 +2173,7 @@ btn.addEventListener('click', async () => {
   console.log('end');
 });
 ```
+<div style="page-break-after: always"></div>
 
 ### Verschiedene Abfragemethoden und Abfrageanpassungen
 Es gibt viele Abfragemethoden. Die wichtigsten sind GET und POST. Sie unterscheiden sich in der Art der Datenübertragung auf Anfrage.
@@ -2223,7 +2230,7 @@ const data = new FormData()
 data.get('field')  // undefined
 ```
 
-```js
+```html
 <form id="myForm">
   <input type="text" name="field" value="value">
   <!-- ... -->
