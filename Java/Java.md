@@ -1364,6 +1364,184 @@ public class MyException extends Exception {
 Правильный ответ:  3. Вернётся то значение, которое находится в блоке finally — 3 .
 
 # Generics / Collections (Modul 12)
+## Generic
+С помощью Generics, введённых в Java в версии 1.5 у программиста появилась возможность параметризовать кастомные типы (class и interface).  Это упрощает работ с коллекциями так как в не параметризованную коллекцию мы  можем добавить что угодно. Но если написать List<String>, то в такой List можно будет добавить только String, что упрощает работ с данными.   <> — по-английски это называется «diamond operator». В нем мы определяем, какой тип данных будет хранить наша коллекция. Определив таким образом нашу коллекцию, Java в compile-time будет «ругаться», если мы попробуем положить в неё что-то кроме String:
+
+```java
+Queue<String> stringsQueue = new LinkedList<>();
+stringsQueue.add(4);
+
+Error:(13, 26) java: incompatible types: int cannot be converted to java.lang.String
+```
+
+### Generic-классы
+Важно понимать, что не все классы могут быть инициализированы при помощи generic type , помещенным между символами < и >.
+
+Давайте в качестве примера заглянем в стандартную библиотеку Java и посмотрим, как выглядят файлы классов Number и Collection:
+
+```java
+public abstract class Number implements java.io.Serializable {
+   // код класса
+}
+
+public interface Collection<E> extends Iterable<E> {
+    boolean add(E e);
+    Iterator<E> iterator();
+    // код класса
+}
+```
+
+Сигнатура класса Number не содержит <>, в то время как класс Collection содержит. Класс, содержащий в себе diamond operator, называется параметризованным классом. Буквой E называется параметризованный тип. По-английски — generic type. Когда вы создаете объект, имплементирующий данный интерфейс, тип E заменяется типом, который вы указали в <> при создании объекта. Также в методах интерфейса add() и iterator происходит замещение E на нужный тип.
+
+Необязательно параметризованный тип называть буквой E, существует конвенция, какие буквы для каких случаев использовать:
+
+|Буква типа|Применение|
+|---|---|
+|E|элемент|
+|K|ключ в Map|
+|V|значение в Map|
+|N|номер|
+|T|для типа generic|
+|S, U, V|когда объявлено несколько типов generic|
+
+### Наследование и Generics
+У нас есть такой интерфейс, и мы хотим его унаследовать в своем классе:
+
+```java
+public interface Shippable<T> {
+    void ship(T stuff);
+}
+```
+У нас есть 3 способа сделать это:
+
+1. Определить класс как не параметризованный, но указать тип в наследуемом интерфейсе, тогда пользователь уже знает, с каким типом будет работать этот класс:
+    ```java
+    public class ShippableRobot implements Shippable<Robot> {
+        void ship(Robot robot);
+    }
+    ```
+1. Определить класс так же, как параметризованный, и оставить пользователю выбор типа при создании экземпляра класса. Здесь важно отметить новый параметризованный тип другой заглавной буквой во избежание коллизии:
+    ```java
+    public class ShippableThing<U> implements Shippable<T> {
+        void ship(U thing);
+    }
+    ```
+1. И последняя опция — в наследуемом классе не определять параметризованный тип вовсе — тогда тип автоматически превратится в Object. Это старый тип написания класса. Такой класс называется «сырым», так как в наследовании мы потеряли способность определять параметризованный тип самостоятельно. В современной Java настоятельно не рекомендуется писать такие классы, так как теряется функциональность кода:
+```java
+public class ShippableRaw implements Shippable {
+    void ship(Object object);
+}
+```
+### Generic-методы
+о настоящего момента мы видели применение параметризованного типа на уровне класса. Этот тип мы также можем определить и на уровне методов, как статических, так и объектных.
+
+Объектные методы с параметризованным типом мы уже видели на примере класса Collection и его методов boolean add(E e) и Iterator```<E>``` iterator. В этом случае тип E — это тот же самый тип, что у указан на уровне интерфейса Collection```<E>```. Однако, параметризованный тип в методе может и не соотноситься с типом, объявленным на уровне класса. Взгляните на такой пример:
+
+```java
+public static <T> Crate<T> ship(T stuff) {
+    System.out.println("Preparing " + stuff);
+    return new Crate<T>();
+}
+```
+
+Пользователь, вызывающий этот метод, может передать аргументом метода любой тип, и этот тип будет замещать параметризованный тип T данного метода.
+
+Запомните, что ```<T>``` на уровне метода должен **обязательно** стоять перед возвращаемым типом, иначе код не будет компилироваться, то есть например ```T <T> processStuff(T stuff)``` не сработает (T в данном примере — возвращаемый тип).
+
+### Upper Bound Types
+Верхняя граница позволяет нам использовать в методе не только тип Т, но и его наследников
+
+Напишем вот такой код:
+```java
+public static <T extends Number> void ship(T number) {
+   double value = number.doubleValue();
+   System.out.println("Preparing " + value);
+}
+```
+```<T extends Number>``` - Эта структура говорит о том, что мы можем передавать в этот метод объекты класса Number и его наследников.
+
+### Bounds and Wildcards
+Как определить границы параметризованного типа при работе с параметризованным классом? Нужно разобраться с наследованием.
+
+Давайте разберемся с таким кодом:
+
+```java
+public static void main(String[] args) {
+   Queue<String> keywords = new LinkedList<>();
+   keywords.add("Java");
+   printList(keywords); // не компилируется
+}
+
+private static void printList(Queue<Object> keywords) {
+   for (Object o : keywords) {
+       System.out.println(o);
+   }
+}
+```
+
+Почему не компилируется вызов метода printList(keywords)? Аргумент является типом ```Queue<String>```, а параметр — типом ```Queue<Object>```. String является наследником Object, почему же тогда Java выбрасывает ошибку компиляции?
+
+Дело в том, что ```Queue<String>``` не является наследником ```Queue<Object>```, и поэтому не может быть аргументом метода printList. Наследниками ```Queue<String>``` могут быть ```ArrayDeque<String>``` или ```LinkedList<String>```.
+
+То есть наследование работает по типам, а не по дженерикам этих типов. Поэтому тут нужен немного другой подход — с использованием понятия **Wildcard**, которое в Java помечается знаком **?**. **Wildcard** вы можете переводить как «любой тип».
+
+Перепишем код, используя Wildcard:
+
+```java
+public static void main(String[] args) {
+   Queue<String> keywords = new LinkedList<>();
+   keywords.add("Java");
+   printList(keywords);
+}
+
+private static void printList(Queue<?> keywords) {
+   for (Object o : keywords) {
+       System.out.println(o);
+   }
+}
+```
+Теперь код компилируется без ошибок. Queue<?> keywords означает «принимаю Queue с любым параметризованным типом», поэтому ```Queue<String>``` может быть передан в метод.
+
+Как и с верхней границей типа, ? тоже может быть определен с граничными условиями.
+
+### Upper-bounded Wildcard
+Пример:
+
+```java
+public static long total(List<? extends Number> list) {
+   long count = 0;
+   for (Number number : list) {
+       count += number.longValue();
+   }
+   return count;
+}
+```
+List хранит элементы, наследуемые от типа Number, поэтому можем пользоваться методами этого типа при работе с элементами листа.
+
+### Lower-bounded Wildcard
+Пример:
+
+```java
+public static void addSound(List<? super String> list) {
+   list.add("Meow");
+}
+```
+С верхней границей все более-менее понятно, а для чего нужна нижняя? Если верхняя граница позволяет нам знать, с каким типом элементов мы работаем, то нижняя граница позволяет нам модифицировать параметризованный класс.
+
+Представьте, если мы бы в данном случает пользовались верхней границей ``List<? extends Number>``. Тогда получается, что мы можем класть в этот лист все, что наследуется от класса Number (например, Double, Integer, Long):
+
+Пример:
+```java
+private static void modifyList(List<? extends Number> list) {
+   list.add(5.6d); // does not compile
+   list.add(131232134342344L); // does not compile
+   list.add(118); // does not compile
+}
+```
+А теперь вызовем этот метод и передадим в него, скажем, ``LinkedList<Double>``. Или ``LinkedList<Integer>``. Видите проблему? Код в методе ломается, так как в ``LinkedList<Double>`` нельзя добавить long или в ``LinkedList<Integer> — double``. Поэтому нам и нужна в данном случае нижняя граница.
+
+Например, ```List<? super Integer>``` — в этот лист можно класть только классы, от которых наследуется Integer, и типы выше по древу наследования. Теперь у нас есть гарантия того, что в этот лист можно класть все объекты класса Integer или классов, для которых Integer является наследником (Number, Object).
+
 
 # Datenstrukturen
 __Datenstruktur__ - Daten werden in einer bestimmten Art und Weise angeordnet. Es gibt dabei verschiedene Datenstrukturen, jede hat Vor-und Nachteile. Eine bekannte Datenstruktur ist zum Beispiel das Array. Dort werden die Daten quasi in einer Tabelle hinterlegt. Zugriff auf die Daten erfolgt über den Index.
@@ -1433,7 +1611,7 @@ private static class Node<E> {
 
 ![LinkedList_Organisation](../img/JAVA_15_LINKEDLIST.png)
 
-Wenn wir ein Element in LinkedList einfügen, prüfen wir, ob die Liste leer ist. Wenn die Liste leer ist, wird ein Node-Objekt erstellt, das keine Verknüpfungen zu den vorherigen und nächsten Node hat. Bei der nächsten Hinzufügung wird jeder vorhandene NOde überprüft, um zu sehen, ob es einen Link zum nächsten Node gibt. Wenn also ein solcher Link für einen bestimmten Node null ist, dann ist der Knoten der letzte in der Sammlung, und das hinzugefügte Element kann daran „angehängt“ werden. Dasselbe passiert mit der Suche, nur vergleichen wir jetzt das gewünschte Element mit dem Element im Knoten und folgen bei Ungleichheit dem Link zum nächsten Knoten.
+Wenn wir ein Element in LinkedList einfügen, prüfen wir, ob die Liste leer ist. Wenn die Liste leer ist, wird ein Node-Objekt erstellt, das keine Verknüpfungen zu den vorherigen und nächsten Node hat. Bei der nächsten Hinzufügung wird jeder vorhandene Node überprüft, um zu sehen, ob es einen Link zum nächsten Node gibt. Wenn also ein solcher Link für einen bestimmten Node null ist, dann ist der Knoten der letzte in der Sammlung, und das hinzugefügte Element kann daran „angehängt“ werden. Dasselbe passiert mit der Suche, nur vergleichen wir jetzt das gewünschte Element mit dem Element im Knoten und folgen bei Ungleichheit dem Link zum nächsten Knoten.
 
 __Vergleich ArrayList и LinkedList__
 
@@ -1518,6 +1696,339 @@ Meist benutzte Implementierung der Map ist HashMap.
 ![hash_map](../img/JAVA_15_HASHMAP.png)
 
 Links (table[]) ist die Hash-Tabelle. Beim Hinzufügen eines Schlüssel-Wert-Paares zur Map wird der HashCode für den Schlüssel berechnet, daraus der Index des internen Arrays berechnet und das Node-Objekt dort platziert:
+
+![](../img/JAVA_15_NODE_TABLE.png)
+
+* int hash — hashCode() ключа;
+* K key — объект-ключ (ключ должен следовать контракту определения методов equals() и hashCode());
+* V value — значение;
+* Node<K, V> next — ссылка на следующую ноду.
+
+Давайте разберем немного подробнее, что такое Node<K, V> next.
+
+Итак, мы кладем ключ-значение в нашу HashMap. У ключа высчитывается hash-функция, по полученной функции получается индекс в hash-таблице. Мы идем туда, и тут есть три варианта развития событий:
+
+1. Индекс не занят
+
+    Тогда создается новый объект Node, у которого инициализируются все поля, кроме поля Next, и кладется по этому индексу.
+
+1. Индекс занят, ключ существующей ноды по занятому индексу равен ключу добавляемой пары «ключ-значение»
+
+    Тогда создается новый объект Node, у которого инициализируются все поля, кроме поля Next, этот объект «перетирает» старый в Map.
+
+1. Индекс занят, ключ существующей ноды по занятому индексу не равен ключу добавляемой пары «ключ-значение»
+
+    В этом случае у нас происходит коллизия. Как мы справлялись с коллизиями когда говорили о Set? Мы находили другой незанятый в hash-таблице индекс и клали добавляемый элемент туда. С Map немного иначе, вместо этого создается новый объект Node, у которого инициализируются все поля, кроме поля Next, и ссылку на эту новую ноду мы присваиваем к переменной Next существующей ноды. Таким образом, у нас получается классический LinkedList.
+
+Начиная с Java 8, есть изменение в способе хранения коллизий. До этой версии коллизии хранились в LinkedList. Насколько мы знаем, чтобы находить/добавлять/удалять нужную ноду по ключу в LinkedList, необходимо итерироваться по его ссылкам, что дает нам линейную временную сложность алгоритма O(n) (напомним, что это не совсем хорошая сложность, есть алгоритмы быстрее, например O(1) или O(logN)). Чтобы ускорить данный алгоритм, разработчики видоизменили внутреннюю имплементацию, и теперь по достижении определенного порога количества элементов в коллизии структура данных LinkedList заменяется другой структурой данных — сбалансированное дерево. Эта структура помогает ускорить время выполнения алгоритма с O(n) до O(logN)!
+
+Рассмотрим конструкторы данной имплементации:
+
+|Пример вызываемого конструктора|Описание|
+|---|---|
+|Map<String, String> map = new HashMap<>();|Создается пустой объект HashMap c первоначальным размером 16 и с дефолтным коэффициентом заполненности 0.75 (отношение количества элементов к размеру — при превышении создается новый объект HashMap с размером в 2 раза больше предыдущего).|
+|Map<String, String> map = new HashMap<>(25);|Создается пустой объект с первоначальным размером, равным передаваемому аргументу.|
+|Map<String, String> map = new HashMap<>(25, 0.9);|Создается пустой объект с первоначальными размером и коэффициентом заполненности, равными передаваемым аргументам.|
+|Map<String, String> map = new HashMap<>();<br>map.put("father", "John");<br>map.put("brother", "Sam");<br>map.put("mother", "Mary");<br>map.put("uncle", "Smith");<br>map.put("grandfather", "Adam");<br>Map<String, String> newMap = new HashMap<>(map);<br>|В данный конструктор мы передаем в качестве аргумента другую Map, и теперь наш HashMap содержит все элементы этой Map.|
+
+### LinkedHashMap
+LinkedHashMap — имплементация одновременно hash-таблицы и LinkedList, данный объект, помимо функций, как в HashMap, сохраняет порядок добавленных элементов.
+
+### TreeMap
+TreeMap — имплементация NavigableMap, позволяет хранить элементы в порядке, соответствующем «нормальной сортировке». Внутри реализована как структура данных «красно-черное дерево».
+
+Узнать про эту структуру и не только можно, посмотрев отличный плейлист на Youtube: [Алгоритмы и структуры данных](https://www.youtube.com/watch?v=IgeJmTKQlKs&list=PLpPXw4zFa0uKKhaSz87IowJnOTzh9tiBk&index=2)
+
+**Что очень важно знать**: не все объекты могут быть ключами в Map этой имплементации, а только объекты тех классов, которые имплементируют интерфейс java.lang.Comparable
+
+![JAVA_15_TREEMAP.png](../img/JAVA_15_TREEMAP.png)
+
+**Сравнение временной сложности алгоритмов для имплементаций Map**
+
+|Операция|HashMap|LinkedHashMap|TreeMap|
+|---|---|---|---|
+|добавление элемента<br>map.put(key, elem);|O(1)* |O(1)* |О(logN)|
+|удаление элемента по ключу<br>map.remove(key);|O(1)* |O(1)* |О(logN)|
+|проверка на содержание ключа<br>map.contains(key);|O(1)* |O(1)* |О(logN)|
+
+``*`` — зависит от распределения элементов по hash-таблице, на практике чуть хуже.
+
+## Сравнение и сортировка объектов
+### Интерфейс Comparable
+
+Помните, когда мы рассматривали классы TreeSet и TreeMap, было упомянуто, что не все объекты могут быть объектами (или, для Map — ключами) в данных коллекциях? Эти объекты должны быть сортируемыми.
+
+Представим, что мы создали наш кастомный класс Product:
+
+```java
+import java.time.LocalDateTime;
+import java.util.Objects;
+
+public class Product {
+
+   private final String brand; // бренд
+   private final String name; // имя продукта
+   private final long serialNumber; // его серийный номер
+   private final LocalDateTime creationDate; // дата производства
+
+   public Product(String brand, String name, long serialNumber, LocalDateTime creationDate) {
+       if (brand == null || name == null || serialNumber == 0 || creationDate == null) {
+           throw new IllegalArgumentException();
+       }
+       this.brand = brand;
+       this.name = name;
+       this.serialNumber = serialNumber;
+       this.creationDate = creationDate;
+   }
+
+   public String getBrand() {
+      return brand;
+   }
+
+   public String getName() {
+      return name;
+   }
+
+   public long getSerialNumber() {
+      return serialNumber;
+   }
+
+   public LocalDateTime getCreationDate() {
+      return creationDate;
+   }
+
+   @Override
+   public boolean equals(Object o) { // определяем равенство по полям brand, serialNumber и name
+       if (this == o) return true;
+       if (o == null || getClass() != o.getClass()) return false;
+       Product product = (Product) o;
+       return serialNumber == product.serialNumber &&
+               brand.equals(product.brand) &&
+               name.equals(product.name);
+   }
+
+   @Override
+   public int hashCode() { // по тем же полям считаем hash
+       return Objects.hash(brand, name, serialNumber);
+   }
+
+   @Override
+   public String toString() {
+       return "Product{" +
+               "brand='" + brand + '\'' +
+               ", name='" + name + '\'' +
+               ", serialNumber=" + serialNumber +
+               ", creationDate=" + creationDate +
+               '}';
+   }
+}
+```
+
+И теперь мы хотим положить объект класса в TreeSet:
+
+```java
+public static void main(String[] args) {
+   Set<Product> set = new TreeSet<>();
+   set.add(new Product("СуперБренд", "Колбаса", 3435425455L, LocalDateTime.now()));
+}
+```
+
+Вот что мы увидим в консоли после запуска:
+
+```cmd
+Exception in thread "main" java.lang.ClassCastException: class Product cannot be cast to class java.lang.Comparable
+	at java.base/java.util.TreeMap.compare(TreeMap.java:1291)
+	at java.base/java.util.TreeMap.put(TreeMap.java:536)
+	at java.base/java.util.TreeSet.add(TreeSet.java:255)
+	at com.nikolai.module15.unit7.Main.main(Main.java:11)
+```
+Перед тем как разобраться с ошибкой, давайте подумаем, почему мы не можем добавить объект класса Product в TreeSet? Все просто: класс этого объекта (в данной реализации) является несортируемым. И действительно, как Java может понять, как мы хотим сортировать этот объект в коллекции? По дате создания в порядке убывания или, может, по серийному номеру в порядке возрастания? А может по тому и другому сразу?
+
+Для определения логики сортировки объекта служит интерфейс java.lang.Comparable. Вот как он выглядит:
+
+```java
+public interface Comparable<T> {
+    public int compareTo(T o);
+}
+```
+
+```
+Метод принимает объект того же типа, что и сравниваемый объект, и возвращает число типа int.
+
+Рассмотрим допустимые возвращаемые числа:
+
+число больше нуля — когда текущий объект (объект, на котором вызывается данный метод) больше, чем аргумент метода;
+число меньше нуля — когда текущий объект меньше, чем аргумент метода;
+ноль — когда объекты равны между собой.
+```
+
+Давайте перепишем наш класс следующим образом:
+
+```java
+import java.time.LocalDateTime;
+import java.util.Objects;
+
+public class Product implements Comparable<Product> {
+
+   private final String brand;
+   private final String name;
+   private final long serialNumber;
+   private final LocalDateTime creationDate;
+
+   public Product(String brand, String name, long serialNumber, LocalDateTime creationDate) {
+       if (brand == null || name == null || serialNumber == 0 || creationDate == null) {
+           throw new IllegalArgumentException();
+       }
+       this.brand = brand;
+       this.name = name;
+       this.serialNumber = serialNumber;
+       this.creationDate = creationDate;
+   }
+
+   public String getBrand() {
+       return brand;
+   }
+
+   public String getName() {
+       return name;
+   }
+
+   public long getSerialNumber() {
+       return serialNumber;
+   }
+
+   public LocalDateTime getCreationDate() {
+       return creationDate;
+   }
+
+   @Override
+   public boolean equals(Object o) {
+       if (this == o) return true;
+       if (o == null || getClass() != o.getClass()) return false;
+       Product product = (Product) o;
+       return serialNumber == product.serialNumber &&
+               brand.equals(product.brand) &&
+               name.equals(product.name);
+   }
+
+   @Override
+   public int hashCode() {
+       return Objects.hash(brand, name, serialNumber);
+   }
+
+   @Override
+   public String toString() {
+       return "Product{" +
+               "brand='" + brand + '\'' +
+               ", name='" + name + '\'' +
+               ", serialNumber=" + serialNumber +
+               ", creationDate=" + creationDate +
+               '}';
+   }
+
+   @Override
+   public int compareTo(Product o) {
+       return brand.compareTo(o.brand);
+   }
+}
+```
+
+Сейчас мы имплементировали интерфейс Comparable и в методе compareTo() сказали, что будем сравнивать бренды по возрастанию (класс String тоже имплементирует данный интерфейс, строки сортируются в алфавитном порядке по возрастанию).
+
+Снова добавим теперь уже 3 объекта в TreeSet:
+
+```java
+public static void main(String[] args) {
+   Set<Product> set = new TreeSet<>();
+   set.add(new Product("СуперБренд", "Колбаса", 3435425245L, LocalDateTime.now()));
+   set.add(new Product("ЛучшийБренд", "Сыр", 434323434L, LocalDateTime.now()));
+   set.add(new Product("ХорошийБренд", "Сыр", 4343111111L, LocalDateTime.now()));
+   for (Product product : set) {
+       System.out.println(product.getBrand());
+   }
+}
+```
+
+Продукты в TreeSet теперь лежат в алфавитном порядке их брендов.
+
+**Очень важно иметь согласованные между собой методы equals() и compareTo(), то есть объекты обязательно должны быть равны между собой в случае, если метод compareTo() возвращает 0.**
+
+### Интерфейс Comparator
+Из предыдущей темы ясно, что сортируемые объекты должны имплементировать интерфейс Comparable. Но на практике не всегда это удобно и даже возможно. Почему?
+
+Метод compareTo() определяет лишь одну логику сортировки. Представьте, что объекты из класса Product выше мы в одном случае хотим сравнивать только по брендам, а в другом — по брендам в сочетании со сравнением поля «серийный номер». Имея лишь один метод compareTo() интерфейса Comparable , это не представляется возможным.
+Что если мы сравниваем не наш кастомный класс, а сторонний, библиотечный? Конечно, мы можем наследоваться от него и переопределить compareTo() под нашу логику, однако это требует создания отдельного Java класса, что не всегда удобно.
+Что если сторонний класс вообще не сравниваемый (не имплементирующий Comparable)? Тогда без других инструментов нам невозможно произвести сравнение.
+На помощь нам приходит другой Java-интерфейс — java.util.Comparator:
+
+```java
+public interface Comparator<T> {
+   int compare(T o1, T o2);
+}
+```
+В отличие от интерфейса Comparable, этот интерфейс принимает в себя сразу два сравниваемых объекта.
+
+Преимущество данного метода в том, что теперь мы вызываем метод не у самого сравниваемого объекта, а у любого объекта, имплементирующего интерфейс Comparator. Плюс в этом: теперь мы можем написать сколь угодно много способов сравнения объектов одного типа.
+
+Давайте создадим две имплементации Comparator и сравним продукты, используя их:
+```java
+public class NameComparator implements Comparator<Product> {
+   @Override
+   public int compare(Product o1, Product o2) {
+       return o1.getName().compareTo(o2.getName());
+   }
+}
+
+public class SerialNumberComparator implements Comparator<Product> {
+   @Override
+   public int compare(Product o1, Product o2) {
+       return Long.compare(o1.getSerialNumber(), o2.getSerialNumber());
+   }
+}
+```
+Первый Comparator сравнивает продукты по имени в алфавитном порядке по возрастанию, а второй — по серийному номеру в арифметическом порядке но по уменьшению чисел.
+
+Добавим в TreeSet используя оба компаратора:
+```java
+public static void main(String[] args) {
+   Set<Product> products = new TreeSet<>(new NameComparator());
+   products.add(new Product("СуперБренд", "Колбаса", 1L, LocalDateTime.now()));
+   products.add(new Product("ЛучшийБренд", "Сыр", 2L, LocalDateTime.now()));
+
+   for (Product product : products) {
+       System.out.println(product.getName());
+   }
+}
+```
+```
+Колбаса
+Сыр
+```
+```java
+public static void main(String[] args) {
+   Set<Product> products = new TreeSet<>(new SerialNumberComparator().reversed());
+   products.add(new Product("СуперБренд", "Колбаса", 1L, LocalDateTime.now()));
+   products.add(new Product("ЛучшийБренд", "Сыр", 2L, LocalDateTime.now()));
+
+   for (Product product : products) {
+       System.out.println(product.getSerialNumber());
+   }
+}
+```
+```
+2
+1
+```
+Обратите внимание, что у объекта new SerialNumberComparator() был вызван дополнительно метод reversed(), который возвращает новый компаратор, у которого инвертирована логика сортировки, в данном случае сортировка типа long будет не в порядке возрастания чисел, как в обычном компараторе, а наоборот.
+
+**Сравнение Comparable и Comparator**
+
+|Разница|Comparable|Comparator|
+|---|---|---|
+|Имя пакета|java.lang|java.util|
+|Должен ли сравниваемый класс имплементировать этот интерфейс?|да|нет|
+|Имя метода в интерфейсе|compareTo|compare|
+|Количество параметров|1|2|
 
 # Multithreading (Module 13)
 ## Процессы и потоки
