@@ -457,6 +457,8 @@ Parent-Nodes sind eindeutig. Um auf die zuzugreifen kann man _parentElement_ ode
 |document.querySelector(selector)|CSS-Selector|Akzeptiert einen Selektor als Zeichenfolge, das erste Zeichen oder dessen Abwesenheit gibt den Selektor an (. (Punkt) - Klasse, # - ID, Abwesenheit - Tag-Name). Gibt das erste Element zurück.
 |document.querySelectorAll(selector)|all CSS-Selectoren|Akzeptiert einen Selektor als Zeichenfolge, das erste Zeichen oder seine Abwesenheit gibt den Selektor an (. - Klasse, # - ID, Abwesenheit - Tag-Name). Gibt ein Array von Elementen zurück.
 
+![](../img/2022-08-31%2020_23_05-Window.png)
+
 ## Ändern der Elemente
 
 |Funktion|Was|Erklärung|
