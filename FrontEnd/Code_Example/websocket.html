@@ -52,16 +52,16 @@
         let websocket;
 
         function writeToScreen(message) {
-        let pre = document.createElement("p");
-        pre.style.wordWrap = "break-word";
-        pre.innerHTML = message;
-        output.appendChild(pre);
+            let pre = document.createElement("p");
+            pre.style.wordWrap = "break-word";
+            pre.innerHTML = message;
+            output.appendChild(pre);
         }
 
         btnOpen.addEventListener('click', () => {
-        websocket = new WebSocket(wsUri);
-        websocket.onopen = function(evt) {
-            writeToScreen("CONNECTED");
+            websocket = new WebSocket(wsUri);
+            websocket.onopen = function(evt) {
+                writeToScreen("CONNECTED");
         };
         websocket.onclose = function(evt) {
             writeToScreen("DISCONNECTED");
@@ -79,14 +79,14 @@
         });
 
         btnClose.addEventListener('click', () => {
-        websocket.close();
-        websocket = null;
+            websocket.close();
+            websocket = null;
         });
 
         btnSend.addEventListener('click', () => {
-        const message = 'Test message';
-        writeToScreen("SENT: " + message);
-        websocket.send(message);
+            const message = 'Test message';
+            writeToScreen("SENT: " + message);
+            websocket.send(message);
         });
 
     </script>
