@@ -2864,18 +2864,3 @@ const websocket = new WebSocket('wss://echo-ws-service.herokuapp.com/');
 
 * websocket.send(message) — отправка данных по WebSocket-соединению;
 * websocket.close() — закрытие соединения.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
