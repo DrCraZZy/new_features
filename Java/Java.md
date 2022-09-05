@@ -6619,6 +6619,13 @@ JVM:          1.8.0_241 (Oracle Corporation 25.241-b07)
 OS:           Mac OS X 10.15.7 x86_64
 ```
 
+* gradle download [hier](https://gradle.org/releases/) (binary-only)
+* archive open
+* create environment variables
+    * JAVA_HOME must be created
+    * GRADLE_HOME same way like with java
+    * Update Path-system variable insert **%JAVA_HOME%\bin** and **%GRADLE_HOME%\bin**
+
 ### Основные понятия и термины
 Центральным понятием в Gradle является проект (project). Проект может состоять как из одного модуля (одномодульный проект), так и из нескольких подмодулей (многомодульный проект). В многомодульном проекте каждый подмодуль можно рассматривать как самостоятельный Gradle-проект. Данную информацию пока нужно просто запомнить. Примеры проектов будут показаны позднее.
 
@@ -6632,6 +6639,1062 @@ OS:           Mac OS X 10.15.7 x86_64
 
 Подробнее задачи и плагины будут рассмотрены позднее в соответствующем разделе.
 
+ВАЖНО!
+В этом модуле мы будем считать, что:
+* у пользователя на компьютере создана папка module_gradle (эта папка будет использоваться для размещения всех проектов этого модуля, её можно разместить в любом удобном месте, например, в домашней папке пользователя);
+* пользователь может перемещаться по файловой системе в консоли и может зайти в эту папку;
+* при описании команд, выполняемых в MacOS/Linux, в приглашении используется знак доллара ($) (если у вас эта система, используйте эти команды);
+* при описании команд, выполняемых в Windows, используется знак «больше» (>);
+* если в приглашении используется знак процента (%), эта команда будет выполнена на любой ОС.
+
+Давайте создадим новую папку tasks_test внутри папки module_gradle (cоздать папку можно как в файловом менеджере, так и в консоли, но так как gradle — консольная утилита, все дальнейшие действия будем выполнять в консоли и перейдём в неё):
+
+```cmd
+% cd module_gradle
+% mkdir tasks_test
+% cd tasks_test
+```
+
+Запустим gradle без аргументов:
+
+```cmd
+% gradle
+```
+
+По умолчанию выполняется задача help (мы могли бы запустить эту задачу, указав gradle help). Информацию о любой задаче можно получить, вызвав gradle help --task ``<task>``, где ``<task>`` — название задачи. Попробуйте самостоятельно посмотреть информацию о таких задачах, как, например, help и tasks.
+
+```cmd
+% gradle tasks
+```
+
+То есть gradle предоставляет набор задач без какой-либо конфигурации. Как вы можете заметить, задачи сгруппированы в две группы: Build Setup и Help. В этом списке мы видим ранее выполненные задачи — help и tasks. Приведём краткое описание дефолтных задач.
+
+|Название задачи|Что делает|
+|---|---|
+|init|Как правило, вызывается в пустой папке при начале разработки нового проекта|
+|wrapper|Выполнение задачи позволяет добавить в проект файлы для использования Gradle wrapper|
+|buildEnvironment|Выводит информацию обо всех файлах сборки внутри проекта|
+|dependencies|Выводит информацию о зависимостях проекта|
+|dependencyInsight|Позволяет получить дополнительную информацию о зависимостях|
+|help|Отображает справку по использованию|
+|javaToolchains|Отображает обнаруженные JDK|
+|outgoingVariants|Отображает варианты вывода (наборов зависимостей и генерируемых артефактов)|
+|projects|Отображает все подпроекты (модули) основного проекта|
+|properties|Отображает свойства проекта|
+|tasks|Отображает список задач, доступных для проекта|
+
+В следующих двух разделах мы рассмотрим задачи группы Build Setup: сначала задачу wrapper, а затем init.
+
+### Gradle Wrapper
+У каждого программиста своё собственное окружение для разработки. Допустим, есть три программиста, и все они работают в одной команде. Один программист установил версию Gradle v5.0, когда она была актуальна. Другой программист более продвинутый и обновляет Gradle при выходе минорных версий — сейчас у него стоит v6.8. Третий программист — приверженец Maven и не сталкивался с проектами на Gradle до этого. И вот пришёл момент, когда для работы им нужно внести изменения в проект, использующий последнюю версию Gradle v6.8.3. Как им поступить?
+
+Первый собирает проект, используя v5.0 — проект не собирается, так как в нём используются вещи, которые появились в версии v6.8. Второй программист успешно собирает проект. Третий чешет затылок и думает почитать литературу про Gradle (что, кстати, никогда не вредно разработчику).
+
+Но, возможно, в этом проекте нужно сделать совсем мелкие изменения и вернуться к работе над основным проектом, который может использовать для сборки Maven или даже Ant. Как в этом случае поступить?
+
+На помощь приходит Gradle Wrapper — да-да, слово wrapper переводится с английского как «обёртка». Команда, разрабатывающая проект на Gradle, может указать используемую ей версию.
+
+Рассмотрим работу с wrapper. Откроем окно консоли (далее подразумевается работа в оболочке bash — знак доллара указывает на приглашение оболочки, его набирать не нужно).
+
+```cmd
+REM Создадим папку wrapper_test:
+% mkdir wrapper_test
+
+REM Перейдём в эту папку:
+% cd wrapper_test
+
+REM Вызовем задачу wrapper:
+% gradle wrapper --console=plain
+> Task :wrapper
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 7.0.
+Use '--warning-mode all' to show the individual deprecation warnings.
+See https://docs.gradle.org/6.8.3/userguide/command_line_interface.html#sec:command_line_warnings
+
+BUILD SUCCESSFUL in 579ms
+1 actionable task: 1 execute
+```
+После того как задача выполнена, посмотрим, какие файлы появились в папке, с помощью команды tree:
+
+```cmd
+REM Команда для MacOS/Linux
+$ tree -a
+
+REM Команда для Windows
+> tree /f
+
+REM Вывод команды tree
+Структура папок
+Серийный номер тома: 76F6-9AB9
+C:.
+│   gradlew
+│   gradlew.bat
+│
+├───.gradle
+│   ├───6.8.3
+│   │   │   gc.properties
+│   │   │
+│   │   ├───executionHistory
+│   │   │       executionHistory.bin
+│   │   │       executionHistory.lock
+│   │   │
+│   │   ├───fileChanges
+│   │   │       last-build.bin
+│   │   │
+│   │   ├───fileHashes
+│   │   │       fileHashes.bin
+│   │   │       fileHashes.lock
+│   │   │
+│   │   └───vcsMetadata-1
+│   ├───buildOutputCleanup
+│   │       buildOutputCleanup.lock
+│   │       cache.properties
+│   │       outputFiles.bin
+│   │
+│   ├───checksums
+│   │       checksums.lock
+│   │
+│   ├───configuration-cache
+│   │       gc.properties
+│   │
+│   └───vcs-1
+│           gc.properties
+│
+└───gradle
+    └───wrapper
+            gradle-wrapper.jar
+            gradle-wrapper.properties
+```
+
+Это папка gradle (в ней содержатся jar-файл для работы wrapper и файл с настройками gradle-wrapper.properties) и два файла gradlew и gradlew.bat (первый для вызова wrapper в операционных системах Unix/Linux/MacOS, второй — для вызова задачи в Windows; теперь для этих ОС вместо команды gradle можно использовать команды ./gradlew и gradlew, соответственно, независимо от того, установлен ли Gradle вообще).
+
+Попробуем вызвать gradlew. Обратим внимание на содержимое папки .gradle в домашней папке пользователя до и после команды:
+
+```cmd
+REM Для MacOS/Linux
+$ tree -L 1 ~/.gradle
+/Users/18328123/.gradle
+├── caches
+├── daemon
+├── native
+└── notifications
+
+4 directories, 0 files
+$ ./gradlew
+Downloading https://services.gradle.org/distributions/gradle-6.8.3-bin.zip
+..........10%..........20%..........30%...........40%..........50%..........60%..........70%...........80%..........90%..........100%
+
+> Task :help
+
+Welcome to Gradle 6.8.3.
+
+To run a build, run gradlew <task> ...
+
+To see a list of available tasks, run gradlew tasks
+
+To see a list of command-line options, run gradlew --help
+
+To see more detail about a task, run gradlew help --task <task>
+
+For troubleshooting, visit https://help.gradle.org
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 7.0.
+Use '--warning-mode all' to show the individual deprecation warnings.
+See https://docs.gradle.org/6.8.3/userguide/command_line_interface.html#sec:command_line_warnings
+
+BUILD SUCCESSFUL in 12s
+1 actionable task: 1 executed
+$ tree -L 1 ~/.gradle
+/Users/18328123/.gradle
+├── caches
+├── daemon
+├── native
+├── notifications
+└── wrapper
+
+5 directories, 0 files
+
+REM Для Windows
+> tree %HOMEPATH%\.gradle
+Структура папок
+Серийный номер тома: 76F6-9AB9
+C:\USERS\USER\.GRADLE
+├───caches
+│   ├───6.8.3
+│   │   ├───executionHistory
+│   │   ├───file-changes
+│   │   ├───fileHashes
+│   │   ├───generated-gradle-jars
+│   │   ├───md-rule
+│   │   └───md-supplier
+│   ├───jars-8
+│   ├───journal-1
+│   ├───modules-2
+│   └───transforms-3
+├───daemon
+│   └───6.8.3
+├───native
+│   ├───12488b8bf47d2d4c9fbf2f6322a914ad602e24e48041cd04a747c6da556b65c4
+│   │   └───windows-amd64
+│   ├───fdc75f09e3144964f2cf3f50f0aa648679c211496f362492102eb8c894070792
+│   │   └───windows-amd64
+│   └───jansi
+│       └───1.18
+│           └───windows64
+└───notifications
+    └───6.8.3
+> gradlew
+Downloading https://services.gradle.org/distributions/gradle-6.8.3-bin.zip
+..........10%..........20%..........30%...........40%..........50%..........60%..........70%...........80%..........90%..........100%
+
+> Task :help
+
+Welcome to Gradle 6.8.3.
+
+To run a build, run gradlew <task> ...
+
+To see a list of available tasks, run gradlew tasks
+
+To see a list of command-line options, run gradlew --help
+
+To see more detail about a task, run gradlew help --task <task>
+
+For troubleshooting, visit https://help.gradle.org
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 7.0.
+Use '--warning-mode all' to show the individual deprecation warnings.
+See https://docs.gradle.org/6.8.3/userguide/command_line_interface.html#sec:command_line_warnings
+
+BUILD SUCCESSFUL in 15s
+1 actionable task: 1 executed
+> tree %HOMEPATH%\.gradle
+Структура папок
+Серийный номер тома: 76F6-9AB9
+C:\USERS\USER\.GRADLE
+├───caches
+│   ├───6.8.3
+│   │   ├───executionHistory
+│   │   ├───file-changes
+│   │   ├───fileHashes
+│   │   ├───generated-gradle-jars
+│   │   ├───md-rule
+│   │   └───md-supplier
+│   ├───jars-8
+│   ├───journal-1
+│   ├───modules-2
+│   └───transforms-3
+├───daemon
+│   └───6.8.3
+├───native
+│   ├───12488b8bf47d2d4c9fbf2f6322a914ad602e24e48041cd04a747c6da556b65c4
+│   │   └───windows-amd64
+│   ├───fdc75f09e3144964f2cf3f50f0aa648679c211496f362492102eb8c894070792
+│   │   └───windows-amd64
+│   └───jansi
+│       └───1.18
+│           └───windows64
+├───notifications
+│   └───6.8.3
+└───wrapper
+    └───dists
+        └───gradle-6.8.3-bin
+            └───7ykxq50lst7lb7wx1nijpicxn
+                └───gradle-6.8.3
+                    ├───bin
+                    ├───init.d
+                    └───lib
+                        └───plugins
+```
+При вызове wrapper скачивается версия Gradle, указанная в файле gradle-wrapper.properties (у нас 6.8.3). И, как вы поняли, сохраняется она в папку ~/.gradle/wrapper.
+
+```cmd
+> tree %HOMEPATH%\.gradle\wrapper
+Структура папок
+Серийный номер тома: 76F6-9AB9
+C:\USERS\USER\.GRADLE\WRAPPER
+└───dists
+    └───gradle-6.8.3-bin
+        └───7ykxq50lst7lb7wx1nijpicxn
+            └───gradle-6.8.3
+                ├───bin
+                ├───init.d
+                └───lib
+                    └───plugins
+```
+Получая проект с wrapper, программисту не нужно заботиться об установке Gradle вообще. Поэтому использование wrapper — это рекомендуемый способ вызова gradle. Именно этот способ используется по умолчанию при создании gradle-проекта в Intellij IDEA.
+
+Для использования любой другой версии Gradle нужно только изменить её в файле gradle-wrapper.properties (таким образом можно установить более старые версии Gradle вплоть до версии 0.9; версии 0.7 и 0.8 скачиваются, но в скаченном архиве почему-то не обнаруживается дистрибутив Gradle). Для изменения версии также можно использовать команду (для использования более ранней версии).
+
+```cmd
+REM Команда для MacOS/Linux
+$ ./gradlew wrapper --gradle-version=6.8.2
+
+REM Команда для Windows
+>> gradlew wrapper --gradle-version=6.8.2
+```
+
+### Инициализация проекта Gradle
+После того как мы познакомились с задачей wrapper, давайте познакомимся с другой задачей из группы Build Setup — задачей init.
+
+Создадим папку init_test в папке >module_gradle и зайдём в неё:
+
+```cmd
+% cd module_gradle
+% mkdir init_test
+% cd init_test
+```
+
+Выполним задачу init с опцией --dry-run (запускает сборку с отключенными действиями для всех задач):
+
+```cmd
+% gradle init --dry-run
+:wrapper SKIPPED
+:init SKIPPED
+
+BUILD SUCCESSFUL in 792ms
+```
+Задача init зависит от рассмотренной в предыдущем разделе задачи. То есть при инициализации проекта выполняется задача wrapper, и генерируются соответствующие папки и файлы. Получим справочную информацию по задаче init:
+```cmd 
+% gradle help --task init
+```
+Задачу init можно вызвать, как указав все опции при вызове, так и в интерактивном режиме. Первый вариант предполагает, что пользователь уже знает, что хочет получить в результате (использование этого варианта мы оставляем в качестве самостоятельной работы, попробуйте различные наборы опций и посмотрите, что получится в итоге). Во втором варианте пользователю предлагается ряд вариантов для выбора. Выбор осуществляется либо просто нажатием клавиши Enter (вариант по умолчанию), либо вводом цифры из указанного диапазона.
+
+Давайте используем второй вариант с опциями по умолчанию:
+
+```cmd
+% gradle init
+
+Select type of project to generate:
+  1: basic
+  2: application
+  3: library
+  4: Gradle plugin
+Enter selection (default: basic) [1..4] 
+
+Select build script DSL:
+  1: Groovy
+  2: Kotlin
+Enter selection (default: Groovy) [1..2] 
+
+Project name (default: init_test): 
+
+> Task :init
+Get more help with your project: Learn more about Gradle by exploring our samples at https://docs.gradle.org/6.8.2/samples
+
+BUILD SUCCESSFUL in 6s
+2 actionable tasks: 2 executed
+```
+
+Кроме рассмотренных в предыдущем разделе файлов, появилось ещё два файла: build.gradle (пустой) и settings.gradle (с указанием имени корневого проекта, совпадающего с именем папки — init_test). Полученная структура проекта базовая — система сборки Gradle не ограничена сборкой только Java-проектов.
+
+Для сборки Java-проекта необходимо использовать Java-плагин Gradle. Для подключения плагина нужно добавить в файл build.gradle строчки:
+
+```cmd
+plugins {
+  id 'java'
+}
+```
+Добавим исходный код. Создадим папку ``src/main/java/ru/skillfactory/``.
+
+```cmd
+REM Команда для MacOS/Linux
+$ mkdir -p src/main/java/ru/skillfactory
+
+REM Команда для Windows
+>> mkdir src\main\java\ru\skillfactory
+```
+Создадим файл Hello.java со следующим содержимым:
+```java
+package ru.skillfactory;
+
+public class Hello {
+  public static void main(String[] arg) {
+    System.out.println("Hello");
+  }
+}
+```
+После подключения плагина Java у нас добавился ряд задач в группах Build, Documentation, Verification, и появился набор правил (Rules), которые стали применимы к задачам.
+
+```cmd
+REM Команда для MacOS/Linux
+$ ./gradlew tasks
+
+REM Команда для Windows
+>> gradlew tasks
+```
+Для сборки используем задачу build. Для понимания связи между задачами снова используем опцию --dry-run.
+
+```cmd
+REM Команда для MacOS/Linux
+$ ./gradlew build --dry-run
+
+REM Команда для Windows
+>> gradlew build --dry-run
+```
+
+Далее без опции.
+
+```cmd
+REM Команда для MacOS/Linux
+$ ./gradlew build --console=plain
+
+REM Команда для Windows
+>> gradlew build --console=plain
+```
+В папке build/lib сгенерировался jar-архив init-test.jar со следующим содержимым.
+
+```cmd
+REM Команда для MacOS/Linux
+$ jar -tf build/libs/init_test.jar
+
+REM Команда для Windows
+>> jar -tf build\libs\init_test.jar
+```
+Давайте выполним класс Hello.
+
+```cmd
+REM Команда для MacOS/Linux
+$ java -cp build/libs/init_test.jar ru.skillfactory.Hello
+Hello
+
+REM Команда для Windows
+>> java -cp build\libs\init_test.jar ru.skillfactory.Hello
+Hello
+```
+ВАЖНО!
+
+У плагина java есть расширение — плагин application, в котором содержится задача для выполнения (run), позволяющая запустить проект.
+
+## Плагины и задачи
+В предыдущем юните мы установили и попробовали начать работу с Gradle. Теперь давайте познакомимся с задачами и плагинами.
+
+Как уже отмечалось в прошлом юните, Gradle — это инструмент для автоматизации сборки проекта.  Единицей такой автоматизации в Gradle выступает понятие задачи (task) внутри проекта — какой-то именованный набор действий. Задачи могут иметь зависимости друг от друга, причём такие зависимости могут быть только односторонними, то есть первая задача может быть зависима от второй, но вторая задача не может быть при этом зависима от первой. Схематично это можно изобразить так:
+
+![](../img/java-new-md31_2_1.png)
+
+На схеме выше задача 1 зависит от выполнения задачи 2. На практике это значит, что перед выполнением задачи 1 сначала выполняется задача 2.
+
+Ситуация, показанная на схеме ниже, невозможна.
+
+![](../img/java-new-md31_2_2.png)
+
+Для выполнения задачи 1 необходимо, чтобы выполнилась задача 2, но для выполнения задачи 2 необходимо, чтобы выполнилась задача 1. Это приводит к появлению цикла, когда ни одна задача не может выполниться. Поэтому о наборе задач в Gradle говорят, что это направленный ациклический граф (то есть такой граф, в котором отсутствуют циклы) . И Gradle использует этот граф для определения порядка выполнения задач.
+
+Давайте создадим папку gradle_tasks внутри папки module_gradle, перейдём в неё:
+
+```cmd
+% cd module_gradle
+% mkdir gradle_tasks
+% cd gradle_tasks
+
+REM Инициализируем Java-приложение:
+% gradle init
+
+REM Выберем второй пункт — application:
+Select type of project to generate:
+  1: basic
+  2: application
+  3: library
+  4: Gradle plugin
+Enter selection (default: basic) [1..4] 2
+
+REM Выберем третий пункт — Java:
+Select implementation language:
+  1: C++
+  2: Groovy
+  3: Java
+  4: Kotlin
+  5: Scala
+  6: Swift
+Enter selection (default: Java) [1..6] 3
+
+REM Выберем первый пункт — no:
+Split functionality across multiple subprojects?:
+  1: no - only one application project
+  2: yes - application and library projects
+Enter selection (default: no - only one application project) [1..2] 1
+
+REM Выберем первый пункт — Groovy:
+Select build script DSL:
+  1: Groovy
+  2: Kotlin
+Enter selection (default: Groovy) [1..2] 1
+
+REM Выберем первый пункт — JUnit 4:
+Select test framework:
+  1: JUnit 4
+  2: TestNG
+  3: Spock
+  4: JUnit Jupiter
+Enter selection (default: JUnit 4) [1..4] 1
+
+REM На двух пунктах просто нажмём Enter:
+Project name (default: gradle_tasks): 
+Source package (default: gradle_tasks): 
+
+> Task :init
+Get more help with your project: https://docs.gradle.org/6.8.3/samples/sample_building_java_applications.html
+
+BUILD SUCCESSFUL in 49s
+2 actionable tasks: 1 executed, 1 up-to-date
+REM Посмотрим полное содержимое папки.
+
+>> tree /f
+Структура папок
+Серийный номер тома: 76F6-9AB9
+C:.
+│   .gitattributes
+│   .gitignore
+│   gradlew
+│   gradlew.bat
+│   settings.gradle
+│
+├───.gradle
+│   ├───6.8.3
+│   │   │   gc.properties
+│   │   │
+│   │   ├───executionHistory
+│   │   │       executionHistory.bin
+│   │   │       executionHistory.lock
+│   │   │
+│   │   ├───fileChanges
+│   │   │       last-build.bin
+│   │   │
+│   │   ├───fileHashes
+│   │   │       fileHashes.bin
+│   │   │       fileHashes.lock
+│   │   │
+│   │   └───vcsMetadata-1
+│   ├───buildOutputCleanup
+│   │       buildOutputCleanup.lock
+│   │       cache.properties
+│   │       outputFiles.bin
+│   │
+│   ├───checksums
+│   │       checksums.lock
+│   │
+│   ├───configuration-cache
+│   │       gc.properties
+│   │
+│   └───vcs-1
+│           gc.properties
+│
+├───app
+│   │   build.gradle
+│   │
+│   └───src
+│       ├───main
+│       │   ├───java
+│       │   │   └───gradle_tasks
+│       │   │           App.java
+│       │   │
+│       │   └───resources
+│       └───test
+│           ├───java
+│           │   └───gradle_tasks
+│           │           AppTest.java
+│           │
+│           └───resources
+└───gradle
+    └───wrapper
+            gradle-wrapper.jar
+            gradle-wrapper.properties
+```
+
+Кроме файлов wrapper, появились файлы:
+
+отвечающие за работу с системой контроля версий git — .gitattributes, .gitignore;
+settings.gradle — файл с настройками gradle;
+.gradle — служебная папка gradle;
+папка app с самим приложением — модуль, который также является проектом.
+
+Попробуем собрать проект (задача build) с опцией -m (она же  --dry-run), при этом действия всех задач запрещаются, но мы увидим все задачи, от которых зависит выполняемая задача:
+
+```cmd
+>> gradlew -m build
+```
+
+Помните, в начале раздела мы говорили о графе задач? Вот часть графа для Java-приложения:
+
+![](../img/java-new-md31_2_3.png)
+
+Теперь давайте запустим наше приложение. Используем задачу run (сначала с параметром -m).
+
+```cmd
+REM для Windows
+>> gradlew -m run
+
+:app:compileJava SKIPPED
+:app:processResources SKIPPED
+:app:classes SKIPPED
+:app:run SKIPPED
+
+BUILD SUCCESSFUL in 657ms
+
+>> gradlew run
+
+> Task :app:run
+Hello World!
+
+BUILD SUCCESSFUL in 1s
+2 actionable tasks: 2 executed
+```
+
+Но каким же образом у gradle появились новые задачи после выполнения ./gradlew init?
+
+Давайте посмотрим содержимое файла app/build.gradle.
+
+В файле есть секция plugins. Именно в этой секции подключается плагин application. Этот плагин упрощает создание исполняемого приложения. Он позволяет легко запускать приложение во время разработки и упаковать приложение в tar- и/или zip-архив со скриптами запуска, специфичными для операционной системы. Новые задачи появляются после подключения плагина.
+
+Следующие задачи добавляются при использовании плагина application (задачи по умолчанию были заменены многоточиями).
+
+```cmd
+REM Команда для Windows
+>> gradlew tasks
+
+Application tasks
+-----------------
+run - Runs this project as a JVM application
+
+Build tasks
+-----------
+assemble - Assembles the outputs of this project.
+build - Assembles and tests this project.
+buildDependents - Assembles and tests this project and all projects that depend on it.
+buildNeeded - Assembles and tests this project and all projects it depends on.
+classes - Assembles main classes.
+clean - Deletes the build directory.
+jar - Assembles a jar archive containing the main classes.
+testClasses - Assembles test classes.
+
+...
+
+Distribution tasks
+------------------
+assembleDist - Assembles the main distributions
+distTar - Bundles the project as a distribution.
+distZip - Bundles the project as a distribution.
+installDist - Installs the project as a distribution as-is.
+
+Documentation tasks
+-------------------
+javadoc - Generates Javadoc API documentation for the main source code.
+
+...
+
+Verification tasks
+------------------
+check - Runs all checks.
+test - Runs the unit tests.
+```
+
+Но нельзя поставить равенство между плагином и простым набором задач. Кроме задач, плагин может содержать определённую конфигурацию и набор соглашений. Например, плагин application неявно использует плагин java и его задачи:
+
+![](../img/java-new-md31_2_4.png)
+
+От него же плагин application получает соглашения о расположении кода и тестов (src/main/java и src/test/java).
+
+|Название задачи|Что делает|
+|---|---|
+|assemble|Собирает вывод проекта|
+|build|Собирает и тестирует проект|
+|buildDependents|Собирает и тестирует данный проект и все проекты, которые от него зависят|
+|buildNeeded|Собирает и тестирует данный проект и все проекты, от которых он зависит|
+|classes|Собирает main-классы|
+|clean|Удаляет директорию build|
+|jar|Сборка|
+|testClasses|Собирает test-классы|
+|assembleDist|Сборка дистрибутива|
+|distTar|Сборка tar-дистрибутива|
+|distZip|Сборка zip-дистрибутива|
+|installDist|Установка дистрибутива|
+|javadoc|Генерирует документацию|
+|check|Выполняет все проверки|
+|test|Запускает все модульные тесты|
+
+### Наиболее важные плагины с позиции разработчика
+Список основных (core) плагинов приведён на [странице](https://docs.gradle.org/current/userguide/plugin_reference.html).
+
+Их можно подключить аналогично плагину java, как мы сделали выше. Кроме того, существует [коллекция плагинов от сообщества](https://plugins.gradle.org/).
+
+### Пробуем написать свою задачу
+Попробуем сами написать задачу. Добавим в конец файла app/build.gradle следующий код (редактировать можно любым текстовым редактором):
+
+```groovy
+task hello {
+   doLast {
+    println 'Hello from Skillfactory'
+   }
+}
+```
+
+Выведем полный список задач.
+
+```cmd
+REM Команда для Windows
+>> ./gradlew tasks --all
+
+REM Задача появилась в выводе для группы Other task (сюда попадают все задачи без группы):
+
+...
+Other tasks
+-----------
+...
+app:dependentComponents - Displays the dependent components of components in project ':app'. [deprecated]
+app:hello
+model - Displays the configuration model of root project 'exercise'. [deprecated]
+...
+
+REM Добавим группу и описание для задачи в файл app/build.gradle:
+task hello {
+   group 'Skillfactory'
+   description 'Display hello message.'
+
+   doLast {
+    println 'Hello from Skillfactory'
+   }
+}
+
+REM Вывод gradlew tasks:
+...
+
+Skillfactory tasks
+------------------
+hello - Display hello message.
+
+...
+REM Добавим ещё одну задачу bigHello и сделаем её зависимой от hello:
+
+task hello {
+   group 'Skillfactory'
+   description 'Display hello message.'
+
+   doLast {
+    print 'Hello '
+   }
+}
+
+task bigHello {
+   group 'Skillfactory'
+   description 'Display big hello message.'
+
+   doLast {
+    println 'from Skillfactory'
+   }
+}
+
+bigHello.dependsOn hello
+```
+
+Выполним задачу bigHello.
+
+```cmd
+REM Команда для Windows
+>> gradlew bigHello
+
+> Task :app:hello
+Hello 
+> Task :app:bigHello
+from Skillfactory
+
+BUILD SUCCESSFUL in 715ms
+2 actionable tasks: 2 executed
+```
+
+Видим, что сначала выполнилась задача hello, затем — bigHello.
+
+Теперь давайте сделаем что-то полезное. При разработке часто бывает необходимо сопоставить используемый артефакт (нерелизную версию и хэш коммита в системе управления версиями, на основе которого был собран артефакт). Давайте добавим эту информацию в файл version.txt, который будет создан в процессе сборки.
+
+```groovy
+task buildInfo {
+    doLast {
+        def cmd = "git rev-parse --short HEAD"
+        def proc = cmd.execute()
+        def revision = proc.text.trim()
+        print revision
+        file(buildDir.path + "/classes/java/main/revision.txt").text = revision
+    }     
+}
+
+jar.dependsOn 'buildInfo'
+```
+
+Для выполнения этой задачи необходимо создать Git-репозиторий в папке gradle_tasks, выполнив команду git init и создав хотя бы один коммит.
+
+Соберем проект и посмотрим содержимое получившегося JAR-файла:
+
+```cmd 
+REM Команда для Windows
+>> gradlew build
+>> jar -tf app\build\libs\app.jar
+
+META-INF/
+META-INF/MANIFEST.MF
+revision.txt
+exercise/
+exercise/App.class
+```
+
+В архиве содержится файл revision.txt.
+
+```cmd
+REM Команды для Windows
+>> cd app\build\libs
+>> jar xf app.jar 
+>> dir
+
+META-INF	
+app.jar	
+exercise
+revision.txt
+
+>> type revision.txt 
+64a0e51
+
+REM Вывод совпадает с выводом команды git:
+
+$ git log
+commit 64a0e512a2a6b98ed8d3acd364d89b89c69e9b1b (HEAD -> master)
+Author: Мое имя <мой email>
+Date:   Sun Feb 14 19:55:20 2021 +0300
+
+    Initial commit
+```
+
+В этом юните мы рассмотрели работу работу с задачами и плагинами. Далее мы познакомимся с механизм зависимостей.
+
+## Управление зависимостями
+Мы изучили центральный подход работы с Gradle — использование задач и возможности расширения путём использования плагинов. Сейчас мы рассмотрим механизм зависимостей.
+
+В современном мире ни один проект не разрабатывается изолированно. Программисту не нужно каждый раз изобретать велосипед. Большая часть кода, которая позволяет делать обыденные рутинные вещи, вероятно, уже написана другими программистами и сохранена в виде библиотек (jar-артефактов) в сетевом хранилище (репозитории), что позволяет разработчику сосредоточиться на бизнес-логике самого приложения. Результатом такого подхода становится сокращение времени разработки и предоставление клиенту новых возможностей использования продукта. Кроме сторонних библиотек, со временем у команды появляются собственные модули, которые также могут использоваться повторно.
+
+Как уже было сказано ранее, все модули хранятся в репозитории. Он может быть как локальным (папка на жёстком диске), так и удалённым, расположенным во внутренней сети предприятия или в Internet.
+
+**Модули, которые используются в приложении называются зависимостями.**
+
+**Во время работы Gradle определяет набор зависимостей и места, откуда их нужно получить. Этот процесс называется разрешением зависимостей.**
+
+Для уменьшения сетевого взаимодействия скачанные однажды зависимости сохраняются в локальном кэше зависимостей и используются при повторных сборках до тех пор, пока файлы в репозитории не изменятся.
+
+Известно, что Gradle не имеет собственных репозиториев, но с успехом использует уже существующие Maven- и Ivy-репозитории.
+
+![](../img/java-new-md31_3_1.png)
+
+Собственно говоря, управление зависимостями — это не что иное, как метод объявления, разрешения и использования зависимостей.
+
+Давайте рассмотрим этот механизм Gradle более подробно.
+
+### Репозитории и зависимости
+За работу с зависимостями в файле проекта (build.gradle) отвечают блоки **repositories** и **dependencies**. В первом блоке описываются репозитории, используемые при сборке.
+
+Существует три типа репозиториев:
+
+* репозитории Maven;
+* репозитории Ivi;
+* локально расположенные папки.
+
+В коде приведено использование каждого типа репозиториев (блок внутри файла build.gradle):
+
+```groovy
+repositories {
+    maven {
+        url "http://repo.bigcompany.ru/maven2"
+    }
+
+    ivy {
+        url "http://repo.bigcompany.ru/repo"
+    }
+
+    flatDir {
+        dirs 'lib1', 'lib2'
+    }
+}
+```
+
+Поиск в репозиториях происходит в соответствии  с порядком их следования внутри блока.
+
+Так как кроме публичных репозиториев существуют и приватные  (доступные только внутри организации), Gradle поддерживает различные типы авторизации.
+
+Зависимости в Gradle определяются на основании тех задач, в процессе выполнения которых они используются. Например, какие-то зависимости могут потребоваться при компиляции исходных файлов, какие-то — на этапе выполнения тестов, какие-то — на этапе выполнения. В таких случаях говорят об области видимости зависимости (scope of dependency). В Gradle это реализовано при помощи конфигураций. Каждый плагин привносит свои конфигурации в проект. Например, плагин java привносит конфигурации, определяющие различные classpath для компиляции и выполнения тестов:
+
+![](../img/java-new-md31_3_2.png)
+
+В Gradle широко используется наследование конфигураций. Например, в том же java-плагине конфигурация testImplementation расширяет конфигурацию implementation. Наследование имеет практическую цель: для компиляции тестов требуются зависимости кода, который покрывается тестами, кроме зависимостей, необходимых для написания тестового класса. Проект Java, который использует JUnit для написания и выполнения тестов, также нуждается в Guava, если от него зависит код самого приложения и библиотеки. Без этого тесты просто не скомпилируются.
+
+Конфигурация implementation пришла на смену устаревшей конфигурации compile, а testImplementation — testCompile. Для программиста полезно понимать, что это названия определённых конфигураций, а их конкретное описание идёт в описании плагина. 
+
+Вот два графа зависимостей конфигураций для кода:
+
+![](../img/java-new-md31_3_3.png)
+
+И тестов:
+
+![](../img/java-new-md31_3_4.png)
+
+Голубым цветом показаны задачи, использующие конфигурации, серым — classpath, зелёным — иерархию наследования конфигураций (среди них серым цветом показаны устаревшие).
+
+Пример описания зависимостей в файле build.gradle:
+
+```groovy
+dependencies {
+    // Use JUnit test framework.
+    testImplementation 'junit:junit:4.13'
+
+    // This dependency is used by the application.
+    implementation 'com.google.guava:guava:29.0-jre'
+}
+```
+
+Сами зависимости описываются в блоке dependencies в формате:
+```
+название-конфигурации 'название-группы:название-модуля:версия-модуля'
+```
+
+### Gradle Shadow Plugin
+Результатом работы программиста является либо создание артефакта с библиотекой, либо артефакта, позволяющего запускать приложение. Давайте подробнее рассмотрим второй вариант.
+
+В папке using_shadow инициализируем Gradle-проект.
+
+Давайте используем что-нибудь из этой библиотеки, например, создание списка. Изменим объявление метода getGreeting() в классе App  и добавим соответствующие импорты (остальная часть класса показана многоточиями):
+
+```java
+...
+public String getGreeting() {
+   List<String> greeting = Lists.newArrayList("Hello", "World", "!");
+   return greeting.toString();
+}
+...
+```
+
+Изменив метод, мы явно использовали внешнюю зависимость. 
+
+Теперь соберём проект.
+
+```cmd 
+REM Команда для Windows
+>> gradlew clean build --console=plain
+
+> Task :app:compileJava
+> Task :app:processResources NO-SOURCE
+> Task :app:classes
+> Task :app:jar
+> Task :app:startScripts
+> Task :app:distTar
+> Task :app:distZip
+> Task :app:assemble
+> Task :app:compileTestJava
+> Task :app:processTestResources NO-SOURCE
+> Task :app:testClasses
+> Task :app:test
+> Task :app:check
+> Task :app:build
+
+BUILD SUCCESSFUL in 3s
+7 actionable tasks: 7 executed
+```
+
+Запустим приложение.
+
+```cmd
+REM Команда для Windows
+>> gradlew run --console=plain
+
+> Task :app:compileJava UP-TO-DATE
+> Task :app:processResources NO-SOURCE
+> Task :app:classes UP-TO-DATE
+
+> Task :app:run
+[Hello, World, !]
+
+BUILD SUCCESSFUL in 707ms
+2 actionable tasks: 1 executed, 1 up-to-date
+```
+
+В папке app\build\libs сформировался jar-файл — app.jar. При запуске класса App получим ошибку.
+
+```cmd 
+REM Команда для Windows
+
+>> java -jar app\build\libs\app.jar
+Exception in thread "main" java.lang.NoClassDefFoundError: com/google/common/collect/Lists
+	at ru.skillfactory.shadow.App.getGreeting(App.java:10)
+	at u.skillfactory.shadow.App.main(App.java:14)
+Caused by: java.lang.ClassNotFoundException: com.google.common.collect.Lists
+	at java.base/jdk.internal.loader.BuiltinClassLoader.loadClass(BuiltinClassLoader.java:606)
+	at java.base/jdk.internal.loader.ClassLoaders$AppClassLoader.loadClass(ClassLoaders.java:168)
+	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:522)
+	... 2 more
+```
+
+То есть мы не можем передать только jar-файл — в таком виде он не является рабочим. Нам на помощь приходит Shadow-плагин — Gradle-плагин для объединения зависимостей проекта и ресурсов классов  в единый JAR (uber или fat JAR). Плюс такой сборки в том, что получившийся jar-файл является исполняемым и включает в себя все зависимости.
+
+Для использование плагина добавим строчку (id 'com.github.johnrengelman.shadow' version '6.1.0') в секцию plugins файла app/build.gradle:
+```groovy
+plugins {
+   // Apply the application plugin to add support for building a CLI application in Java.
+   id 'application'
+   // Добавьте строчку распложенную ниже
+   id 'com.github.johnrengelman.shadow' version '6.1.0'
+}
+```
+
+Плагин относится к разряду reactive, что означает, что его добавление само по себе никак не повлияет на конфигурацию проекта. Он просто добавляет задачу shadowJar. Для сборки проекта необходимо сконфигурировать эту задачу: укажем класс, содержащий метод main(), — добавим в конец файла app/build.gradle строчки:
+
+```groovy
+shadowJar {
+   mainClassName = 'ru.skillfactory.shadow.App'
+}
+```
+```cmd
+REM Команда для Windows
+>> gradlew clean build --console=plain
+
+> Task :app:clean
+> Task :app:compileJava
+> Task :app:processResources NO-SOURCE
+> Task :app:classes
+> Task :app:jar
+> Task :app:startScripts
+> Task :app:distTar
+> Task :app:distZip
+> Task :app:shadowJar
+> Task :app:startShadowScripts
+> Task :app:shadowDistTar
+> Task :app:shadowDistZip
+> Task :app:assemble
+> Task :app:compileTestJava
+> Task :app:processTestResources NO-SOURCE
+> Task :app:testClasses
+> Task :app:test
+> Task :app:check
+> Task :app:build
+
+BUILD SUCCESSFUL in 2s
+12 actionable tasks: 12 executed
+```
+
+В папке app/build/libs, наряду с файлом app.jar, сформировался файл app-all.jar. Давайте запустим его (главный класс уже можно не указывать — в процессе сборки информация о нём была указана в файле манифеста).
+
+```cmd
+REM Команда для Windows
+>> java -jar app\build\libs\app-all.jar
+[Hello, World, !]
+```
+Так в чём же преимущества использования Shadow Plugin?
+
+1. Он минимизирует вероятность ошибки путём сокращения рукописного кода. Don't reinvent the wheel.
+1. Он добавляет такие вещи, как идентичные билды или выборочное включение файлов в билд.
+
+В этом юните мы рассмотрели работу с репозиториями и зависимостями, подключили к проекту плагин shadow для получения артефакта с включенными зависимостями. Далее мы рассмотрим, как мигрировать существующий Maven-проект на использование Gradle.
+
+
+
+
+
+
+
+
+
 
 # Логирование. JUL, Log4j, Logback, Slf4j. Grep работа с логами (Modul 25)
 ## Зачем нужно логирование
@@ -7187,654 +8250,3 @@ Zabbix — свободная система мониторинга и отсл�
 Java Client Elasticsearch [документация](https://www.elastic.co/guide/en/elasticsearch/client/java-rest/7.9/java-rest-low-usage-maven.html).
 [Подключение к Clickhouse](https://habr.com/ru/post/332112/) с помощью JDBC.
 [Получение Fluentd](https://docs.fluentd.org/language-bindings/java) логгера в Java.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Логирование. JUL, Log4j, Logback, Slf4j. Grep работа с логами (Modul 25)
-## Зачем нужно логирование
-
-**Логирование** — это запись результатов работы программы куда-либо. Обычно это место (или файл) называется лог.
-Самым простым примером логов является вывод в консоль сообщения через метод System.out.println();.
-
-При создании логов необходимо правильно подходить к системе их вывода. Например, создание системы логирования после написания всего кода программы — весьма сомнительная идея.
-
-Почти невозможно восстановить причины возникновения проблемы у пользователя, если разработчик имеет только описание проблемы от пользователя, у которого она возникла. Пользователь обычно — простой человек, он и не может описать проблему более подробно, а иногда бывают случаи, когда воспроизвести проблему на своей стороне невозможно.
-
-Также при логировании необходимо правильно записывать данные. Если мы будем записывать каждое действие системы, то лог-файл получиться очень большим, например, около 150 гигабайт, и работать с таким файлом и искать в нём ошибки будет достаточно проблематично. Но, если писать в лог только критические ошибки, то мы можем не понять момент их возникновения (какие действия были перед ошибкой). Что именно писать и не писать в лог, определяет сам разработчик. Но существует несколько правильных моментов, которые используются при записи лога почти всегда:
-
-* Запись текущего времени (timestamp) в момент логирования.
-* Запись каждого важного шага, а не только начала и конца выполнения функции.
-* Запись значений переменных в лог, чтобы повысить его информативность.
-
-Нужно понимать, что система логирования создаётся для того, чтобы разработчику было проще находить ошибки, а не сидеть в дебагере часами над устранением проблемы. Благодаря логам мы можем получать информацию об ошибках уже от пользователя приложения и вести «удаленную отладку».
-
-Ещё одной функцией логирования является снижение нагрузки на разработчика путем перекладывания нагрузки на линию поддержки, которая умеет читать логи и понимает, как решить типовые проблемы, лежащие на поверхности.
-
-Разумеется, логировать всё подряд не стоит. Иногда это и не нужно, и даже опасно. Например, если залогировать чьи-то личные данные, это станет серьезной проблемой (например, данные о банковской карте пользователя).
-
-Но есть и то, что **логировать обязательно**:
-
-* **Начало/конец работы приложения**. Нужно знать, что приложение действительно запустилось, как мы и ожидали, и завершилось также ожидаемо.
-* **Вопросы безопасности**. Здесь хорошо логировать попытки подбора пароля, логирование входа юзеров.
-* **Некоторые состояния приложения**. Например, переход из одного состояния в другое в бизнес процессе.
-* Некоторая **информация для дебага** с соответственным уровнем логирования.
-* **Некоторые SQL-скрипты**.
-* **Выполняемые нити (Thread)** могут быть логированы в случаях с проверкой корректной работы.
-
-Также можно выделить несколько самых популярных **ошибок в логировании**:
-
-* Избыток логирования. Не стоит логировать каждый шаг, который чисто теоретически может быть важным.
-* Логирование всех данных в один файл. Это приведет к тому, что в определённый момент чтение/запись в него будет очень сложной, не говоря о том, что есть ограничения по размеру файлов в определенных системах.
-* Использование неверных уровней логирования. У каждого уровня логирования есть четкие границы, и их стоит соблюдать.
-
-Стоит теперь разобраться, что такое уровни логирования. Уровень задаётся в приложении. Если запись относится к уровню ниже обозначенного, она не вносится в лог.
-
-Например, у нас есть логи, с помощью которых делают дебаг приложения. В нормальной работе на продакшене (когда приложение используют по назначению) такие логи не нужны. Поэтому уровень логирования будет выше, чем для дебага.
-
-Давайте рассмотрим уровни на примере Log4j (библиотека логирования в Java-программах). Остальные решения, кроме JUL (Java Util Logging — логгер, который появился изначально в Java), используют такие же уровни.
-
-Вот они в порядке уменьшения 8 уровней:
-|||
-|---|---|
-|OFF|никакие логи не записываются, все они будут проигнорированы|
-|FATAL|ошибка, после которой приложение уже не сможет работать и будет остановлено|
-|ERROR|уровень ошибок, когда есть проблемы, которые нужно решить. Ошибка не останавливает работу приложения в целом|
-|WARN|обозначаются логи, которые содержат предостережение, которое может быть проигнорировано, если не вызывает других проблем|
-|INFO|лог, который записывает важные действия в приложении|
-|DEBUG|логи, необходимые для отладки приложения|
-|TRACE|менее приоритетные логи для отладки с наименьшим уровнем логирования|
-|ALL|уровень, при котором будут записаны все логи из системы|
-
-
-## Stacktrace
-Stacktrace (трассировка стека) — это список методов, которые были вызваны до момента, когда в приложении произошло исключение. Функция, вызванная последней, должна быть записана самой первой.
-
-```cmd
-Exception in thread "main" java.lang.NullPointerException
-       at com.example.myproject.Book.getTitle(Book.java:16)
-       at com.example.myproject.Author.getBookTitles(Author.java:25)
-       at com.example.myproject.Bootstrap.main(Bootstrap.java:14)
-```
-Например, здесь мы видим строчку, где произошла ошибка. Это самая первая строка:
-
-```cmd
-at com.example.myproject.Book.getTitle(Book.java:16)
-```
-
-Далее мы в нашем коде переходим на 16 строчку и смотрим, что там происходит:
-
-```java
-public String getTitle() {
-    System.out.println(title.toString()); // <-- line 16
-    return title;
-}
-```
-Очевидно, что в такой момент наш объект title не существует или равен *null*.
-
-Программисты обычно используют трассировку стека во время интерактивной отладки. Конечные пользователи могут видеть трассировку стека, отображаемую как часть сообщения об ошибке, о которой пользователь может затем сообщить программисту.
-
-Трассировка стека позволяет отслеживать последовательность вызываемых вложенных функций от начала стека до той точки, в которой была вызвана трассировка стека.
-
-Вывести текущий стек можно и без создания ошибки. Это позволит нам посмотреть текущий класс и метод, которые выполняются. И так же можно получить информацию по всей цепочке до основного метода main(). Стэктрейс в Java представлен как массив. Пример кода для того, чтобы получить значения:
-```java
-StackTraceElement[] stack= Thread.currentThread().getStackTrace();
-```
-Метод currentThread() возвращает текущий поток программы, а метод getStackTrace() — её стектрейс.
-
-```java
-// метод, который всегда будет выкидывать исключение в стэктрейс.
-package com.company.test;
-
-public class Main {
-
-    public static void main(String[] args) {
-        StackTraceElement[] stack= Thread.currentThread().getStackTrace();
-       try {
-            int i = 25 / 0;
-        }
-       catch(Exception e) {
-            for (StackTraceElement element :stack) {
-                System.out.println(element);
-            }
-       }    
-    }
-}
-```
-
-## Просмотр и поиск по логам
-Обычно логи представлены текстовыми файлами, и у них может быть очень большой объём, который не позволяет их открывать через текстовые редакторы (на самом деле открыть наверно можно, но это займет много времени и памяти).
-
-В Linux системах существует утилита командной строки, которая сильно упрощает поиск по логам. Утилита называется **grep** (от англ. search **g**lobally for lines matching the **r**egular **e**xpression, and **p**rint them).
-
-В современных версиях Windows можно воспользоваться, например, встроенным Linux-ядром для выполнения тех же самых команд. По умолчанию в Windows их, к сожалению, нет. В случае MacOS, как правило, команды, идентичные Linux-системам, уже имеются.
-
-Допустим, у нас есть log.txt файл, в котором мы храним результаты обработки нашей программы. Программа отвечает за передачу и сохранение файлов по сети и сохраняет в лог время и действия с файлом (тут стоит сказать, что все эти данные достаточно условные). Тогда вывод информации по 1 файлу будет выглядеть так:
-```cmd
-grep "mydoc" log.txt
-
-12.10.2020 12:34:32.124 [192.168.2.25]  mydoc.docx loaded
-12.10.2020 12:34:32.437 [192.168.2.25]  mydoc.docx saved
-12.10.2020 12:34:33.514 [192.168.2.70]  mydoc.docx sended
-12.10.2020 12:34:41.289 [192.168.2.70]  mydoc_status.docx resended
-```
-Команда tail позволяет просмотреть файл с конца. А при использовании -f ключа показывает данные, которые были добавлены в файл уже после запуска команды. Очень удобно использовать, например, для того, чтобы найти недавние ошибки или ошибки, которые вот-вот возникнут. При этом команды grep и tail можно использовать вместе.
-
-```cmd
-tail -f | grep "error" log.txt
-
-12.10.2020 13:21:19.212 [192.168.2.24]  mypic.png error
-grep mypic.png -A 1 log.txt
-
-12.10.2020 13:21:19.112 [192.168.2.24]  mypic.png loaded
-12.10.2020 13:21:19.212 [192.168.2.24]  mypic.png error
-12.10.2020 13:21:21.191 [192.168.2.24]  user 192.168.2.24 can't send images
-```
-Мы искали mypic.png, но в последней строчке такой фразы нет, но она появилась в поиске из-за ключа -А1, который говорит о том, что нужно вывести искомую строку и одну строку ниже. Команда -B1 выполняет противоположное действие: выводит искомую строку и одну строку до. Команда -C1 выведет искомую строку и по одной строке сверху и снизу до искомой.
-
-Команда taif работает так же, как и tail -f, но выводит так же десять последних строк в файле перед её вызовом.
-
-В командной строке Windows (CMD) эквивалентом grep является команда findstr.
-
-```cmd
-2013-06-19 10:00:19|Удаляем старые лог файлы
-2013-06-19 10:00:19|Удаление старых лог файлов завершено
-2013-06-19 10:00:19|Запуск LinkOnAvt версия 1.10
-2013-06-19 10:00:19|Время запуска 19-06-2013 10:00:19
-2013-06-19 10:00:19|Используем расширенный API sape
-2013-06-19 10:00:19|Авторизация в sape
-2013-06-19 10:00:19|Авторизация в sape прошла успешно
-2013-06-19 10:00:19|Начало запроса проектов с sape
-2013-06-19 10:00:19|Проекты получены
-2013-06-19 10:00:19|Проекты сохранены
-2013-06-19 10:00:19|Загружаем проекты из файла
-2013-06-19 10:00:19|Начало запроса новых заявок по проекту 1671173 с sape
-2013-06-19 10:00:20|Получено новых заявок: 95
-2013-06-19 10:00:20|Начало запроса размещенных заявок по проекту 1671173 с sape
-2013-06-19 10:00:20|Получено размещенных заявок: 5
-2013-06-19 10:00:20|Сохраняем заявки в файл ./data/urls_1671173.txt
-2013-06-19 10:00:20|Заявки сохранены
-2013-06-19 10:00:20|Начало проверки заявок по xtool
-2013-06-19 10:00:20|Проверка максимально допустимого числа принятых заявок за все время
-2013-06-19 10:00:20|Максимально допустимое число принятых заявок за все время не достигнуто и равняется 0
-2013-06-19 10:00:20|Проверка максимально допустимого числа принятых заявок за день
-2013-06-19 10:00:20|Максимально допустимое число принятых заявок за день не достигнуто и равняется 0
-2013-06-19 10:00:20|Авторизация в xtool
-```
-Выполним команду поиска в CMD, находясь на рабочем столе:
-```cmd
-C:\Users\Admin\Desktop>findstr "data" log.txt
-2013-06-19 10:00:20|╨б╨╛╤Е╤А╨░╨╜╤П╨╡╨╝ ╨╖╨░╤П╨▓╨║╨╕ ╨▓ ╤Д╨░╨╣╨╗ ./data/urls_1671173.txt
-```
-Как видно, нужная строка нашлась, а вот поддержка русского шрифта в командной строке — нет. Выполним тот же запрос из Windows PowerShell (встроенная программа в Windows 10).
-
-В Windows PowerShell эквивалентом команды grep выступает команда **Select-String**.
-
-```powershell
-PS C:\Users\Admin> cd Desktop
-PS C:\Users\Admin\Desktop> Select-String "data" log.txt
-log.txt:16:2013-06-19 10:00:20|Сохраняем заявки в файл ./data/urls_1671173.txt
-
-PS C:\Users\Admin\Desktop> Select-String "1671173" log.txt
-log.txt:12:2013-06-19 10:00:19|Начало запроса новых заявок по проекту 1671173 с sape
-log.txt:14:2013-06-19 10:00:20|Начало запроса размещенных заявок по проекту 1671173 с sape
-log.txt:16:2013-06-19 10:00:20|Сохраняем заявки в файл ./data/urls_1671173.txt
-```
-В Windows PowerShell, как видим, всё работает корректно.
-
-## JUL
-Одно из ключевых преимуществ это решения — JUL включен в JDK (Java Development Kit). К сожалению, при его разработке за основу взяли не популярный log4j, а решение от IBM, что и повлияло на его развитие. По факту, на данный момент JUL есть, но им никто не пользуется, так как возникают проблемы, если выводить данные различными логерами в различные файлы (ну или консоли) с различным форматированием (настройки вывода задаются для целого класса, а не единичного объекта). JUL появился в Java 1.4.
-
-Взаимодействие с ним происходит через класс java.util.logging.Logger. С помощью метода getLogger() мы создаём экземпляр для работы:
-
-```java
-Logger logger = Logger.getLogger(Test.class.getName());
-```
-
-Test — это имя основного класса программы.
-
-```java
-public class Test{
-    public static final Logger logger = Logger.getLogger(Test.class.getName());
-    
-    public static void main(String[] args){
-       logger.log(Level.INFO, "Hello world");
-    }
-}
-```
-Данный код выведет в терминал сообщение:
-```cmd
-Oct 14, 2020 7:24:11 PM Test main
-INFO: Hello world.
-```
-В JUL есть несколько уровней логирования. Всего их 7:
-
-* SEVERE (ошибка);
-* WARNING (предупреждение);
-* INFO (информационное сообщение);
-* CONFIG (настраиваются по желанию пользователя);
-* FINE (сообщение об успешной операции);
-* FINER;
-* FINEST.
-
-Обычно хватает 4 уровней логирования, без CONFIG, FINER и FINEST. Также для каждого из уровней логирования есть перегруженные методы (метод переинициализирован и может использоваться по разному).
-
-```java
-logger.info("Test string.");
-logger.log(Level.INFO,"Test string.");
-```
-
-Метод log говорит о том, что уровень записи нужно указывать внутри него. Видно, что в этом примере первым задается уровень записи, а потом содержание записи.
-
-Также в лог можно передать исключение возникшее в результате работы программы.
-
-```java
-try {
-    //...throw error;
-} catch (IOException e) {
-    logger.log(Level.SEVERE , "Error message", e);
-}
-```
-
-Лог можно выводить не только в консоль, но и в текстовый файл, для этого необходимо изменить файл конфигурации JUL.
-
-Пример файла конфигурации:
-
-```
-# Настройки глобального логгера
-handlers =java.util.logging. FileHandler
-.level=ALL
-# Конфигурация файлового хендлера
-java.util.logging.FileHandler.level =ALL
-java.util.logging.FileHandler.formatter =java.util.logging.SimpleFormatter
-java.util.logging.FileHandler.limit = 1000000
-java.util.logging.FileHandler.pattern   = log.txt
-# Конфигурация консольного хендлера
-java.util.logging.ConsoleHandler.level = ALL
-java.util.logging.ConsoleHandler.pattern = log.log
-java.util.logging.ConsoleHandler.formatter =java.util.logging.SimpleFormatter
-```
-
-Теперь, чтобы запустить JUL с этой конфигурацией, необходимо передать параметр при запуске приложения:
-
-```
-Djava.util.logging.config.file=<путь к файлу конфигурации>
-```
-
-Или можно выполнить следующий код в начале вашего приложения:
-```java
-LogManager.getLogManager().readConfiguration(Main.class.getResourceAsStream("Имя файла конфигурации"));
-//Main - основной класс программы
-```
-
-## Log4j
-Log4j — это библиотека, необходимая для ведения журналов логирования. Настроить его возможно с помощью внешних файлов конфигурации.
-
-Что бы установить Log4j, необходимо:
-
-* Скачать [последнюю версию Log4j](https://logging.apache.org/log4j/2.x/).
-* Распаковать архив.
-* Переместить log4j-X.X.XX.jar в директорию с нашей программой.
-* Подключить как библиотеку (правая кнопка мыши => Run as library).
-
-Также *Log4j* можно установить с помощью *Maven* или *Gradle*.
-
-Зависимость для Maven:
-```xml
-<dependencies>
-  <dependency>
-    <groupId>org.apache.logging.log4j</groupId>
-    <artifactId>log4j-api</artifactId>
-    <version>2.13.3</version>
-  </dependency>
-  <dependency>
-    <groupId>org.apache.logging.log4j</groupId>
-    <artifactId>log4j-core</artifactId>
-    <version>2.13.3</version>
-  </dependency>
-</dependencies>
-```
-
-Зависимость для Gradle:
-```groovy
-dependencies {
-  compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.13.3'
-  compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.13.3'
-}
-```
-Файл *log4j2.xml* — это файл конфигурации *Log4j*.
-
-Пример:
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="INFO">
-    <Appenders>
-        <Console name="console" target="SYSTEM_OUT">
-            <PatternLayout
-                    pattern="[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n"/>
-        </Console>
-        <File name="MyFile" fileName="C://TMP/log_file.log">
-            <PatternLayout
-                pattern="[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n" />
-        </File>
-    </Appenders>
-    <Loggers>
-        <Root level="debug" additivity="false">
-            <AppenderRef ref="console" />
-            <AppenderRef ref="MyFile"/>
-        </Root>
-    </Loggers>
-</Configuration>
-```
-
-Тег PatternLayout отвечает за формат сообщения для вывода:
-
-* %d{yyyy-MM-dd HH:mm:ss} — выводит дату в формате 2014-01-14 23:55:57.
-* %-5p — выводит уровень лога (ERROR, DEBUG, INFO …), цифра 5 означает, что всегда используется 5 символов, остальное дополняется пробелами, а минус (–) — что позиционирование по левой стороне.
-* %c{1} — категория, в скобках указывается сколько уровней выдавать. Так как у нас 1 уровень, то писаться будет только имя класса.
-* %L — номер строки, в которой произошел вызов записи в лог.
-* %m — сообщение, которое передали в лог.
-* %n — переход на новую строку.
-
-В теге Appenders описывается место, куда выводить лог. В теге console описано, как выводить записи в консоль. А в теге file — как выводить запись в файл, и где лежит в файл.
-
-Код основной программы:
-
-```java
-import org.apache.log4j.Logger;
-public class TestLog{
-private static final Logger log = LogManager.getLogger(TestLog.class);
-public static void main(String[] args){
-	log.info("Это информационное сообщение!");
-	log.error("Это сообщение ошибки");
-   }
-}
-```
-Результат выполнения, который лежит в файле C:\\TMP\\log_file.log:
-
-```log
-2020-10-16 11:25:57 INFO  TestLog:5 - Это информационное сообщение!
-2020-10-16 11:25:57 ERROR TestLog:6 - Это сообщение ошибки
-```
-
-## Logback
-Logback создан тем же разработчиком, что и Log4j. Отличия в том, что в logback улучшена производительность, добавлена нативная поддержка slf4j и расширена опция фильтрации.
-
-Logback создан тем же разработчиком, что и Log4j. Отличия в том, что в logback улучшена производительность, добавлена нативная поддержка slf4j и расширена опция фильтрации.
-
-```xml
-<dependency>
-    <groupId>ch.qos.logback</groupId>
-    <artifactId>logback-core</artifactId>
-    <version>1.2.3</version>
-</dependency>	
-<dependency>
-    <groupId>ch.qos.logback</groupId>
-    <artifactId>logback-classic</artifactId>
-    <version>1.2.3</version>
-</dependency>
-```
-Далее необходимо создать файл конфигурации в папке src. Создадим и назовём его logback.xml. И сразу добавим в него следующие данные:
-
-```xml
-<configuration>
-  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-    <encoder>
-      <pattern>%d{HH:mm:ss.SSS} %-5level [%thread] %logger{36} - %msg%n</pattern>
-    </encoder>
-  </appender>
-  <root level="debug">
-    <appender-ref ref="STDOUT" />
-  </root>
-</configuration>
-```
-С помощью тега root мы подключаем описанные аппендеры (можно не все, если их объявлено несколько, но не все нужны) и уровень логирования. Тег pattern в logback имеет такую же логику, как тег patternLayout в log4j.
-
-Приведём ещё раз слова для форматирования сообщения лога:
-
-* %d{yyyy-MM-dd HH:mm:ss} — выводит дату в формате 2014-01-14 23:55:57.
-* %-5level — выводит уровень лога (ERROR, DEBUG, INFO …), цифра 5 означает, что всегда используется 5 символов, остальное дополняется пробелами, а минус (–) — то что позиционирование по левой стороне.
-* %thread — выводит нить потока.
-* %logger{36} — количество символов для вывода.
-* %L — номер строки в которой произошел вызов записи в лог.
-* %msg — сообщение, которое передали в лог.
-* %n — переход на новую строку.
-
-Запустить логгер достаточно просто, для этого нужно создать основной класс и в нём через фабрику логгера создать логгер, и использовать его методы для вывода результата.
-
-```java
-public class Test{
- 
-    private static final Logger logger = LoggerFactory.getLogger(Test.class);
- 
-    public static void main(String[] args) {
-        logger.info("Test log from {}", Test.class.getSimpleName());
-    }
-}
-```
-Результатом выполнения логгера будет:
-```log
-13:23:22.136 [main] INFO Test - Test log from Test
-```
-
-## Slf4j
-**Slf4j** является обёрткой для остальных систем ведения журналов. Таким образом, он позволяет пользователю работать с любой из сред ведения журналов, таких как Log4j, Logback и JUL.
-
-![](../img/JAVA_28.7_1.png)
-
-Уровни предупреждений:
-
-|||
-|---|---|
-|Фатальный (Fatal)|Серьезная проблема, которая приводит к завершению приложения.|
-|Ошибка (Error)|Ошибки во время выполнения.|
-|Предупреждение (Warn)|В большинстве случаев ошибки связаны с использованием устаревших API.|
-|Информация (Info)|События, которые происходят во время выполнения.|
-|Debug|Информация о потоке системы.|
-|Trace|Более подробная информация о работе системы.|
-
-Уровни предупреждений:
-
-Фатальный (Fatal)	Серьезная проблема, которая приводит к завершению приложения.
-Ошибка (Error)	Ошибки во время выполнения.
-Предупреждение (Warn)	В большинстве случаев ошибки связаны с использованием устаревших API.
-Информация (Info)	События, которые происходят во время выполнения.
-Debug	Информация о потоке системы.
-Trace	Более подробная информация о работе системы.
-
-С англоязычными терминами и описанием рекомендуется ознакомиться в официальной документации по [ссылке](https://www.slf4j.org/api/org/apache/log4j/Level.html).
-
-### Подключить slf4j можно так:
-
-* Для log4j
-    ```xml
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-            <version>2.7</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>2.7</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j-impl</artifactId>
-            <version>2.7</version>
-        </dependency>
-    </dependencies>
-    ```
-* Для logback
-    ```xml
-    <dependency>
-        <groupId>ch.qos.logback</groupId>
-        <artifactId>logback-classic</artifactId>
-        <version>1.1.7</version>
-    </dependency>
-    ```
-Фактически конфигурация в программе совпадает с log4j:
-```java
-public class TestSlf{
-
-    private static Logger logger = LoggerFactory.getLogger(TestSlf.class);
-    public static void main(String[]args) {
-        logger.debug("Debug log message");
-        logger.info("Info log message");
-        logger.error("Error log message");
-    }
-}
-```
-Единственное отличие в том, что объекты Logger и LoggerFactory должны принадлежать к пакету org.slf4j.
-
-## Бизнес-логи и тех-логи
-С развитием технологий задача хранения логов становится всё более тяжелой. Со временем из одного приложения у корпоративного клиента (или сервиса, например) формируется целая инфраструктура приложений (в случае с сервисами — целый набор сервисов или микросервисов).
-
-Некоторые приложения хранят логи (бизнес-логи) о протекающих в себе бизнес-процессах, а другие хранят логи (тех-логи) о выполнении каких-то своих технических действий (например, 1С).
-
-Некоторые приложения хранят логи (бизнес-логи) о протекающих в себе бизнес-процессах, а другие хранят логи (тех-логи) о выполнении каких-то своих технических действий (например, 1С).
-
-Притом с ростом различных систем и разнообразием заказчиков меняется и задача логирования:
-
-* Кому-то достаточно хранить только логи безопасности, входа и выхода из системы.
-* Кому-то необходимо хранить логи всей структуры.
-* Или кому-то достаточно хранить только логи одного приложения из всей системы.
-
-А еще некоторые логи необходимо хранить, например, 3 месяца, а другие — 4 года. Из-за этого в системе логирования нужно использовать компонент фильтрации.
-
-Со временем в системе логирования хранилища логов тоже совершили развитие. С хранения файлов перешли в реляционные БД, а потом уже в реляционные документо-ориентированные БД (например, ElasticSearch).
-
-На данный момент самые популярные сборки систем логирования это:
-
-* Стек EFK (Elasticsearch, Fluentd, Kibana).
-* Или Fluentd, ClickHouse, Loghouse.
-
-|||
-|---|---|
-|Fluentd|Это инструмент больших данных для полу- или неструктурированных наборов данных. Он анализирует журналы событий, прикладные журналы и маршрут передвижения.|
-|Elasticsearch|Тиражируемая свободная программная поисковая система.|
-|Kibana|Тиражируемая свободная программная панель визуализации данных. Как правило, Kibana используется для мониторинга и анализа ИТ-инфраструктуры в составе Elastic.|
-|ClickHouse|Это колоночная аналитическая СУБД с открытым кодом, позволяющая выполнять аналитические запросы в режиме реального времени на структурированных больших данных, разрабатываемая компанией Яндекс.|
-|Loghouse|Open Source-система для работы с логами в Kubernetes.|
-|Kubernetes|Это инструмент оркестровки приложений, работающих в контейнерах, по типу Docker.|
-
-Как это выглядит:
-![](../img/JAVA_28.8_1.png)
-
-Соответственно, как это работает:
-
-* Fluentd берет логи записывает их в ClickHouse или в Elasticsearch.
-* А уже Kibana или Loghouse дают возможность что-то в них удобно искать или следить за какими-нибудь метриками, которые потом, например, будут переданы в Zabbix.
-
-Zabbix — свободная система мониторинга и отслеживания статусов разнообразных сервисов компьютерной сети, серверов и сетевого оборудования.
-
-![](../img/JAVA_28.8_2.png)
-
-Но, например, следить за метриками можно и через Kibana, если правильно настроить интерфейс.
-
-![](../img/JAVA_28.8_3.png)
-
-Также существует возможность подключения ноды машинного обучения в эластике, которая разбирает аномалии.
-
-Машинное обучение — платная функция условно-бесплатного Elastic Stack, она входит в пакет X-Pack. Для проведения анализа алгоритм машинного обучения использует данные, хранящиеся в индексах Elasticsearch. Создавать задания для анализа можно как из интерфейса Kibana, так и через API. Если делать это через Kibana, то некоторые вещи знать необязательно. Например, дополнительные индексы, которые использует алгоритм в процессе работы.
-
-График с явной аномалией:
-
-Дополнительно
-Java Client Elasticsearch [документация](https://www.elastic.co/guide/en/elasticsearch/client/java-rest/7.9/java-rest-low-usage-maven.html).
-[Подключение к Clickhouse](https://habr.com/ru/post/332112/) с помощью JDBC.
-[Получение Fluentd](https://docs.fluentd.org/language-bindings/java) логгера в Java.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
->>>>>>> bf912d529ab0c3a325ea9d68ccd45c7833d8da02
-
-
-
-
-
-
-
-
-
