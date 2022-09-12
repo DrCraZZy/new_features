@@ -30,3 +30,13 @@ Parameter können an eine Position gebunden sein, verpflichtend sein, nur bestim
 * `-Confirm` - nach einer Bestätigung fragen
 * `-WhatIf`- was wird gemacht wenn ich es ausführe
 * `-Verbose` - Kommentare zu dem Vorgehen eines Befehls
+
+## Execution Policy
+* Restricted
+* Unrestricted
+* REmodeSigned
+* AllSigned
+
+Execution Policy umgehen
+
+`powershell -ExecutionPolicy Bypass -File Bla.ps1`
