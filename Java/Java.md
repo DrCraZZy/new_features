@@ -9162,36 +9162,496 @@ GRASP не имеют выраженной структуры, четкой об
 
 В процессе разработки программного обеспечения важная роль отводится проектированию системы. Применение шаблонов GRASP на этапе проектирования позволяет разработчику создать оптимальную структуру будущего приложения, улучшить стабильность и расширяемость системы, облегчит понимание написанного кода и избежать появления спагетти-кода, облегчить процесс разработки и тестирования будущих программ. При этом нельзя сказать, что какие-то GRASP-паттерны более важны, а какие-то имеют меньшее значение. Залог успешного проектирования и разработки — совокупное использование всех 9 шаблонов одновременно.
 
+## GoF-паттерны: порождающие
+### Что такое GoF-паттерны?
+GoF-паттерны или паттерны банды четырех, как и GRASP-паттерны, относятся к объектно-ориентированным шаблонам проектирования. И если GRASP предназначены для решения общих проблем распределения обязанностей между классами и объектами, то GoF-паттерны предназначены для решения частных проблем взаимодействия между классами и объектами для создания повторно используемого решения.
+
+GoF-паттерны или паттерны банды четырех, как и GRASP-паттерны, относятся к объектно-ориентированным шаблонам проектирования. И если GRASP предназначены для решения общих проблем распределения обязанностей между классами и объектами, то GoF-паттерны предназначены для решения частных проблем взаимодействия между классами и объектами для создания повторно используемого решения.
+
+В зависимости от целей и решаемых задач GoF-паттерны делятся на три основных группы:
+
+* порождающие шаблоны;
+* структурные шаблоны;
+* поведенческие шаблоны.  
+
+### Что такое порождающие паттерны?
+Порождающие шаблоны предназначены для решения проблемы удобного и безопасного создания как отдельных новых объектов, так и целых семейств новых объектов. Порождающие паттерны скрывают информацию о конкретных классах и о способах создания их объектов. Единственная информация, которая доступна системе об объектах, это их интерфейсы, реализованные с помощью абстрактных классов (так называемые глобальные точки доступа). Более детально об этом поговорим на примере конкретных паттернов.
+
+Существует пять основных порождающих GoF-паттернов:
+
+* Абстрактная фабрика;
+* Строитель;
+* Фабричный метод;
+* Прототип;
+* Одиночка.
+
+### Фабричный метод (Factory Method)
+Фабричный метод (Factory Method) или виртуальный конструктор (Virtual Constructor) — это порождающий паттерн проектирования, который определяет общий интерфейс для создания объектов в суперклассе, позволяя подклассам изменять тип создаваемых объектов. 
+
+Фабричный шаблон используется для создания экземпляров для классов. Создание объекта не предоставляется клиенту, и клиент использует тот же общий интерфейс для создания объекта нового типа. Основная идея статического фабричного метода состоит в том, чтобы создавать и возвращать экземпляры, в которых детали модуля класса скрыты от пользователя.
+
+В двух словах, суперкласс определит все стандартные и общие варианты поведения, а затем делегирует подробности создания подклассам, предоставленным клиентом. 
+
+Теперь процесс реализации может показаться вам немного сложным. Во-первых, я собираюсь создать интерфейс формы, а также соответствующие конкретные классы, которые будут реализовывать интерфейс формы. После этого определяется фабричный класс.
+
+Прежде всего, создается интерфейс:
+```java
+public interface Shape 
+{ 
+    void draw(); 
+}
+```
+
+Затем создаются конкретные классы для реализации интерфейса следующим образом:
+```java
+public class Rectangle implements Shape 
+{ 
+    @Override 
+    public void draw() 
+    { 
+        System.out.println("Rectangle::draw() method."); 
+    }
+} 
+
+public class Square implements Shape 
+{ 
+    @Override 
+    public void draw() 
+    { 
+        System.out.println("Square::draw() method."); 
+    } 
+}
+
+public class Circle implements Shape 
+{ 
+    @Override
+    public void draw() 
+    {
+        System.out.println("Circle::draw() method."); 
+    } 
+}
+```
+
+После создания конкретных классов создается фабрика для создания объектов.
+```java
+public class ShapeFactory 
+{ 
+    //use getShape method to get object of type shape 
+    public Shape getShape(String shapeType)
+    { 
+        if(shapeType == null) { 
+            return null; 
+        } 
+        if(shapeType.equalsIgnoreCase("CIRCLE")) { 
+            return new Circle(); 
+        } else if(shapeType.equalsIgnoreCase("RECTANGLE")) { 
+            return new Rectangle(); 
+        } else if(shapeType.equalsIgnoreCase("SQUARE")) { 
+            return new Square(); 
+        } 
+        return null; 
+    } 
+}
+``` 
+
+Теперь фабрика создана для использования объектов конкретных классов для передачи необходимой информации:
+
+```java
+public class FactoryPatternDemo
+{ 
+    public static void main(String[] args) { 
+        ShapeFactory shapeFactory = new ShapeFactory();
+        //get an object of Circle and call its draw method. 
+        Shape shape1 = shapeFactory.getShape("CIRCLE"); 
+        //call draw method of Circle shape1.draw();
+        //get an object of Rectangle and call its draw method. 
+        Shape shape2 = shapeFactory.getShape("RECTANGLE"); 
+        //call draw method of Rectangle 
+        shape2.draw(); 
+        //get an object of Square and call its draw method.
+        Shape shape3 = shapeFactory.getShape("SQUARE"); 
+        //call draw method of square 
+        shape3.draw(); 
+    } 
+}
+```
+Данный паттерн используется в ORM-фреймворке Hibernate для создания фабрики сессий с БД.
+
+### Абстрактная фабрика (Abstract Factory)
+Абстрактная фабрика — это порождающий паттерн проектирования, который позволяет создавать семейства связанных объектов, не привязываясь к конкретным классам создаваемых объектов.
+
+Представим, что нам нужно создать симулятор сборки завтраков. Каждый завтрак будет состоять из куска мяса (курица, свинина) и гарнира (рис, гречка). Мясо и гарнир — это семейства связанных продуктов.
+
+Из такого набора продуктов мы можем собрать различные блюда. Например, курица + рис, свинина + гречка и другие сочетания блюд.
+
+Для начала паттерн Абстрактная фабрика предлагает создать общие интерфейсы для отдельных продуктов, составляющих семейства. Так, свинина и курица получат общий интерфейс Meat, рис и гречка — Garnish.
+
+Потом нам необходимо создать Абстрактную фабрику (интерфейс, в котором будут методы создания всех продуктов семейств), которая будет возвращать абстрактные типы продуктов представленные интерфейсами. Например, для создания завтраков создадим общий интерфейс BreakfastFactory, в котором определим методы, которые возвращают отдельные продукты Meat и Garnish. А классы конкретных завтраков должны реализовывать интерфейс BreakfastFactory.
+
+Клиентский код должен работать с фабрикой и продуктами только через их общие интерфейсы. Это позволит подавать в ваши классы любой тип фабрики и производить любые продукты, ничего не ломая в уже созданном коде.
+
+```java
+public class AbstractFactory {
+   // Для семейства мясных продуктов создадим общий интерфейс 
+   // Meat, который на схеме паттерна обозначен, как AbstractProductA.
+   interface Meat{
+       void print();
+   }
+   
+   // Создадим классы Chicken и Pork, реализующие интерфейс Meat.
+   // На схеме обозначены, как ProductA1 и ProductA2.
+   static class Chicken implements Meat{
+       @Override
+       public void print() {
+           System.out.println("Create Chiken's meat");
+       }
+   }
+
+   static class Pork implements Meat{
+       @Override
+       public void print() {
+           System.out.println("Create pork");
+       }
+   }
+
+   // Для семейства продуктов для гарнира создадим общий интерфейс Garnish, который на схеме паттерна обозначен, как abstractProductB.
+   interface Garnish{
+       void print();
+   }
+
+    //   Создадим классы Rice и Buckwheat, реализующие интерфейс Garnish. На схеме обозначены, как ProductB1 и ProductB2.
+   static class Rice implements Garnish{
+       @Override
+       public void print() {
+           System.out.println("Create garnish with rice");
+       }
+   }
+
+   static class Buckwheat implements Garnish{
+       @Override
+       public void print() {
+           System.out.println("Create garnish with buckwheat");
+       }
+   }
+   /*
+       Теперь нам нужно создать интерфейс, который описывает способ создания завтраков. На схеме соответствует AbsractFactory. В нашем случае завтраки будут состоять из мяса и гарнира, т.е. будут возвращать объекты Meat и Garnish.
+   */
+   interface BreakfastFactory{
+       Meat createMeat();
+       Garnish createGarnish();
+   }
+
+   /*
+        Теперь нам остается реализовать из интерфейса BreakfastFactory фабрики конкретных завтраков. BreakfastOne будет состоять из мяса курицы и гречки. BreakfastTwo - из свинины и риса.
+   */
+   static class BreakfastOne implements BreakfastFactory{
+       @Override
+       public Meat createMeat() {
+           return new Chicken();
+       }
+
+       @Override
+       public Garnish createGarnish() {
+           return new Buckwheat();
+       }
+   }
+
+   static class BreakfastTwo implements BreakfastFactory{
+       @Override
+       public Meat createMeat() {
+           return new Pork();
+       }
+
+       @Override
+       public Garnish createGarnish() {
+           return new Rice();
+       }
+   }
+
+   /*
+       Теперь осталось убедиться, что создав фабрику для BreakfastOne, мы получим завтрак, состоящий из курицы и гречки.
+   */
+   public static void main(String[] args) {
+       //  Попробуйте заменить new BreakfastOne() на new BreakfastTwo()
+       //  и увидите, мы получим завтрак из свинины и риса.    
+       BreakfastFactory breakfastFactory = new BreakfastOne();
+       Meat meat = breakfastFactory.createMeat();
+       Garnish garnish = breakfastFactory.createGarnish();
+
+       System.out.println("Creating breakfast");
+       meat.print();
+       garnish.print();
+   }
+}
+```
+
+### Строитель (Builder)
+Строитель — это порождающий паттерн проектирования, который позволяет создавать сложные объекты пошагово.
+
+Отделяет конструирование сложного объекта от его представления так, что в результате одного и того же процесса конструирования могут получаться разные представления.
+
+1. Создаётся класс поля и сеттерами для них (Product)
+1. Создаётся абстрактный класс ProductBuilder содержащий методы для вызова сеттеров класса Product, но они называются buildПоле
+1. Создаются классы в которых создаются определённые объекты и они наследуются от ProductBuilder
+1. Director — создает объекты на основе абстрактного интерфейса Builder.
+```java
+ /** "Product" */
+ class Pizza {
+    private String dough = "";
+    private String sauce = "";
+    private String topping = "";
+
+    public void setDough(String dough)     { this.dough = dough; }
+    public void setSauce(String sauce)     { this.sauce = sauce; }
+    public void setTopping(String topping) { this.topping = topping; }
+ }
 
 
+ /** "Abstract Builder" */
+ abstract class PizzaBuilder {
+    protected Pizza pizza;
+
+    public Pizza getPizza() { return pizza; }
+    public void createNewPizzaProduct() { pizza = new Pizza(); }
+
+    public abstract void buildDough();
+    public abstract void buildSauce();
+    public abstract void buildTopping();
+ }
+
+ /** "ConcreteBuilder" */
+ class HawaiianPizzaBuilder extends PizzaBuilder {
+    public void buildDough()   { pizza.setDough("cross"); }
+    public void buildSauce()   { pizza.setSauce("mild"); }
+    public void buildTopping() { pizza.setTopping("ham+pineapple"); }
+ }
+
+ /** "ConcreteBuilder" */
+ class SpicyPizzaBuilder extends PizzaBuilder {
+    public void buildDough()   { pizza.setDough("pan baked"); }
+    public void buildSauce()   { pizza.setSauce("hot"); }
+    public void buildTopping() { pizza.setTopping("pepperoni+salami"); }
+ }
+
+ /** "Director" */
+ class Waiter {
+    private PizzaBuilder pizzaBuilder;
+
+    public void setPizzaBuilder(PizzaBuilder pb) { pizzaBuilder = pb; }
+    public Pizza getPizza() { return pizzaBuilder.getPizza(); }
+
+    public void constructPizza() {
+       pizzaBuilder.createNewPizzaProduct();
+       pizzaBuilder.buildDough();
+       pizzaBuilder.buildSauce();
+       pizzaBuilder.buildTopping();
+    }
+ }
 
 
+ /** A customer ordering a pizza. */
+ public class BuilderExample {
+    public static void main(String[] args) {
+        Waiter waiter = new Waiter();
+        PizzaBuilder hawaiianPizzaBuilder = new HawaiianPizzaBuilder();
+        waiter.setPizzaBuilder(hawaiianPizzaBuilder);
+        waiter.constructPizza();
 
+        Pizza pizza = waiter.getPizza();
+    }
+ }
+ ```
 
+### Прототип (Prototype)
+Прототип — это порождающий паттерн проектирования, который позволяет копировать объекты, не вдаваясь в подробности их реализации. 
 
+Паттерн Прототип поручает создание копий самим копируемым объектам. Он вводит общий интерфейс для всех объектов, поддерживающих клонирование. Это позволяет копировать объекты, не привязываясь к их конкретным классам. Обычно такой интерфейс имеет всего один метод — clone.
 
+Реализация этого метода в разных классах очень схожа. Метод создаёт новый объект текущего класса и копирует в него значения всех полей собственного объекта. Так получится скопировать даже приватные поля, так как большинство языков программирования разрешает доступ к приватным полям любого объекта текущего класса.
 
+Объект, который копируют, называется прототипом (откуда и название паттерна). Когда объекты программы содержат сотни полей и тысячи возможных конфигураций, прототипы могут служить своеобразной альтернативой созданию подклассов.
 
+В этом случае все возможные прототипы изготавливаются и настраиваются на этапе инициализации программы. Потом, когда программе нужен новый объект, она создаёт копию из приготовленного прототипа.
 
+```java
+//  Создаем интерфейс Prototype. На схеме имеет аналогичное название.
+public interface Prototype {
+   Object getClone();
+}
+//  Создаем класс Tyre и реализуем в нем интерфейс Prototype. Объекты этого класса мы будем клонировать. На схеме обозначен ConcretePrototype. Объект этого класса будет выступать в качестве поля класса Car.
+class Tyre implements Prototype{
+   private String name;
+   private int size;
 
+   public String getName() {
+       return name;
+   }
+   public void setName(String name) {
+       this.name = name;
+   }
+   public int getSize() {
+       return size;
+   }
+   public void setSize(int size) {
+       this.size = size;
+   }
+   //  Создаем конструктор
+   public Tyre(String name, int size) {
+       this.name = name;
+       this.size = size;
+   }
+   //  Переопределяем toString()
+   @Override
+   public String toString() {
+       return "Tyre{" +
+               "name='" + name + '\'' +
+               ", size=" + size +
+               '}';
+   }
+   //  Переопределяем метод getClone() интерфейса Prototype.
+   @Override
+   public Object getClone() {
+       //  Создает клон объекта Tyre и возвращает его в виде объекта Object. Нам останется лишь привести возвращенный Object к типу Tyre.
+       return new Tyre(name, size);
+   }
+}
+//  Создаем класс Car и реализуем в нем интерфейс Prototype. Объекты этого класса мы будем клонировать. На схеме обозначен ConcretePrototype. Объект этого класса будет выступать в качестве поля класса Car. Одно из полей класса содержит объект Tyre.
+class Car implements Prototype{
+   private int id;
+   private String name;
+   private Tyre tyre;
+   //  Создаем геттеры и сеттеры для приватных полей
+   public int getId() {
+       return id;
+   }
+   public void setId(int id) {
+       this.id = id;
+   }
+   public String getName() {
+       return name;
+   }
+   public void setName(String name) {
+       this.name = name;
+   }
+   public Tyre getTyre() {
+       return tyre;
+   }
+   public void setTyre(Tyre tyre) {
+       this.tyre = tyre;
+   }
+   //  Создаем конструктор
+   public Car(int id, String name, Tyre tyre) {
+       this.id = id;
+       this.name = name;
+       this.tyre = tyre;
+   }
+   //  Переопределяем toString()
+   @Override
+   public String toString() {
+       return "Car{" +
+               "id=" + id +
+               ", name='" + name + '\'' +
+               ", tyre=" + tyre +
+               '}';
+   }
+   //  Переопределяем метод getClone()
+   @Override
+   public Object getClone() {
+       //  Создает клон объекта Car и возвращает его в виде объекта Object.
+       //  Нам останется лишь привести возвращенный Object к типу Car.
+       //  Копирование простых полей как в классе Tyre.
+       //  А вот простое копирование поля Tyre приведет к копированию ссылки на объект Tyre.
+       //  Для клонирования объекта Tyre мы вызываем у него метод getClone().
+       return new Car(id, name, (Tyre)tyre.getClone());
+   }
+}
+//Проверим создание клонов
+class Main{
+   public static void main(String[] args) {
+       //  Создадим автомобиль
+       Car car = new Car(1, "Mercedes", (Tyre) new Tyre("Pirelli", 19));
+       System.out.println(car);
 
+       //  Теперь создадим копию автомобиля, вызвав метод getClone().
+       //  Т.к. метод getClone() возвращает  Object, на нужно произвести приведение к типу Car
+       Car car2 = (Car) car.getClone();
+       System.out.println(car2);
+       System.out.println("\nЗаменим резину у оригинального автомобиля");
+       //Убедимся, что мы получили независимую копию нашего автомобиля. Для этого у оригинала заменим колеса на другие.
+       car.getTyre().setName("Dunlop");
+       System.out.println(car);
+       System.out.println(car2);
+   }
+}
+```
 
+Как видим, использование паттерна Prototype позволяет создавать копии объектов, которые полностью независимы от оригиналов. При этом сами объекты отвечают за создание своих копий.
 
+В JDK имеется встроенное решение паттерна. Это встроенный интерфейс Cloneable. Объекты, которые нужно клонировать, должны имплементить интерфейс Cloneable. А в самих классах необходимо переопределить метод clone().
 
+### Одиночка (Singleton)
+Одиночка — это порождающий паттерн проектирования, который гарантирует, что у класса есть только один экземпляр, и предоставляет к нему глобальную точку доступа.
 
+Нарушая принцип единственной ответственности класса паттерн решает сразу две задачи:
 
+1. Гарантирует, что у класса будет создан только один экземпляр. Это полезно для доступа к общему ресурсу, например базе данных.
+1. Предоставляет глобальную точку доступа к единственному экземпляру.
 
+Представьте, что вы создали объект, а через некоторое время пробуете создать ещё один. В этом случае хотелось бы получить старый объект вместо создания нового.
 
+Такое поведение невозможно реализовать с помощью обычного конструктора, так как конструктор класса всегда возвращает новый объект. Можно было бы решить это, предоставив глобальную точку доступа, и использовать её как глобальную переменную, но тут проблема в том что глобальные переменные не защищены от записи, и любой код может менять там значения. Также было бы неплохо хранить в одном месте и код, который решает проблему, а также иметь к нему простой и доступный интерфейс.
 
+Суть реализации одиночки сводится к тому, чтобы скрыть конструктор по умолчанию и создать публичный статический метод, который и будет контролировать жизненный цикл объекта-одиночки. Если у вас есть доступ к классу одиночке, значит, будет доступ и к этому статическому методу. Из какой точки кода вы бы его ни вызвали, он всегда будет отдавать один и тот же объект.
 
+*Почему Singleton — антипаттерн?*
 
+Паттерн одиночка многие разработчики относят к антипаттернам.
 
+Антипаттерн — это подход к решению проблем, который является неэффективным, рискованным или непродуктивным.
 
+В Java существует несколько способов реализации паттерна Одиночка. Каждая из этих реализаций имеет свои недостатки. То есть нет единого эффективного способа реализовать Синглтон в Java, что и стало причиной отнесения данного паттерна к антипаттернам. Сейчас мы рассмотрим эти способы реализации вместе с их достоинствами и недостатками. В качестве примера паттерна Одиночки рассмотрим класс подключения к базе данных. У этого класса создадим приватный конструктор.
 
+```java
+public class DataBase {
+   private static int count = 0;
+   // Приватный конструктор не позволяет создавать новые экземпляры за пределами текущего класса.
+   //При каждом вызове конструктора переменная count будет увеличиваться на 1
+   private DataBase() {
+       count++;
+   }
+   // Сразу создаем объект, который будет единственным экземпляром класса
+   private static DataBase dataBase = new DataBase();
+   // getInstance() является глобальной точкой доступа к объекту Singleton. Вызывать одиночку мы сможем так: DataBase.getInstance().
+   public static DataBase getInstance(){
+       return dataBase;
+   }
+   //  Метод getCount() выведет информацию о количестве созданных экземпляров
+   public void getCount() {
+       System.out.println(count);
+   }
+}
 
+class DBMain{
+   public static void main(String[] args) {
+       DataBase dataBase = DataBase.getInstance();
+       dataBase.getCount();
+       DataBase dataBase2 = DataBase.getInstance();
+       dataBase2.getCount();
+   }
+}
+```
 
+## GoF-паттерны: структурные
+Структурные паттерны проектирования предназначены для построения из классов и объектов новых, более крупных структур.
 
-
+Cтруктурные паттерны:
+* Адаптер (Adapter) - обеспечивает совместную работу объектов с несовместимыми интерфейсами.
+* Мост (Bridge) - разделяет классы на две иерархии (абстракцию и реализацию) и позволяет изменять каждую из них по отдельности.
+* Компоновщик (Composite) - создает из множества объектов древовидную структуру и обеспечивает работу с этой структурой, как с единым целым. 
+* Декоратор (Decorator) - оборачивает объекты в «обертки» и добавляет им новые функции.
+* Фасад (Facade) - беспечивает простой интерфейс к сложной системе из множества классов.
+* Приспособленец (Flyweight)
+* Заместитель (Proxy) - заменяет реальные объекты специальными объектами-заменителями, которые перехватывают запросы к оригинальным объектам.
 
 
 
