@@ -3682,22 +3682,6 @@ System.out.println("List size: " + list.size()); // 6
 ```
 Несмотря на то, что мы добавляем элементы в коллекцию при итерации, мы не получаем при запуске ConcurrentModificationException. 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 <div style="page-break-after: always"></div>
 
 # Особенности Java 8 (Modul 15)
@@ -9687,20 +9671,1209 @@ Cтруктурные паттерны:
 Таким образом, в приложении биржевых котировок вы могли бы создать класс XML_To_JSON_Adapter, который бы оборачивал объект того или иного класса библиотеки аналитики. Ваш код посылал бы адаптеру запросы в формате XML, а адаптер сначала транслировал входящие данные в формат JSON, а затем передавал бы их методам обёрнутого объекта аналитики.
 
 ### Мост (Bridge)
+Мост — это структурный паттерн проектирования, который разделяет один или несколько классов на две отдельные иерархии: абстракцию и реализацию, чтобы можно было изменять их независимо друг от друга.
+
+Абстракция будет делегировать работу одному из объектов реализаций.Причем реализации будут взаимозаменяемые, но при условии, что у них будет общий интерфейс.
+
+Благодаря чему мы можем, например, изменять UI (User Interface, графический интерфейс пользователя), не трогая низкоуровневый код работы с операционной системой. Это работает и в другом направлении. Мы можем добавлять поддержку новых операционных систем, создавая подклассы реализации, без необходимости менять классы графического интерфейса.
+
+![](../img/java_35.4_new_2_bridge.png)
+
+* Abstraction — абстракция, которая содержит ссылку на реализацию и определяет общий интерфейс абстракции.
+* RefinedAbstraction — конкретизированная абстракция, расширяет интерфейс абстракции.
+* Implementor — реализатор, определяет интерфейс реализации. Как правило интерфейс Implementer предоставляет примитивные операции, а Abstraction — высокоуровневые операции.
+* ConcreteImplementor — конкретная реализация интерфейса Implementor.
+
+Давайте рассмотрим паттерн мост на примере. Представим, что мы разрабатываем системы безналичной оплаты для ресторанов фастфуд. Пусть это будут рестораны CKF и DonaldDuck. Для каждого ресторана для начала создадим два терминала оплаты: с NFC-чипом и с тач-интерфейсом.
+
+Если бы мы создавали систему оплаты без использования паттерна Мост, то нам пришлось бы для каждого класса ресторана создавать отдельный класс терминала, что соответствовало бы четырем созданным классам терминалов. А если нам понадобится увеличить количество ресторанов до 20, а количество терминалов — до 5, то придется создать уже сотню классов.
+
+Благодаря паттерну Мост такое количество классов нам не понадобится.
+
+```java
+//  Создадим абстрактный класс Fastfood, он и будет нашей абстракцией
+public abstract class Fastfood {
+   private Terminal terminal;//    Класс Fastfood содержит ссылку на интерфейс Terminal (на схеме Implementor).
+   //  сеттер для терминала, чтобы мы могли на лету изменить конкретный терминал
+   public void setTerminal(Terminal terminal) {
+       this.terminal = terminal;
+   }
+   //  Конструктор, который принимает в качестве параметра интерфейс Terminal, что позволяет нам не привязывать код к конкретному реализатору.
+   Fastfood(Terminal terminal){
+       this.terminal = terminal;
+   }
+   //  Метод saleFood(int cost) продает еду по цене cost
+   public void saleFood(int cost){
+       getInfo();
+       terminal.bill(cost);
+   }
+   abstract void getInfo();//  абстрактный метод, который выведет информацию о конкретной Абстракции
+}
+
+//  Конкретная абстракция. В конструктор в качестве параметра принимает интерфейс Terminal
+public class DonaldDuck extends Fastfood {
+   DonaldDuck(Terminal terminal) {
+       super(terminal);
+   }
+   @Override
+   void getInfo() {
+       System.out.println("Donald Duck");
+   }
+}
+
+//  Конкретная абстракция. В конструктор в качестве параметра принимает интерфейс Terminal
+public class CKF extends Fastfood {
+   CKF(Terminal terminal) {
+       super(terminal);
+   }
+   @Override
+   void getInfo() {
+       System.out.println("CKF");
+   }
+}
+
+//интерфейс терминала, на схеме интерфейс Implementor
+public interface Terminal {
+       void bill(int cost);//  Определим для примера метод, принимающий оплату
+}
+
+// конкретная имплементация интерфейса Terminal
+public class NfcTerminal implements Terminal{
+   @Override
+   public void bill(int cost) {System.out.println("NFC Terminal billing " + cost);}
+}
+
+// конкретная имплементация интерфейса Terminal
+public class TouchTerminal implements Terminal{
+   @Override
+   public void bill(int cost) {
+       System.out.println("Touch Terminal billing " + cost);
+   }
+}
+
+// Теперь попробуем, как это работает
+public class Main {
+   public static void main(String[] args) {
+       //Создаем фастфуд с терминалом
+       Fastfood ckf = new CKF(new NfcTerminal());
+       ckf.saleFood(50);
+       ckf.setTerminal(new TouchTerminal());// сменим терминал
+       ckf.saleFood(570);
+
+       Fastfood donald = new DonaldDuck(new TouchTerminal());
+       donald.saleFood(300);
+   }
+}
+```
+
+Паттерн Мост позволяет разделить класс на несколько иерархий и дальше работать с каждой по отдельности. Это позволит сократить количество ошибок и упростит кодинг.
+
+**Достоинства**
+
+* Позволяет скрыть ненужные для клиентского кода детали.
+* Упрощает создание кроссплатформенных приложений.
+
+**Недостатки**
+
+* Введение дополнительных классов усложняет код.
+
+<div style="page-break-after: always"></div>
+
+# Reflection API. Lombok. MapStruct (Modul 28)
+## Рефлексия. Что это такое?
+Рефлексия в Java позволяет получать данные о классах и интерфейсах, модифицировать атрибуты классов во время выполнения программы, когда имена классов неизвестны.
+
+Рефлексия — это мощный инструмент, который лежит в основе большинства современных фреймворков. Примерами являются:
+
+* JUnit — применяется для unit-тестирования. С помощью рефлексии получает описание тестовых методов  (будем подробно изучать позднее).
+* Spring — очень популярный фреймворк для разработки приложений на Java (будем подробно изучать позднее).
+* Hibernate — ORM для описания и маппинга сущностей на таблицы в базе данных.
+* Jackson — использует рефлексию для маппинга JSON файлов в Java объекты.
+
+Список таких фреймворков и библиотек очень большой. И все они используют рефлексию, потому что не имеют доступа к пользовательским интерфейсам, классам, методам.
+
+Неполный список того, что позволяет делать рефлексия: 
+
+* Определить название класса объекта.
+* Определить модификаторы класса, поля, методы, конструкторы и информацию о родительском классе.
+* Определить реализуемые интерфейсы.
+* Создать экземпляр класса во время выполнения программы.
+* Получить и задать значения полей.
+* Получить доступ ко всем методам объекта, в том числе и к приватным.
+* Вызвать метод объекта.
+
+![](../img/java_m31_pic1.png)
+
+Несмотря на все достоинства рефлексии, у неё есть ряд весьма существенных недостатков:
+
+* Ухудшение производительности. Код, использующий рефлексию, работает медленнее, поскольку для динамического определения типов сканируется classpath, чтобы найти нужный класс для загрузки, в результате чего снижается производительность программы.
+* Нарушение безопасности. Рефлексия позволяет получать доступ к внутренним элементам объекта, даже к приватным полям и методам, чего быть не должно. Поэтому использование рефлексии может привести к возникновению ошибок в программе.
+* Сложность в поддержке. Использование рефлексии делает код трудным в чтении и отладке.
+
+### Как начать пользоваться Java Reflection API?
+Чтобы использовать Java reflection не нужно подключать никакие сторонние библиотеки, все расположено в пакете java.lang.reflect.
+
+Основные классы пакета java.lang.reflect, с помощью которых можно получить информацию о классе, — Field, Method, Constructor, Modifier. Рассмотрим каждый из классов.
+
+**Field**
+
+Класс Field предоставляет доступ к полям класса или интерфейса. Некоторые методы класса:
+
+|||
+|---|---|
+|get(Object obj)<br>getBoolean(Object obj)<br>getByte(Object obj)<br>getInt(Object obj)|Возвращает значение поля для указанного объекта. Также представлены методы, которые сразу приводят значение к соответствующему типу.|
+|set(Object obj, Object value)|Задаёт значение поля для указанного объекта.|
+|getAnnotation(Class<T> annotationClass)|аннотацию указанного в аргументе класса. Если поле не аннотировано такой аннотацией, вернется null.|
+|getModifiers()|Возвращает модификаторы для поля.|
+
+**Method**
+Класс Method предоставляет доступ к методам класса. Некоторые методы класса Method:
+
+|||
+|---|---|
+|getAnnotation(Class<T> annotationClass)|Возвращает аннотацию указанного класса. Если поле не аннотировано такой аннотацией, вернется null.|
+|getModifiers()|Возвращает модификаторы метода.|
+|getReturnType()|Отдает возвращаемый методом тип.|
+|invoke(Object obj, Object... args)|Позволяет вызвать метод для указанного объекта obj, с переданными аргументами.|
+|getParameterCount()|Возвращает количество параметров метода.|
+
+**Constructor**
+
+Класс Constructor предоставляет информацию и доступ к конструкторам класса. 
+Класс Constructor имеет следующие методы:
+
+|||
+|-|-|
+|getAnnotation(Class<T> annotationClass)|Возвращает аннотацию указанного в аргументе класса. Если поле не аннотировано такой аннотацией, вернется null.|
+|getModifiers()|Возвращает модификаторы конструктора.|
+|getExceptionTypes()|Возвращает классы исключений, которые указаны в сигнатуре конструктора.|
+|getParameterTypes()|Возвращает классы параметров конструктора в том порядке, в котором они объявлены в сигнатуре конструктора.|
+|newInstance(Object… initargs)|Позволяет создавать экземпляр класса, используя данный конструктор с переданными параметрами.|
+
+**Modifier**
+
+Класс Modifier предоставляет информацию о модификаторах класса, метода, конструктора. Методы класса:
+|||
+|-|-|
+|isAbstract(int mod)|Возвращает true, если переданное числовое представление модификатора содержит модификатор abstract, иначе — false.|
+|isFinal(int mod)|Возвращает true, если переданное числовое представление модификатора содержит модификатор final, иначе false.|
+|isInterface(int mod)|Возвращает true, если переданное числовое представление модификатора содержит модификатор interface, иначе — false|
+|isPrivate(int mod)|Возвращает true, если переданное числовое представление модификатора содержит модификатор private, иначе — false|
+|isProtected(int mod)|Возвращает true, если переданное числовое представление модификатора содержит модификатор protected, иначе — false|
+|isPublic(int mod)|Возвращает true, если переданное числовое представление модификатора содержит модификатор public, иначе — false|
+|isStatic(int mod)|Возвращает true, если переданное числовое представление модификатора содержит модификатор static, иначе — false|
+
+**java.lang.Class**
+
+Для получения информации о классе объекта с помощью рефлексии используется также класс, который находится не в пакете java.lang.reflect — класс java.lang.Class. Позже мы рассмотрим библиотеки MapStruct и Lombok, работа которых основывается на получении этой информации. Объекты этого класса представляют собой классы и интерфейсы в выполняемой программе. Объекты класса Class JVM создаёт автоматически. Для каждого типа объекта, JVM создает свой экземпляр класса java.lang.Class. Он предоставляет методы для получения свойств объекта, создания новых объектов, вызова методов, и является [неизменяемым](https://docs.oracle.com/javase/8/docs/api/java/lang/Class.html). 
+
+Данный класс содержит большое количество методов, которые предоставляют метаданные о каком-либо классе. Некоторые методы класса Class представлены в таблице. Полный список можно найти в спецификации.
+
+|||
+|-|-|
+|forName(String className)|	Возвращает объект класса Class для класса или интерфейса, имя которого передано в качестве аргумента.|
+|getAnnotations()|	Возвращает все аннотации, которыми аннотирован класс.|
+|getCanonicalName()|	Возвращает имя класса с указанием пакета, в котором хранится класс.|
+|getClassLoader()|	Возвращает загрузчик классов для конкретного класса.|
+|getConstructor(Class<?>... parameterTypes)|	Возвращает конструктор класса с указанными параметрами.|
+|getConstructors()|	Возвращает все публичные конструкторы класса.|
+|getField(String name)|	Возвращает объект класса Field для указанного названия поля.|
+|getFields()|	Возвращает массив объектов класса Field, содержащих информацию о всех публичных полях класса.|
+|getDeclaredFields()|	Возвращает массив объектов класса Field, содержащих информацию о всех полях класса, включая protected и private.|
+|getInterfaces()|	Возвращает все интерфейсы, которые имплементирует класс или интерфейс.|
+|getMethod(String name, Class<?>... parameterTypes)|	Возвращает объект класса Method, содержащий информацию о методе с именем name и параметрами |parameterTypes.
+|getMethods()|	Возвращает все публичные методы класса или интерфейса, включая методы родительского класса.|
+|getDeclaredMethods()|	Возвращает все методы класса или интерфейса, включая public, protected и private.|
+|getModifiers()|	Возвращает код модификаторов для класса или интерфейса.|
+|getName()|	Возвращает имя класса.|
+|getSimpleName()|	Возвращает простое имя класса, как он называется в исходном коде.|
+|getPackage()|	Возвращает полное название пакета, где лежит класс.|
+|getSuperclass()|	Возвращает родительский класс.|
+|isAnnotation()|	Возвращает true, если класс является аннотацией.|
+|isAnonymousClass()|	Возвращает true, если класс является анонимным.|
+|isArray()|	Определяет является ли класс классом Array.|
+|isEnum()|	Возвращает true, если класс был объявлен как enum.|
+|isInstance(Object obj)|	Проверяет является ли объект obj экземпляром класса или его наследников.|
+|isInterface()|	Проверяет является ли объект класса Class интерфейсом. |
+|isPrimitive()|	Проверяет является ли объект примитивного типа.|
+|newInstance()|	Создает новый экземпляр класса.|
+
+Все типы в Java, даже примитивные типы и массивы, имеют связанный с ними объект класса java.lang.Class. 
+
+Объект класса java.lang.Class можно получить тремя способами:
+
+1. С помощью вызова .class у класса.
+1. С помощью метода Class.forName().
+1. С помощью метода getClass().
+
+**Вызов .class у класса**
+
+Если название класса известно во время компиляции, то объект можно получить следующим образом: 
+
+```java
+Class clazz = SomeObject.class
+```
+Здесь стоит обратить внимание на то, что .class вызывается у класса, а не у объекта класса. Другими словами, вариант кода ниже работать не будет.
+
+```java
+SomeClass obj = new SomeClass();
+Class clazz = obj.class;
+```
+
+**Метод Class.forName()**
+
+Второй способ получения объекта класса Class — вызов статического метода forName() у класса Class с указанием имени класса. 
+```java
+Class clazz = Class.forName("anyClassName")
+```
+В методе Class.forName() нужно указывать полное имя класса, включая полное имя пакета. Например, для класса ClassExample, находящегося в пакете com.example.app, нужно указать:
+```java
+Class clazz = Class.forName("com.example.app.ClassExample")
+```
+Если во время выполнения класс не будет найден в classpath, то метод Class.forName() бросит исключение ClassNotFoundException.
+
+**Метод getClass()**
+Третий способ получить объект класса Class — вызвать метод getClass(). Метод getClass() вызывается у объекта класса. Например:
+
+```java
+SomeClass obj = new SomeClass();
+Class clazz = obj.getClass();
+```
+
+## Использование Java Reflection API
+Java Reflection API достаточно мощный инструмент. С помощью него можно:
+
+* Узнать имя класса.
+* Узнать модификаторы класса.
+* Получить информацию о пакете.
+* Получить информацию о родительском классе.
+* Получить информацию об интерфейсах.
+* Получить конструкторы, методы и поля.
+* Задать значение полям.
+* Вызвать метод класса.
+* Создать новый объект.
+
+Давайте подробнее рассмотрим, какую информацию можно узнать при помощи reflection.
+
+**Имена классов**
+
+Для объекта можно узнать имя его класса. Это может помочь при логировании ошибок, когда мы хотим записать в каком классе произошла ошибка. Рассмотрим пример. Создадим строку и выведем на экран результаты вызова методов getSimpleName() и getName(). 
+
+```java
+public static void main(String[] args) {
+   Object str = "example";
+   Class<?> clazz = str.getClass();
+
+   System.out.println(clazz.getSimpleName());
+   System.out.println(clazz.getName());
+}
+```
+
+Результат:
+```cmd
+String
+java.lang.String
+```
+
+**Модификаторы класса**
+
+Вызвав метод getModifiers(), можно узнать модификаторы класса.
+Метод getModifiers() возвращает значение типа Integer, которое хранит в себе информацию о присутствии или отсутствии конкретного модификатора. Класс java.lang.reflect.Modifier предоставляет методы, позволяющие расшифровать это значение. 
+
+Рассмотрим модификаторы классов HashMap, AbstractMap и Map с помощью рефлексии:
+
+* Получим объекты класса Class для каждого класса, используя метод Class.forName().
+* Получим модификаторы каждого класса, вызвав метод getModifiers().
+* Проверим, является ли класс HashMap публичным и абстрактным, используя методы Modifier.isPublic() и Modifier.isAbstract() соответственно.
+* Также проверим, является ли AbstractMap абстрактным классом, а Map  — интерфейсом. 
+
+```java
+public static void main(String[] args) throws ClassNotFoundException {
+  // Получаем класс для java.util.HashMap
+   Class hashMap = Class.forName("java.util.HashMap");
+
+  // Получаем класс для java.util.AbstractMap
+   Class abstractMap = Class.forName("java.util.AbstractMap");
+
+  // Получаем класс для java.util.Map
+   Class map = Class.forName("java.util.Map");
 
 
+  //Получаем модификаторы для HashMap
+   int hashMapModifiers = hashMap.getModifiers();
+
+  //Получаем модификаторы для AbstractMap
+   int abstractMapModifiers = abstractMap.getModifiers();
+
+  //Получаем модификаторы для Map
+   int mapModifiers = map.getModifiers();
 
 
+  //Выводим, имеет ли HashMap public модификатор
+   System.out.println("HashMap class is public :" + Modifier.isPublic(hashMapModifiers));
 
+  //Выводим, имеет ли AbstractMap abstract модификатор
+   System.out.println("AbstractMap class is abstract :" + Modifier.isAbstract(abstractMapModifiers));
 
+  //Выводим, имеет ли Map interface модификатор
+   System.out.println("Map is interface :" + Modifier.isInterface(mapModifiers));
 
+  //Выводим, имеет ли HashMap abstract модификатор
+   System.out.println("HashMap class is abstract :" + Modifier.isAbstract(hashMapModifiers));
+}
+```
 
+```cmd
+HashMap class is public :true
+AbstractMap class is abstract :true
+Map is interface :true
+HashMap class is abstract :false
+```
+Видим, что HashMap является публичным классом и не является абстрактным, AbstractMap — абстрактный класс, Map — это интерфейс. Все соответствует действительности.
 
+**Информация о пакете**
 
+С помощью рефлексии мы также можем получить информацию о пакете, в котором хранится класс объекта. Эта информация находится в классе Package. Данный класс можно получить, вызвав метод getPackage() у объекта класса. Создадим произвольный объект. Получим у него класс с помощью метода getClass(). И у класса вызовем метод getPackage(). Выведем на экран имя, полученного пакета.
 
+```java
+public static void main(String[] args) throws ClassNotFoundException {
+   Object obj = 5;
+   Class clazz = obj.getClass();
+   Package classPackage = clazz.getPackage();
 
+   System.out.println(classPackage.getName());
+}
 
+// java.lang
+```
 
+**Информация о родительском классе**
 
+Чтобы получить информацию о родительском классе достаточно вызвать метод getSuperclass(). Например, получим имя родительского класса строки:
+
+```java
+public static void main(String[] args) {
+   String str = "example";
+   Class superClass = str.getClass().getSuperclass();
+
+   System.out.println(superClass.getSimpleName());
+}
+```
+
+**Информация об интерфейсах**
+
+Аналогичным образом можно получить информацию об интерфейсах класса. Здесь стоит обратить внимание на то, что метод getInterfaces() вернёт только интерфейсы класса объекта, при этом в них не будет интерфейсов родительского класса, не смотря на то, что класс их тоже имплементирует.
+
+Выведем на экран все интерфейсы класса HashMap. Для этого создадим объект класса HashMap, получим у него класс с помощью метода getClass(), а у класса вызовем метод getInterfaces(). Метод getInterfaces() вернет массив класса Class. С помощью Stream API, которое вы изучали в 16 модуле, выведем все интерфейсы на экран.
+
+```java
+public static void main(String[] args) {
+   Object map = new HashMap<>();
+   Class[] interfaces = map.getClass().getInterfaces();
+
+   Arrays.stream(interfaces).forEach(System.out::println);
+}
+
+// interface java.util.Map
+// interface java.lang.Cloneable
+// interface java.io.Serializable
+```
+
+**Конструкторы, методы и поля**
+
+Давайте продолжим изучать HashMap с помощью reflection.
+
+Рассмотрим какие есть конструкторы у класса HashMap. Создадим объект класса HashMap, получим у него класс и вызовем метод getConstructors().
+
+```java
+public static void main(String[] args) {
+   Object map = new HashMap<>();
+   Constructor [] constructors = map.getClass().getConstructors();
+
+   Arrays.stream(constructors).forEach(System.out::println);
+}
+
+//public java.util.HashMap(int)
+//public java.util.HashMap()
+//public java.util.HashMap(java.util.Map)
+//public java.util.HashMap(int,float)
+```
+Все поля класса можем получить с помощью метода getDeclaredFields():
+```java
+public static void main(String[] args) {
+   Object map = new HashMap<>();
+   Field[] fields = map.getClass().getDeclaredFields();
+
+   Arrays.stream(fields).forEach(System.out::println);
+}
+```
+А получить описание всех методов класса можно с помощью метода getDeclaredMethods():
+```java
+public static void main(String[] args) {
+   Object map = new HashMap<>();
+   Method[] methods = map.getClass().getDeclaredMethods();
+
+   Arrays.stream(methods).forEach(System.out::println);
+}
+```
+Как мы уже знаем с помощью Java reflection можно не только получить информацию об объекте, но и создать новый объект. Делается это с помощью класса java.lang.reflect.Constructor. Чтобы создать новый объект класса, нужно получить конструктор класса и вызвать у него метод newInstance(). Также добавим все выбрасываемые исключения, используемыми методами (Class.forName(), getConstructor(), newInstance()) в сигнатуру метода.
+```java
+public static void main(String[] args) throws ClassNotFoundException,      
+                       NoSuchMethodException, IllegalAccessException,     
+                       InvocationTargetException, InstantiationException {
+   Class<?> mapClass= Class.forName("java.util.HashMap");
+   Constructor<?> constructor = mapClass.getConstructor();
+
+   HashMap map = (HashMap) constructor.newInstance();
+
+   System.out.println(map.getClass().getSimpleName());
+   System.out.println(map.isEmpty());
+}
+```
+Также во время выполнения программы можно получать и задавать значения полям. 
+```java
+public static void main(String[] args) throws NoSuchMethodException,        
+                         IllegalAccessException, InvocationTargetException,       
+                         InstantiationException, NoSuchFieldException {
+   HashMap map = new HashMap(); //Создадим объект класса HashMap
+
+   Class<?> clazz = map.getClass(); //Получим у него класс
+
+   //Создадим новый объект класса HashMap
+   HashMap instance = (HashMap) clazz.getConstructor().newInstance();
+   
+   //Получим у созданного объекта поле size   
+   Field field = instance.getClass().getDeclaredField("size");
+   
+   //Установим доступность поля
+   field.setAccessible(true);
+
+   //Установим полю size значение 10
+   field.setInt(instance, 10);
+
+   System.out.println("Map is empty: " + instance.isEmpty());
+   System.out.println("Map size:" + instance.size());
+   System.out.println("Values: " + instance.toString());
+}
+```
+В данном примере мы получили класс объекта map, создали новый объект класса HashMap с помощью getConstructor(), newInstance(), как в предыдущем примере. Получили поле size с помощью метода getDeclaredField("size"), где в качестве аргумента передается имя поля. Предоставили доступ к этому полю, вызвав setAccessible(true). Данный метод класс Field наследует от класса AccessibleObject. Далее установили значение size равное 10. Вывели на экран является ли мапа пустой, размер и все значения в мапе.
+
+Мы видим, что фактически мапа пустая, в ней нет ни одного значения, но метод isEmpty() возвращает false, и size() возвращает 10, то значение, которое мы и задали. То есть структура предоставляет явно ложную информацию.
+
+Рассмотрим также, как вызвать методы с помощью Java reflection.
+
+Вызовем метод put() у объекта класса HashMap. Получим метод put() с помощью метода getDeclaredMethod("put", Object.class, Object.class), где первый параметр — имя метода, который мы хотим получить, а последующие — типы аргументов получаемого метода. Вызвать метод можно с помощью метода invoke(), передав в него объект, у которого вызывается и метод, и аргументы.
+
+```java
+public static void main(String[] args) throws NoSuchMethodException,
+IllegalAccessException,
+InvocationTargetException,
+InstantiationException 
+{
+  HashMap map = new HashMap(); //Создаем объект класса HashMap
+
+  //Получаем объект класса Class у созданного объекта
+  Class clazz = map.getClass();
+
+  //У класса объекта получим метод put
+  Method putMethod = clazz.getDeclaredMethod("put", Object.class, Object.class);
+  //Вызовем метод put. В качестве ключа укажем значение “key” и в качестве     
+  //значения - “value”
+  putMethod.invoke(map, "key", "value");
+
+  System.out.println("Values: " + map.toString());
+}
+```
+Видим, что в мапу записалась пара с ключом key и значением value.
+
+В этом юните мы уже детальнее познакомились с рефлексией. Рассмотрели ее некоторые функциональные возможности, научились получать различную информацию о классе, его методах и полях, и даже вызывать метод класса и создавать новый объект с помощью reflection API.
+
+## Аннотации
+Аннотации в Java представляют собой своего рода метаданные, которые могут быть добавлены в исходный код.
+
+С помощью аннотаций можно:
+
+* предоставлять информацию компилятору для выявления ошибок;
+* генерировать новый код и файлы конфигурации на основе исходного аннотированного кода;
+* документировать код;
+* создавать инструкции во время выполнения кода.
+
+Они используются в процессе анализа кода, компиляции или выполнения. Вы будете часто встречать и использовать аннотации при последующей разработке, т. к. они широко используются различными фреймворками, например, Spring и Hibernate.
+
+Аннотация начинается с символа @.
+
+Мы уже встречались с аннотацией @Override, обозначающей, что метод переопределяет метод родительского класса. Даже, если убрать эту аннотацию из кода, код все равно будет работать. Но если аннотация присутствует, и сигнатура метода не соответствует сигнатуре метода в родительском классе, то компилятор выдаст ошибку. Т. е. данная аннотация позволяет избежать ошибок при переопределении методов родительского класса.
+
+Исходный код аннотации @Override выглядит следующим образом:
+
+```java
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.SOURCE)
+public @interface Override {
+}
+```
+Как видно в примере выше, новая аннотация определяется с помощью ключевого слова @interface. Также она может включать в себя несколько полей, которым можно задать значение. Они могут быть как обязательными, так и не обязательными.
+
+Пример аннотации @SupressWarnings с полем value:
+
+Как мы видим, над аннотацией можно также указать аннотации. Это могут быть: *@Retention, @Documented, @Target, @Inherited*.
+
+|||
+|-|-|
+|@Retention|Указывает будет ли аннотация присутствовать только в исходном коде, в скомпилированном файле, или будет также видна и в процессе выполнения.|
+|@Documented|Указывает, что аннотация должна быть добавлена в javadoc поля/метода и т. д.|
+|@Target|Определяет, какие элементы будут помечаться этой аннотацией: поле, метод, класс и т. д.|
+|@Inherited|Указывает, что аннотация будет унаследована потомком класса, отмеченного такой аннотацией.|
+
+В качестве значения к аннотации *@Retention* можно указать следующие значения:
+
+|||
+|-|-|
+|RetentionPolicy.SOURCE|Аннотация используется на этапе компиляции.|
+|RetentionPolicy.CLASS|Аннотация будет присутствовать в скомпилированном файле, но будет не доступна во время выполнения.|
+|RetentionPolicy.RUNTIME|Аннотация будет присутствовать в скомпилированном файле и будет доступна во время выполнения через reflection api.|
+
+Аннотация *@Target* принимает значения из таблицы:
+
+|||
+|-|-|
+|@Target(ElementType.PACKAGE)|Аннотацией могут быть отмечены только пакеты.|
+|@Target(ElementType.TYPE)|Аннотацией могут быть отмечены только классы.|
+|@Target(ElementType.CONSTRUCTOR)|Аннотацией могут быть отмечены только конструкторы классов.|
+|@Target(ElementType.METHOD)|Аннотацией могут быть отмечены только методы классов.|
+|@Target(ElementType.FIELD)|Аннотацией могут быть отмечены только поля классов.|
+|@Target(ElementType.PARAMATER)|Аннотацией могут быть отмечены только параметры метода.|
+|@Target(ElementType.LOCAL_VARIABLE)|Аннотацией могут быть отмечены только локальные переменные.|^
+
+В аннотации *@SuppressWarnings*, исходный код которой представлен выше, мы видим, что можно использовать более одного значения для *@Target*.
+
+```java
+@Target({TYPE, FIELD, METHOD, PARAMETER, CONSTRUCTOR, LOCAL_VARIABLE})
+```
+В данном случае аннотацию можно использовать для всех элементов кроме пакета.
+
+## Annotation processing
+Как мы уже видели, аннотации сами по себе ничего не делают. Чтобы получить результат, для которого создавалась аннотация, для аннотации нужно создать обработчик. В этом юните мы рассмотрим, как создавать обработчик для создания дополнительных исходных файлов во время компиляции. Это могут быть не только Java-файлы, но и файлы ресурсов, документации и конфигурации.
+
+### Как происходит обработка аннотаций?
+Аннотации обрабатываются в несколько раундов. Сначала компилятор ищет аннотации в исходных классах, подбирает и вызывает процессоры (рассмотрим их ниже), предназначенные для обработки конкретных аннотаций. После этого начинается следующий раунд, в котором обрабатываются созданные файлы. Обработка выполняется так же, как и в первом раунде. Этот процесс продолжается до тех пор, пока после обработки не будет создано никаких файлов. Данный процесс хорошо иллюстрирует следующая картинка:
+
+![](../img/JAVA_31.4_1.png)
+
+API обработки аннотаций находится в пакете javax.annotation.processing. Для того, чтобы создать свой обработчик аннотаций (или процессор аннотаций), достаточно реализовать интерфейс Processor. Но лучше наследоваться от класса AbstractProcessor, который уже реализует интерфейс Processor и имеет ряд дополнительных полезных методов.
+
+***Annotation processor*** используется для:
+1. Генерации исходного кода или файлов ресурсов.
+1. Изменении существующего кода.
+1. Анализа исходного кода.
+
+**Основная задача** *Annotation processing* — это уменьшение количества кода, которое необходимо писать руками. А также annotation processing широко используется в современных IDE для статического анализа кода.
+
+Давайте рассмотрим, как создавать свой собственный annotation processor (обработчик аннотации).
+
+Создадим обработчик аннотации, который будет генерировать класс Builder для аннотированного класса.
+#Builder — это паттерн проектирования, который позволяет легко создавать разные объекты одного класса.
+
+Создадим класс Author, который содержит информацию об авторе (имя, фамилия, биография).
+
+```java
+public class Author {
+
+   private String firstName;
+
+   private String lastName;
+
+   private String biography;
+
+   public void setFirstName(String firstName) {
+       this.firstName = firstName;
+   }
+
+   public void setLastName(String lastName) {
+       this.lastName = lastName;
+   }
+
+   public void setBiography(String biography) {
+       this.biography = biography;
+   }
+}
+```
+
+Создадим аннотацию @BuilderField. Аннотацию и ее обработчик создадим в отдельном проекте.
+```java
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.SOURCE)
+public @interface BuilderField {
+}
+```
+
+Создадим класс обработчика, унаследовав его от AbstractProcessor и переопределив метод process(). В логике не присутствуют проверки на валидность класса и сеттеров для упрощения кода.
+
+## MapStruct
+MapStruct — обработчик аннотаций для генерации кода маппинга между Java Bean (обычный Java-класс с конструктором без аргументов и доступом к полям через Getter и Setter) классами.
+
+В приложениях с многоуровневой архитектурой зачастую требуется маппинг различных объектов. Самый распространенный случай — это конвертация entity (сущность) в DTO (Data Transfer Object). Дело в том, что слой доступа к базам данных должен быть отделён от слоя интерфейса, поэтому объект, который хранит информацию, полученную из базы, не должен быть тем же объектом, который возвращается клиенту, даже если все данные в этих объектах совпадают. MapStruct автоматически создаёт классы для конвертации объектов, что экономит время и защищает от ошибок, которые можно внести при создании классов руками. MapStruct генерирует классы во время компиляции.
+
+Чтобы начать использовать MapStruct, нужно добавить зависимость в pom.xml:
+
+```xml
+<dependency>
+    <groupId>org.mapstruct</groupId>
+    <artifactId>mapstruct</artifactId>
+    <version>{mapstruct.version}</version> 
+</dependency>
+```
+
+Последнюю версию MapStruct можно найти в центральном Maven репозитории. Для того, чтобы MapStruct генерировал классы имплементации, необходимо добавить MapStruct annotation processor в конфигурацию maven-compiler-plugin плагина в pom.xml.
+
+```xml
+<build>
+   <plugins>
+       <plugin>
+           <groupId>org.apache.maven.plugins</groupId>
+           <artifactId>maven-compiler-plugin</artifactId>
+           <version>{maven.plugin.version}</version>
+           <configuration>
+               <source>1.8</source>
+               <target>1.8</target>
+               <annotationProcessorPaths>
+                   <path>
+                       <groupId>org.mapstruct</groupId>
+                       <artifactId>mapstruct-processor</artifactId>
+                       <version>{mapstruct.version}</version>
+                   </path>
+               </annotationProcessorPaths>
+           </configuration>
+       </plugin>
+   </plugins>
+</build>
+```
+
+Давайте посмотрим, как работает MapStruct. Предположим, что у нас в приложении есть сущность Author, а возвращать клиенту мы хотим объект AuthorDto, который содержит ту же информацию, что и класс Author. Для начала создадим сущность Author, которая содержит имя, фамилию и биографию автора.
+
+```java
+public class Author {
+
+   private String firstName;
+
+   private String lastName;
+
+   private String biography;
+
+   public String getFirstName() {
+       return firstName;
+   }
+
+   public void setFirstName(String firstName) {
+       this.firstName = firstName;
+   }
+
+   public String getLastName() {
+       return lastName;
+   }
+
+   public void setLastName(String lastName) {
+       this.lastName = lastName;
+   }
+
+   public String getBiography() {
+       return biography;
+   }
+
+   public void setBiography(String biography) {
+       this.biography = biography;
+   }
+}
+```
+Создадим класс DTO, содержащий все те же поля, что и Author:
+```java
+public class AuthorDto {
+
+   private String firstName;
+
+   private String lastName;
+
+   private String biography;
+
+   public String getFirstName() {
+       return firstName;
+   }
+
+   public void setFirstName(String firstName) {
+       this.firstName = firstName;
+   }
+
+   public String getLastName() {
+       return lastName;
+   }
+
+   public void setLastName(String lastName) {
+       this.lastName = lastName;
+   }
+
+   public String getBiography() {
+       return biography;
+   }
+
+   public void setBiography(String biography) {
+       this.biography = biography;
+   }
+  
+}
+```
+
+Далее необходимо создать интерфейс AuthorMapper с двумя методами: один для конвертации сущности в DTO, второй — из DTO в сущность. Добавим аннотацию @Mapper для того, чтобы MapStruct создал имплементацию по данному интерфейсу.
+
+```java
+@Mapper
+public interface AuthorMapper {
+
+   AuthorDto entityToDto(Author entity);
+
+   Author dtoToEntity(AuthorDto dto);
+
+}
+```
+Скомпилируйте программу. Имплементацию интерфейса MapStruct создаст автоматически. При компиляции мы получим в папке /target/generated-sources/annotations следующий класс:
+```java
+public class AuthorMapperImpl implements AuthorMapper {
+   @Override
+   public AuthorDto entityToDto(Author entity) {
+       if ( entity == null ) {
+           return null;
+       }
+
+       AuthorDto authorDto = new AuthorDto();
+
+       authorDto.setFirstName( entity.getFirstName() );
+       authorDto.setLastName( entity.getLastName() );
+       authorDto.setBiography( entity.getBiography() );
+
+       return authorDto;
+   }
+
+   @Override
+   public Author dtoToEntity(AuthorDto dto) {
+       if ( dto == null ) {
+           return null;
+       }
+
+       Author author = new Author();
+
+       author.setFirstName( dto.getFirstName() );
+       author.setLastName( dto.getLastName() );
+       author.setBiography( dto.getBiography() );
+
+       return author;
+   }
+}
+```
+В данном примере названия полей одинаковы, но такое бывает не всегда. Если же названия не совпадают, нужно создать маппинг, указав, какие поля соответствуют друг другу. Например, переименуем поля в классе Author.
+
+```java
+public class Author {
+
+   private String authorFirstName;
+
+   private String authorLastName;
+
+   private String authorBiography;
+
+   public String getAuthorFirstName() {
+       return authorFirstName;
+   }
+
+   public void setAuthorFirstName(String authorFirstName) {
+       this.authorFirstName = authorFirstName;
+   }
+
+   public String getAuthorLastName() {
+       return authorLastName;
+   }
+
+   public void setAuthorLastName(String authorLastName) {
+       this.authorLastName = authorLastName;
+   }
+
+   public String getAuthorBiography() {
+       return authorBiography;
+   }
+
+   public void setAuthorBiography(String authorBiography) {
+       this.authorBiography = authorBiography;
+   }
+
+}
+```
+Для этого добавим аннотации @Mapping и укажем, как сопоставлять поля. Создадим интерфейс AuthorMapper, в котором создадим два метода: entityToDto() для конвертации сущности в DTO и dtoToEntity() для конвертации DTO в сущность. В аннотации @Mapping в свойстве target указываем имя поля, в которое хотим записать значение, в source указываем имя поля, из которого брать значение.
+
+```java
+@Mapper
+public interface AuthorMapper {
+
+   @Mappings({
+           @Mapping(target="firstName", source="entity.authorFirstName"),
+           @Mapping(target="lastName", source="entity.authorLastName"),
+           @Mapping(target="biography", source="entity.authorBiography")
+   })
+   AuthorDto entityToDto(Author entity);
+
+   @Mappings({
+           @Mapping(target="authorFirstName", source="dto.firstName"),
+           @Mapping(target="authorLastName", source="dto.lastName"),
+           @Mapping(target="authorBiography", source="dto.biography")
+   })
+   Author dtoToEntity(AuthorDto dto);
+
+}
+```
+
+Создадим DTO, вызовем метод маппера и выведем на экран получившуюся сущность.
+```java
+public static void main(String[] args) {
+   AuthorMapper mapper = new AuthorMapperImpl();
+
+   AuthorDto dto = new AuthorDto();
+   dto.setFirstName("Stephen");
+   dto.setLastName("King");
+   dto.setBiography("An American author of horror");
+
+   Author entity = mapper.dtoToEntity(dto);
+
+   System.out.println(entity.toString());
+}
+```
+
+## Lombok
+Lombok — проект по добавлению дополнительной функциональности в Java c помощью изменения исходного кода перед Java-компиляцией, который позволяет уменьшить количество boilerplate-кода («шаблонного кода», иначе — единообразного кода, который встречается в разных классах, например, Getter и Setter). Lombok также использует обработку аннотаций в своей работе.
+
+Чтобы начать использовать Lombok, нужно добавить зависимость в pom.xml:
+
+```xml
+<dependency>
+    <groupId>org.projectlombok</groupId>
+    <artifactId>lombok</artifactId>
+    <version>{lombok.version}</version>
+    <scope>provided</scope>
+</dependency>
+```
+
+Принцип инкапсуляции требует, чтобы доступ к полям класса был организован через Getter и Setter. При добавлении нового поля необходимо создать для него Getter и Setter, при изменении старого поля — изменить его Getter и Setter. Lombok позволяет избежать этой рутинной работы.
+
+Рассмотрим пример. Создадим уже знакомый нам класс Author с полями firstName, lastName, biography. Вместо создания Getter и Setter добавим аннотации @Getter, @Setter из Lombok.
+```java
+@Getter
+@Setter
+public class Author {
+   private String firstName;
+   private String lastName;
+   private String biography;
+}
+```
+После компиляции в папке target/classes Author.class будет выглядеть следующим образом:
+```java
+public class Author {
+   private String firstName;
+   private String lastName;
+   private String biography;
+
+   public Author() {
+   }
+
+   public String getFirstName() {
+       return this.firstName;
+   }
+
+   public String getLastName() {
+       return this.lastName;
+   }
+
+   public String getBiography() {
+       return this.biography;
+   }
+
+   public void setFirstName(String firstName) {
+       this.firstName = firstName;
+   }
+
+   public void setLastName(String lastName) {
+       this.lastName = lastName;
+   }
+
+   public void setBiography(String biography) {
+       this.biography = biography;
+   }
+}
+```
+
+Рассмотрим, какие возможности нам ещё предлагает Lombok. Можно указать Getter/Setter только для конкретного поля и даже изменить модификатор доступа.
+
+```java
+public class Author {
+
+   @Setter(AccessLevel.PROTECTED)
+   private String firstName;
+   private String lastName;
+   private String biography;
+}
+```
+Можем создать конструктор без аргументов с помощью аннотации @NoArgsConstructor и также указать модификатор доступа.
+
+```java
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class Author {
+   private String firstName;
+   private String lastName;
+   private String biography;
+}
+```
+Чтобы создать конструктор со всеми полями в качестве аргументов, нужно пометить класс аннотацией @AllArgsConstructor.
+
+```java
+@AllArgsConstructor
+public class Author {
+   private String firstName;
+   private String lastName;
+   private String biography;
+}
+```
+Результат получится следующим:
+```java
+public class Author {
+   private String firstName;
+   private String lastName;
+   private String biography;
+
+   public Author(String firstName, String lastName, String biography) {
+       this.firstName = firstName;
+       this.lastName = lastName;
+       this.biography = biography;
+   }
+}
+```
+В случае, если необходимо иметь не все поля в конструкторе, можно использовать аннотацию @RequiredArgsConstructor. Поля, которые нужно включить в конструкторы, должны иметь модификатор final или аннотацию @NonNull.
+
+```java
+@RequiredArgsConstructor
+public class Author {
+
+   @NonNull
+   private String firstName;
+   private final String lastName;
+   private String biography;
+}
+```
+
+После компиляции класс будет выглядеть:
+
+```java
+public class Author {
+   @NonNull
+   private String firstName;
+   private final String lastName;
+   private String biography;
+
+   public Author(@NonNull String firstName, String lastName) {
+       if (firstName == null) {
+           throw new NullPointerException("firstName is marked non-null but is null");
+       } else {
+           this.firstName = firstName;
+           this.lastName = lastName;
+       }
+   }
+}
+```
+С помощью Lombok можем также создать Builder для класса, то есть использовать паттерн проектирования Строитель, но более просто, чем мы делали это раньш
+
+```java
+@Builder
+public class Author {
+   private String firstName;
+   private String lastName;
+   private String biography;
+}
+```
+Класс Builder будет создан как внутренний класс класса Author (в той же папке target/classes).
+```java
+public class Author {
+   private String firstName;
+   private String lastName;
+   private String biography;
+
+   Author(String firstName, String lastName, String biography) {
+       this.firstName = firstName;
+       this.lastName = lastName;
+       this.biography = biography;
+   }
+
+   public static Author.AuthorBuilder builder() {
+       return new Author.AuthorBuilder();
+   }
+
+   public static class AuthorBuilder {
+       private String firstName;
+       private String lastName;
+       private String biography;
+
+       AuthorBuilder() {
+       }
+
+       public Author.AuthorBuilder firstName(String firstName) {
+           this.firstName = firstName;
+           return this;
+       }
+
+       public Author.AuthorBuilder lastName(String lastName) {
+           this.lastName = lastName;
+           return this;
+       }
+
+       public Author.AuthorBuilder biography(String biography) {
+           this.biography = biography;
+           return this;
+       }
+
+       public Author build() {
+           return new Author(this.firstName, this.lastName, this.biography);
+       }
+
+       public String toString() {
+           return "Author.AuthorBuilder(firstName=" + this.firstName + ", lastName=" + this.lastName + ", biography=" + this.biography + ")";
+       }
+   }
+}
+```
+Далее использовать Builder можно следующим образом:
+```java
+Author author = Author.builder()
+       .firstName("Stephen")
+       .lastName("King")
+       .biography("An American author of horror")
+       .build();
+```
+Как видим, нам не нужно создавать самим целый класс Builder — Lombok создаёт всё сам, достаточно добавить аннотацию. При увеличении количества классов, для которых нужно создавать Builder, Lombok экономит всё больше времени.
+
+Если необходимо переопределить метод toString(), можно использовать аннотацию @ToString, при этом свойством exclude можно указать поля, которые не нужно включать в метод toString().
+
+```java
+@ToString(exclude = {"biography"})
+public class Author {
+   private String firstName;
+   private String lastName;
+   private String biography;
+}
+```
+
+Класс Author после компиляции:
+
+```java
+public class Author {
+   private String firstName;
+   private String lastName;
+   private String biography;
+
+   public Author() {
+   }
+
+   public String toString() {
+       return "Author(firstName=" + this.firstName + ", lastName=" + this.lastName + ")";
+   }
+}
+```
+Как видим, поле biography не включено в метод toString().
+
+Чтобы переопределить equals() и hashcode(), достаточно аннотировать класс аннотацией @EqualsAndHashCode.
+
+```java
+@EqualsAndHashCode(exclude = {"biography"})
+public class Author {
+   private String firstName;
+   private String lastName;
+   private String biography;
+}
+```
+При компиляции Lombok создаст методы equals() и hashcode() в классе Author в следующем виде:
+
+```java
+public class Author {
+   private String firstName;
+   private String lastName;
+   private String biography;
+
+   public Author() {
+   }
+
+   public boolean equals(Object o) {
+       if (o == this) {
+           return true;
+       } else if (!(o instanceof Author)) {
+           return false;
+       } else {
+           Author other = (Author)o;
+           if (!other.canEqual(this)) {
+               return false;
+           } else {
+               Object this$firstName = this.firstName;
+               Object other$firstName = other.firstName;
+               if (this$firstName == null) {
+                   if (other$firstName != null) {
+                       return false;
+                   }
+               } else if (!this$firstName.equals(other$firstName)) {
+                   return false;
+               }
+
+               Object this$lastName = this.lastName;
+               Object other$lastName = other.lastName;
+               if (this$lastName == null) {
+                   if (other$lastName != null) {
+                       return false;
+                   }
+               } else if (!this$lastName.equals(other$lastName)) {
+                   return false;
+               }
+
+               return true;
+           }
+       }
+   }
+
+   protected boolean canEqual(Object other) {
+       return other instanceof Author;
+   }
+
+   public int hashCode() {
+       int PRIME = true;
+       int result = 1;
+       Object $firstName = this.firstName;
+       int result = result * 59 + ($firstName == null ? 43 : $firstName.hashCode());
+       Object $lastName = this.lastName;
+       result = result * 59 + ($lastName == null ? 43 : $lastName.hashCode());
+       return result;
+   }
+}
+```
+Если в equals() и hashcode() нужно включить не все поля класса, то можно класс аннотировать @EqualsAndHashCode с указанием свойства onlyExplicitlyIncluded = true, и каждое поле, которое нужно включить в методы, аннотировать @EqualsAndHashCode.Include.
+
+```java
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+public class Author {
+
+   @EqualsAndHashCode.Include
+   private String firstName;
+ 
+   @EqualsAndHashCode.Include
+   private String lastName;
+   private String biography;
+}
+```
+
+Рассмотрим еще две аннотации Lombok: @Data и @Value.
+
+Аннотация @Data включает в себя все аннотации: @Getter, @Setter, @RequiredArgsConstructor, @ToString, @EqualsAndHashCode. Достаточно аннотировать класс @Data, и Lombok создаст всё то же самое, что и при аннотировании класса вышеперечисленными аннотациями.
+
+Как видите, одна аннотация сильно упрощает жизнь, заменяя несколько строк кода в каждом классе, особенно если таких классов не два, а несколько десятков.
+
+Аннотация @Value аналогична @Data, за исключением того, что все поля по умолчанию являются закрытыми, и final, Setter при этом не создаются. Т.е. объект, аннотированный @Value, сразу становится неизменяемым.
 
 
